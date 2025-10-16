@@ -1,0 +1,226 @@
+/* Modern Professional Template Styles */
+:root {
+  --primary-color: #2563eb;
+  --secondary-color: #1e40af;
+  --text-color: #111827;
+  --text-light: #4b5563;
+  --background-color: #ffffff;
+  --section-border: #e5e7eb;
+  --highlight-bg: #f3f4f6;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text-color);
+  line-height: 1.6;
+  background-color: var(--background-color);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.resume-container {
+  max-width: 8.5in;
+  margin: 0 auto;
+  padding: 0.75in;
+}
+
+/* Header Styles */
+.resume-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.name {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+}
+
+.title {
+  font-size: 1.15rem;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-align: right;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.contact-item i {
+  color: var(--primary-color);
+  font-size: 0.9rem;
+}
+
+/* Section Styles */
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  position: relative;
+  display: inline-block;
+}
+
+.section-title::after {
+  content: '';
+  display: block;
+  height: 3px;
+  background-color: var(--primary-color);
+  width: 100%;
+  position: absolute;
+  bottom: -0.35rem;
+}
+
+section {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--section-border);
+}
+
+/* Experience & Education Styles */
+.experience-item, .education-item, .project-item {
+  margin-bottom: 1.25rem;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.item-header h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.date {
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+
+.location, .institution {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.responsibilities, .achievements {
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.responsibilities li, .achievements li {
+  font-size: 0.95rem;
+  margin-bottom: 0.35rem;
+}
+
+/* Skills Styles */
+.skills-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.category-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.skill-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.skill-item {
+  background-color: var(--highlight-bg);
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Projects Styles */
+.project-description {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.project-tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.tech-item {
+  background-color: var(--highlight-bg);
+  color: var(--primary-color);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.project-link {
+  color: var(--primary-color);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+/* Certifications Styles */
+.certifications-list {
+  list-style-type: none;
+}
+
+.certification-item {
+  margin-bottom: 0.75rem;
+}
+
+.certification-item h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+.certification-item p {
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+
+/* Media queries for print */
+@media print {
+  .resume-container {
+    padding: 0;
+  }
+  
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

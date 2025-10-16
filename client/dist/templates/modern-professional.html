@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modern Professional Resume</title>
+  <link rel="stylesheet" href="modern-professional.css">
+</head>
+<body>
+  <div class="resume-container">
+    <header class="resume-header">
+      <div class="profile">
+        <h1 class="name">{{fullName}}</h1>
+        <p class="title">{{jobTitle}}</p>
+      </div>
+      <div class="contact-info">
+        <div class="contact-item"><i class="icon-email"></i>{{email}}</div>
+        <div class="contact-item"><i class="icon-phone"></i>{{phone}}</div>
+        <div class="contact-item"><i class="icon-location"></i>{{location}}</div>
+        {{#if linkedin}}<div class="contact-item"><i class="icon-linkedin"></i>{{linkedin}}</div>{{/if}}
+        {{#if portfolio}}<div class="contact-item"><i class="icon-globe"></i>{{portfolio}}</div>{{/if}}
+        {{#if github}}<div class="contact-item"><i class="icon-github"></i>{{github}}</div>{{/if}}
+      </div>
+    </header>
+
+    <section class="resume-summary">
+      <h2 class="section-title">Professional Summary</h2>
+      <p>{{summary}}</p>
+    </section>
+
+    <section class="resume-experience">
+      <h2 class="section-title">Work Experience</h2>
+      {{#each experience}}
+        <div class="experience-item">
+          <div class="item-header">
+            <h3>{{title}} at {{company}}</h3>
+            <span class="date">{{startDate}} - {{endDate}}</span>
+          </div>
+          <p class="location">{{location}}</p>
+          <ul class="responsibilities">
+            {{#each responsibilities}}
+              <li>{{this}}</li>
+            {{/each}}
+          </ul>
+        </div>
+      {{/each}}
+    </section>
+
+    <section class="resume-education">
+      <h2 class="section-title">Education</h2>
+      {{#each education}}
+        <div class="education-item">
+          <div class="item-header">
+            <h3>{{degree}} in {{field}}</h3>
+            <span class="date">{{startDate}} - {{endDate}}</span>
+          </div>
+          <p class="institution">{{institution}}, {{location}}</p>
+          {{#if achievements}}
+            <ul class="achievements">
+              {{#each achievements}}
+                <li>{{this}}</li>
+              {{/each}}
+            </ul>
+          {{/if}}
+        </div>
+      {{/each}}
+    </section>
+
+    <section class="resume-skills">
+      <h2 class="section-title">Skills</h2>
+      <div class="skills-container">
+        {{#each skills}}
+          <div class="skill-category">
+            <h3 class="category-title">{{category}}</h3>
+            <div class="skill-items">
+              {{#each items}}
+                <span class="skill-item">{{this}}</span>
+              {{/each}}
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    </section>
+
+    {{#if projects}}
+      <section class="resume-projects">
+        <h2 class="section-title">Projects</h2>
+        {{#each projects}}
+          <div class="project-item">
+            <div class="item-header">
+              <h3>{{name}}</h3>
+              {{#if url}}<a href="{{url}}" target="_blank" class="project-link">View Project</a>{{/if}}
+            </div>
+            <p class="project-description">{{description}}</p>
+            {{#if technologies}}
+              <div class="project-tech">
+                {{#each technologies}}
+                  <span class="tech-item">{{this}}</span>
+                {{/each}}
+              </div>
+            {{/if}}
+          </div>
+        {{/each}}
+      </section>
+    {{/if}}
+
+    {{#if certifications}}
+      <section class="resume-certifications">
+        <h2 class="section-title">Certifications</h2>
+        <ul class="certifications-list">
+          {{#each certifications}}
+            <li class="certification-item">
+              <h3>{{name}}</h3>
+              <p>{{issuer}} · {{date}}</p>
+            </li>
+          {{/each}}
+        </ul>
+      </section>
+    {{/if}}
+  </div>
+</body>
+</html>
