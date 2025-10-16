@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "name": "livecv-server",
+  "builds": [
+    {
+      "src": "vercel.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/vercel.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

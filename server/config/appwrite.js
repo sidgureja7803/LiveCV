@@ -1,4 +1,4 @@
-const { Client, Databases, Storage, Account } = require('node-appwrite');
+const { Client, Databases, Storage, Account, Users, Functions } = require('node-appwrite');
 
 // Initialize Appwrite client
 const client = new Client();
@@ -13,17 +13,24 @@ client
 const databases = new Databases(client);
 const storage = new Storage(client);
 const account = new Account(client);
+const users = new Users(client);
+const functions = new Functions(client);
 
 // Appwrite configuration constants
 const APPWRITE_CONFIG = {
-  databaseId: process.env.APPWRITE_DATABASE_ID || 'livecv-db',
+  databaseId: process.env.APPWRITE_DATABASE_ID || 'livecv-production',
   collections: {
+    users: process.env.APPWRITE_COLLECTION_USERS || 'users',
     resumes: process.env.APPWRITE_COLLECTION_RESUMES || 'resumes',
-    users: process.env.APPWRITE_COLLECTION_USERS || 'users'
+    templates: process.env.APPWRITE_COLLECTION_TEMPLATES || 'templates',
+    atsScores: process.env.APPWRITE_COLLECTION_ATS_SCORES || 'ats_scores',
+    jobMatches: process.env.APPWRITE_COLLECTION_JOB_MATCHES || 'job_matches'
   },
   buckets: {
     pdfs: process.env.APPWRITE_BUCKET_PDFS || 'resume-pdfs',
-    yamls: process.env.APPWRITE_BUCKET_YAMLS || 'resume-yamls'
+    yamls: process.env.APPWRITE_BUCKET_YAMLS || 'resume-yamls',
+    avatars: process.env.APPWRITE_BUCKET_AVATARS || 'user-avatars',
+    templates: process.env.APPWRITE_BUCKET_TEMPLATES || 'template-files'
   }
 };
 
@@ -65,6 +72,8 @@ module.exports = {
   databases,
   storage,
   account,
+  users,
+  functions,
   APPWRITE_CONFIG,
   isAppwriteConfigured,
   validateConnection
