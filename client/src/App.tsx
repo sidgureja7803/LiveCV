@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
-import Landing from './pages/Landing';
+import { LandingPage } from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
@@ -76,7 +76,7 @@ function App() {
               <Route path="/test" element={<TailwindTest />} />
               
               {/* Public routes - always accessible */}
-              <Route path="/" element={<Landing />} />
+              <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/signup" element={<Register />} />
