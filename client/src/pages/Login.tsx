@@ -82,11 +82,13 @@ const Login: React.FC = () => {
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 transition-all transform hover:scale-105 shadow-md"
             >
-              <img 
-                src="https://cdn.simpleicons.org/appwrite/FFFFFF" 
-                alt="Appwrite"
-                className="w-5 h-5"
-              />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                className="w-5 h-5 text-white fill-current"
+              >
+                <path d="M12 0L1.608 6v12L12 24l10.392-6V6L12 0zm-1.02 14.004H6.984v3.996h3.996v-3.996zm0-8.004H6.984v3.996h3.996V6zm5.016 0h-3.996v3.996h3.996V6zm0 8.004h-3.996v3.996h3.996v-3.996z" />
+              </svg>
               <span className="text-white text-sm font-semibold">Appwrite</span>
             </a>
           </div>

@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
-import { ArrowRight, Star, Users, FileText, TrendingUp, CheckCircle, Clock } from 'lucide-react';
+import { ArrowRight, Star, Users, FileText, TrendingUp, CheckCircle, Clock, FileCheck } from 'lucide-react';
 import livePreviewImage from '/images/live_preview.png';
 
 export const FirstPage = () => {
@@ -106,11 +106,34 @@ export const FirstPage = () => {
             {/* Right Column - Live Preview Image */}
             <div className="lg:w-2/5 relative">
               <div className="relative z-10 bg-gradient-to-br from-white/10 to-white/5 p-3 rounded-2xl border border-white/20 backdrop-blur-sm shadow-2xl">
-                <img 
-                  src={livePreviewImage} 
-                  alt="LiveCV Resume Preview - RenderCV" 
-                  className="rounded-xl w-full shadow-lg"
-                />
+                {/* Image with fallback */}
+                <div className="relative rounded-xl w-full overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-700">
+                  <img 
+                    src={livePreviewImage} 
+                    alt="LiveCV Resume Preview" 
+                    className="w-full h-auto object-cover z-10 relative"
+                    onError={(e) => {
+                      // If image fails to load, show the fallback
+                      e.currentTarget.style.display = 'none';
+                      const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                  {/* Fallback content */}
+                  <div 
+                    className="absolute inset-0 flex-col items-center justify-center bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 hidden"
+                    style={{minHeight: '300px'}}
+                  >
+                    <div className="flex flex-col items-center justify-center h-full space-y-4">
+                      <FileCheck className="w-16 h-16 text-indigo-600 dark:text-indigo-400" />
+                      <p className="text-lg font-medium text-center text-gray-700 dark:text-gray-300 px-6">
+                        Professional Resume Preview
+                        <br />
+                        <span className="text-sm text-gray-500 dark:text-gray-400">ATS-Optimized Templates</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
                 <div className="absolute -bottom-4 -right-4 bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 rounded-xl text-white font-bold shadow-lg transform rotate-3">
                   ATS-Optimized
                 </div>
@@ -158,11 +181,13 @@ export const FirstPage = () => {
                 rel="noopener noreferrer"
                 className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 transition-all transform hover:scale-105"
               >
-                <img 
-                  src="https://cdn.simpleicons.org/appwrite/FFFFFF" 
-                  alt="Appwrite"
-                  className="w-5 h-5"
-                />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  className="w-5 h-5 text-white fill-current"
+                >
+                  <path d="M12 0L1.608 6v12L12 24l10.392-6V6L12 0zm-1.02 14.004H6.984v3.996h3.996v-3.996zm0-8.004H6.984v3.996h3.996V6zm5.016 0h-3.996v3.996h3.996V6zm0 8.004h-3.996v3.996h3.996v-3.996z" />
+                </svg>
                 <span className="text-white text-sm font-bold">Appwrite</span>
               </a>
             </div>

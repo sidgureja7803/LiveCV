@@ -185,6 +185,10 @@ exports.renderTemplate = async (templateName, data) => {
  * Gets all available resume templates
  * @returns {Promise<Array<Object>>} Array of template objects with id and name
  */
+/**
+ * Gets all available resume templates
+ * @returns {Promise<Array<Object>>} Array of template objects with id and name
+ */
 async function getAvailableTemplates() {
   try {
     const templatesDir = path.join(__dirname, '..', 'views', 'templates');
@@ -208,3 +212,8 @@ async function getAvailableTemplates() {
     return [{ id: 'default', name: 'Default' }]; // Fallback to default template
   }
 }
+
+// Export all functions
+exports.getCurrentResumeData = getCurrentResumeData;
+exports.getDefaultResumeData = getDefaultResumeData;
+exports.getAvailableTemplates = getAvailableTemplates;

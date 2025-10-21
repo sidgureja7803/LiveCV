@@ -78,29 +78,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginWithGoogle = () => {
     try {
-      // Redirect to Google OAuth
+      // Show a message before redirecting
+      console.log('Redirecting to Google OAuth...');
+      
+      // Just try to redirect - This is a synchronous operation that will navigate away from the page
       account.createOAuth2Session(
         OAuthProvider.Google,
         `${window.location.origin}/dashboard`, // Success redirect
-        `${window.location.origin}/login` // Failure redirect
+        `${window.location.origin}/login?error=google-auth` // Failure redirect
       );
+      
+      // If we get here, something went wrong with the redirect
+      setTimeout(() => {
+        alert('Unable to redirect to Google login. Please check if Google OAuth is enabled in your Appwrite console.');
+      }, 1000);
+      
     } catch (error: any) {
       console.error('Google OAuth error:', error);
-      throw new Error(error.message || 'Google login failed');
+      alert('Failed to initialize Google login. Please make sure Google OAuth is enabled in Appwrite console.');
     }
   };
 
   const loginWithGithub = () => {
     try {
-      // Redirect to GitHub OAuth
+      // Show a message before redirecting
+      console.log('Redirecting to GitHub OAuth...');
+      
+      // Just try to redirect - This is a synchronous operation that will navigate away from the page
       account.createOAuth2Session(
         OAuthProvider.Github,
         `${window.location.origin}/dashboard`, // Success redirect
-        `${window.location.origin}/login` // Failure redirect
+        `${window.location.origin}/login?error=github-auth` // Failure redirect
       );
+      
+      // If we get here, something went wrong with the redirect
+      setTimeout(() => {
+        alert('Unable to redirect to GitHub login. Please check if GitHub OAuth is enabled in your Appwrite console.');
+      }, 1000);
+      
     } catch (error: any) {
       console.error('GitHub OAuth error:', error);
-      throw new Error(error.message || 'GitHub login failed');
+      alert('Failed to initialize GitHub login. Please make sure GitHub OAuth is enabled in Appwrite console.');
     }
   };
 

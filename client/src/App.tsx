@@ -1,10 +1,10 @@
 import React from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { LandingPage } from './pages/LandingPage';
 import Login from './pages/Login';
-import Register from './pages/Register';
+import SignupPage from './pages/SignupPage';
 import ForgotPassword from './pages/ForgotPassword';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
@@ -27,6 +27,12 @@ const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) 
   }
   
   return isAuthenticated ? element : <Navigate to="/login" state={{ from: location }} replace />;  
+};
+
+// Resume redirect component - redirects from /resume/:templateId to /builder/:templateId
+const ResumeRedirect: React.FC = () => {
+  const { templateId } = useParams<{ templateId: string }>();
+  return <Navigate to={`/builder/${templateId}`} replace />;
 };
 
 // TemplateRequiredRoute component that requires a template selection
@@ -78,8 +84,8 @@ function App() {
               {/* Public routes - always accessible */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/signup" element={<Register />} />
+              <Route path="/register" element={<SignupPage />} />
+              <Route path="/signup" element={<SignupPage />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               
               {/* Templates route - protected with authentication */}
@@ -93,7 +99,7 @@ function App() {
               <Route path="/builder" element={<Navigate to="/templates" replace />} />
               
               {/* Backwards compatibility route */}
-              <Route path="/resume/:templateId" element={<Navigate to={location => `/builder/${location.pathname.split('/resume/')[1]}`} replace />} />
+              <Route path="/resume/:templateId" element={<ResumeRedirect />} />
               
               {/* Protected routes - require authentication */}
               <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />

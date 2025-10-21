@@ -68,14 +68,24 @@ app.use(helmet({
 app.use(compression()); // Compress responses
 app.use(cors({
   origin: function(origin, callback) {
-    const allowedOrigins = [process.env.FRONTEND_URL, 'https://livecv-client.vercel.app', 'http://localhost:5173'];
+    const allowedOrigins = [
+      process.env.FRONTEND_URL, 
+      'https://livecv-client.vercel.app', 
+      'https://livecv.netlify.app', 
+      'http://localhost:5173',
+      '*'
+    ];
+    // In development, allow all origins
     if (!origin || allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      console.warn(`CORS blocked for origin: ${origin}`);
+      callback(null, true); // Allow all origins in production for now to debug issues
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Appwrite-Project', 'X-Appwrite-Key', 'X-SDK-Version']
 }));
 app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
