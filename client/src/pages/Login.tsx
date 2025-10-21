@@ -6,7 +6,7 @@ import { FileText, LogIn, AlertCircle, Sun, Moon } from 'lucide-react';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuth();
+  const { login, loginWithGoogle, loginWithGithub, isAuthenticated } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -36,12 +36,12 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen flex items-center justify-center px-4 transition-colors duration-300 ${
+    <div className={`min-h-screen flex items-center justify-center px-4 py-12 transition-colors duration-300 ${
       isDark 
         ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900'
         : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'
     }`}>
-      <div className="max-w-md w-full">
+      <div className="max-w-xl w-full">
         {/* Dark Mode Toggle */}
         <div className="flex justify-end mb-4">
           <button
@@ -93,7 +93,7 @@ const Login: React.FC = () => {
         </div>
 
         {/* Login Form */}
-        <div className={`rounded-lg shadow-2xl p-8 border ${
+        <div className={`rounded-2xl shadow-2xl p-10 border ${
           isDark 
             ? 'bg-gray-800 border-gray-700'
             : 'bg-white border-gray-200'
@@ -213,7 +213,7 @@ const Login: React.FC = () => {
             <div className="mt-6 grid grid-cols-2 gap-4">
               <button
                 type="button"
-                onClick={() => alert('Google OAuth will be implemented with Appwrite')}
+                onClick={loginWithGoogle}
                 className={`w-full flex items-center justify-center px-4 py-2 border rounded-lg shadow-sm text-sm font-medium transition-colors ${isDark 
                   ? 'bg-gray-700 border-gray-600 text-white hover:bg-gray-600' 
                   : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'}`}
@@ -228,7 +228,7 @@ const Login: React.FC = () => {
               </button>
               <button
                 type="button"
-                onClick={() => alert('GitHub OAuth will be implemented with Appwrite')}
+                onClick={loginWithGithub}
                 className={`w-full flex items-center justify-center px-4 py-2 border rounded-lg shadow-sm text-sm font-medium transition-colors ${isDark 
                   ? 'bg-gray-700 border-gray-600 text-white hover:bg-gray-600' 
                   : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'}`}

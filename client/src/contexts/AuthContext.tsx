@@ -1,12 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { account } from '../config/appwrite';
-import { Models } from 'appwrite';
+import { Models, OAuthProvider } from 'appwrite';
 
 interface AuthContextType {
   user: Models.User<Models.Preferences> | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
+  loginWithGoogle: () => void;
+  loginWithGithub: () => void;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
 }
@@ -74,11 +76,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const loginWithGoogle = () => {
+    try {
+      // Redirect to Google OAuth
+      account.createOAuth2Session(
+        OAuthProvider.Google,
+        `${window.location.origin}/dashboard`, // Success redirect
+        `${window.location.origin}/login` // Failure redirect
+      );
+    } catch (error: any) {
+      console.error('Google OAuth error:', error);
+      throw new Error(error.message || 'Google login failed');
+    }
+  };
+
+  const loginWithGithub = () => {
+    try {
+      // Redirect to GitHub OAuth
+      account.createOAuth2Session(
+        OAuthProvider.Github,
+        `${window.location.origin}/dashboard`, // Success redirect
+        `${window.location.origin}/login` // Failure redirect
+      );
+    } catch (error: any) {
+      console.error('GitHub OAuth error:', error);
+      throw new Error(error.message || 'GitHub login failed');
+    }
+  };
+
   const value = {
     user,
     loading,
     login,
     register,
+    loginWithGoogle,
+    loginWithGithub,
     logout,
     isAuthenticated: !!user
   };

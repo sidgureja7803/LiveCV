@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { ArrowRight, Star, Users, FileText, TrendingUp, CheckCircle, Clock } from 'lucide-react';
+import livePreviewImage from '/images/live_preview.png';
 
 export const FirstPage = () => {
   const navigate = useNavigate();
@@ -102,13 +103,13 @@ export const FirstPage = () => {
               </div>
             </div>
             
-            {/* Right Column - Image */}
+            {/* Right Column - Live Preview Image */}
             <div className="lg:w-2/5 relative">
-              <div className="relative z-10 bg-gradient-to-br from-white/10 to-white/5 p-2 rounded-2xl border border-white/20 backdrop-blur-sm shadow-2xl">
+              <div className="relative z-10 bg-gradient-to-br from-white/10 to-white/5 p-3 rounded-2xl border border-white/20 backdrop-blur-sm shadow-2xl">
                 <img 
-                  src="https://placehold.co/600x800/indigo/white?text=Resume+Preview" 
-                  alt="Resume preview" 
-                  className="rounded-xl w-full max-w-md mx-auto"
+                  src={livePreviewImage} 
+                  alt="LiveCV Resume Preview - RenderCV" 
+                  className="rounded-xl w-full shadow-lg"
                 />
                 <div className="absolute -bottom-4 -right-4 bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 rounded-xl text-white font-bold shadow-lg transform rotate-3">
                   ATS-Optimized
@@ -139,6 +140,32 @@ export const FirstPage = () => {
                 </div>
               </div>
             ))}
+          </div>
+          
+          {/* Powered by Appwrite Badge */}
+          <div className="flex items-center justify-center mt-12">
+            <div className={`inline-flex items-center space-x-3 px-6 py-3 rounded-xl border backdrop-blur-sm ${
+              isDark 
+                ? 'bg-gray-800/50 border-gray-700' 
+                : 'bg-white/50 border-gray-200'
+            }`}>
+              <span className={`text-sm font-medium ${
+                isDark ? 'text-gray-400' : 'text-gray-600'
+              }`}>Powered by</span>
+              <a 
+                href="https://appwrite.io" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 transition-all transform hover:scale-105"
+              >
+                <img 
+                  src="https://cdn.simpleicons.org/appwrite/FFFFFF" 
+                  alt="Appwrite"
+                  className="w-5 h-5"
+                />
+                <span className="text-white text-sm font-bold">Appwrite</span>
+              </a>
+            </div>
           </div>
         </div>
       </div>

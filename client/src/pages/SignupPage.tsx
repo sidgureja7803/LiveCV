@@ -5,7 +5,7 @@ import ThemeToggle from '../components/ThemeToggle';
 
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register, loginWithGoogle, loginWithGithub } = useAuth();
   
   // Form states
   const [formData, setFormData] = useState({
@@ -141,7 +141,7 @@ const SignupPage: React.FC = () => {
       
       {/* Right Side - Form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-4 sm:p-12 bg-white dark:bg-gray-900">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-xl">
           <div className="text-center mb-8">
             <Link to="/" className="inline-block">
               <div className="flex items-center justify-center">
@@ -358,7 +358,7 @@ const SignupPage: React.FC = () => {
             <div className="mt-6 grid grid-cols-2 gap-4">
               <button
                 type="button"
-                onClick={() => alert('Google OAuth will be implemented with Appwrite')}
+                onClick={loginWithGoogle}
                 className="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -371,7 +371,7 @@ const SignupPage: React.FC = () => {
               </button>
               <button
                 type="button"
-                onClick={() => alert('GitHub OAuth will be implemented with Appwrite')}
+                onClick={loginWithGithub}
                 className="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
               >
                 <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">

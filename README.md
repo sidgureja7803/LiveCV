@@ -1,10 +1,11 @@
-# LiveCV - Resume Builder with ATS Optimization
+# LiveCV - AI-Powered Resume Builder
 
-LiveCV is a modern resume builder application that helps job seekers create professional resumes optimized for Applicant Tracking Systems (ATS). Now powered by **RenderCV** for high-quality, Typst-based PDF generation.
+LiveCV is a modern resume builder application that helps job seekers create professional resumes optimized for Applicant Tracking Systems (ATS). Powered by **RenderCV** for high-quality PDF generation and **Appwrite** for secure cloud storage and authentication.
 
 ## Features
 
 - **RenderCV Integration**: Professional PDF generation using Typst rendering engine
+- **Appwrite Backend**: Secure cloud storage, authentication, and user management
 - **Live PDF Preview**: Real-time debounced preview as you edit
 - **Multiple Themes**: Classic, ModernCV, SB2Nov, and Engineering resume styles
 - **ATS Optimization**: Score analysis and keyword matching
@@ -12,7 +13,9 @@ LiveCV is a modern resume builder application that helps job seekers create prof
 - **Real-time Collaboration**: Socket.IO-powered live editing
 - **Dual Preview Modes**: Toggle between HTML and PDF preview
 - **Smart Caching**: In-memory PDF caching for instant previews
+- **Cloud Storage**: Resume persistence with automatic versioning
 - **Dashboard**: Manage multiple resumes with version history
+- **OAuth Integration**: Sign in with Google or GitHub via Appwrite
 
 ## Setup Instructions
 
@@ -63,18 +66,30 @@ VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key_here
 
 **Server (.env file in server directory):**
 ```
-PORT=5000
+PORT=5001
 NODE_ENV=development
-OPENAI_API_KEY=your_openai_api_key_here
-CLERK_SECRET_KEY=your_clerk_secret_key_here
-JWT_SECRET=your_jwt_secret_key_here
-FRONTEND_URL=http://localhost:5173
+FRONTEND_URL=http://localhost:3000
 
-# Optional: Appwrite for resume persistence
+# Appwrite Configuration (Required)
 APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
 APPWRITE_PROJECT_ID=your_project_id
 APPWRITE_API_KEY=your_api_key
-APPWRITE_DATABASE_ID=livecv-db
+APPWRITE_DATABASE_ID=livecv-production
+APPWRITE_COLLECTION_RESUMES=resumes
+APPWRITE_COLLECTION_USERS=users
+APPWRITE_BUCKET_PDFS=resume-pdfs
+APPWRITE_BUCKET_YAMLS=resume-yamls
+
+# Optional: OpenAI for AI features
+OPENAI_API_KEY=your_openai_api_key_here
+```
+
+**Frontend (.env file in client directory):**
+```
+VITE_API_URL=http://localhost:5001
+VITE_APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
+VITE_APPWRITE_PROJECT_ID=your_project_id
+VITE_APPWRITE_DATABASE_ID=livecv-production
 ```
 
 5. Start the development servers:
@@ -169,14 +184,176 @@ LiveCV supports real-time collaboration through Socket.IO. When multiple users a
 
 The Socket.IO connection is established in the `ResumeBuilder` component and managed through the `useSocketIo` hook.
 
-## Authentication
+## Appwrite Backend - Complete Cloud Infrastructure
 
-LiveCV uses Clerk for authentication. To set up authentication:
+LiveCV uses **Appwrite** as its complete backend infrastructure, handling:
 
-1. Create an account on [Clerk](https://clerk.dev/)
-2. Create a new application in Clerk dashboard
-3. Get your API keys (Publishable Key and Secret Key)
-4. Add them to your environment variables as described above
+### 🔐 Authentication & User Management
+- **Email/Password Authentication**: Secure user signup and login
+- **OAuth Integration**: Sign in with Google or GitHub
+- **Session Management**: Automatic session handling and token refresh
+- **User Profiles**: Store and manage user information
+
+### 💾 Database (Resume Storage)
+Appwrite Database stores all resume metadata:
+- **Collection: `resumes`**
+  - User ID (owner)
+  - Resume name
+  - Theme (classic, moderncv, etc.)
+  - YAML content
+  - PDF URL and file metadata
+  - Creation and update timestamps
+  - Content hash for change detection
+
+**Features:**
+- Document-based NoSQL database
+- Real-time queries
+- User-specific permissions (users can only access their own resumes)
+- Automatic indexing
+- Version tracking
+
+### 📦 Cloud Storage (File Management)
+Appwrite Storage handles all resume files:
+
+**Bucket: `resume-pdfs`**
+- Stores generated PDF files
+- User can download anytime
+- Secure URLs with expiration
+- File size tracking
+
+**Bucket: `resume-yamls`**
+- Stores YAML source files
+- Can regenerate PDFs from YAML
+- Enables resume editing/versioning
+- Text-based for easy storage
+
+**Features:**
+- Automatic file compression
+- CDN integration for fast delivery
+- User-specific file permissions
+- Antivirus scanning
+- Encryption at rest
+
+### 🔄 Complete Workflow with Appwrite
+
+```
+User Signs Up (Appwrite Auth)
+  ↓
+User Creates Resume (Frontend Form)
+  ↓
+Backend Generates YAML
+  ↓
+RenderCV Creates PDF
+  ↓
+Backend Saves to Appwrite:
+  ├── YAML → Storage Bucket (resume-yamls)
+  ├── PDF → Storage Bucket (resume-pdfs)
+  └── Metadata → Database (resumes collection)
+  ↓
+User Can:
+  ├── View PDF instantly (CDN URL)
+  ├── Download PDF
+  ├── Edit resume (loads from database)
+  └── Access from any device
+```
+
+### 🛡️ Security & Permissions
+
+**Document-Level Security:**
+```javascript
+Permission.read(Role.user(userId))    // Only owner can read
+Permission.update(Role.user(userId))  // Only owner can update
+Permission.delete(Role.user(userId))  // Only owner can delete
+```
+
+**Storage Security:**
+- Each file has user-specific read/write permissions
+- Files are encrypted at rest
+- Secure HTTPS URLs only
+- Optional file expiration
+
+### 📊 Key Features
+
+1. **User Resume Limit**: Each user can save their last 5 resumes
+   - Automatic cleanup of older resumes
+   - Prevents storage bloat
+   - Always shows recent work
+
+2. **Resume Versioning**: Track changes over time
+   - Content hash for change detection
+   - Update timestamps
+   - Can revert to previous versions
+
+3. **Multi-Device Access**: 
+   - Resumes stored in cloud
+   - Access from any device
+   - No data loss on logout
+
+4. **Fast Delivery**: 
+   - PDF URLs served via CDN
+   - Instant downloads
+   - Cached for performance
+
+### 🚀 Setup Appwrite
+
+1. **Create Appwrite Account**: https://cloud.appwrite.io
+2. **Create Project**: Get your Project ID
+3. **Generate API Key**: 
+   - Required scopes: `databases.*`, `storage.*`, `users.read`
+4. **Create Database**: `livecv-production`
+5. **Create Collections**:
+   - `resumes` with attributes (see APPWRITE_SETUP_GUIDE.md)
+   - `users` for additional user data
+6. **Create Storage Buckets**:
+   - `resume-pdfs` (PDF files)
+   - `resume-yamls` (YAML files)
+7. **Setup OAuth** (Optional):
+   - Enable Google OAuth
+   - Enable GitHub OAuth
+
+**Detailed Setup**: See `APPWRITE_SETUP_GUIDE.md` for step-by-step instructions
+
+### 📈 Appwrite vs Traditional Backend
+
+| Feature | Appwrite | Traditional Backend |
+|---------|----------|-------------------|
+| Setup Time | ~30 minutes | Days/weeks |
+| Authentication | Built-in OAuth | Need to implement |
+| Database | NoSQL ready | Need to setup |
+| File Storage | Built-in CDN | Need S3/storage |
+| Security | Document-level | Manual implementation |
+| Scaling | Automatic | Manual configuration |
+| Cost | Free tier available | Server costs |
+
+### 🔧 Appwrite Service Functions
+
+**Backend** (`server/services/appwriteService.js`):
+- `saveResumeMetadata()` - Save resume to database
+- `updateResumeMetadata()` - Update existing resume
+- `getResumeMetadata()` - Retrieve resume by ID
+- `listUserResumes()` - Get all user's resumes
+- `deleteResumeMetadata()` - Delete resume
+- `uploadPDF()` - Upload PDF to storage
+- `uploadYAML()` - Upload YAML to storage
+- `downloadFile()` - Download file from storage
+- `deleteFile()` - Delete file from storage
+
+**Frontend** (`client/src/contexts/AuthContext.tsx`):
+- User authentication
+- Session management
+- OAuth login (Google/GitHub)
+- User profile access
+
+### 💡 Why Appwrite?
+
+1. **Fast Development**: Pre-built auth, database, storage
+2. **Secure by Default**: Built-in encryption and permissions
+3. **Scalable**: Handles thousands of users
+4. **Cost-Effective**: Free tier for development
+5. **Developer-Friendly**: Great documentation and SDKs
+6. **Open Source**: Self-hostable if needed
+
+**LiveCV + Appwrite = Complete SaaS Application** ✨
 
 ## RenderCV YAML → Typst → PDF Pipeline
 

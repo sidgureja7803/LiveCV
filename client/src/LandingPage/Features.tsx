@@ -37,7 +37,7 @@ export const Features = () => {
     { name: 'Google', logo: 'https://cdn.simpleicons.org/google/4285F4' },
     { name: 'Microsoft', logo: 'https://cdn.simpleicons.org/microsoft/00A4EF' },
     { name: 'Amazon', logo: 'https://cdn.simpleicons.org/amazon/FF9900' },
-    { name: 'Apple', logo: 'https://cdn.simpleicons.org/apple/000000' },
+    { name: 'Apple', logo: 'https://cdn.simpleicons.org/apple/555555' },
     { name: 'Meta', logo: 'https://cdn.simpleicons.org/meta/0668E1' },
     { name: 'Netflix', logo: 'https://cdn.simpleicons.org/netflix/E50914' },
     { name: 'Tesla', logo: 'https://cdn.simpleicons.org/tesla/CC0000' },
