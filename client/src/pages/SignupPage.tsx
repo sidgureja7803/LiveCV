@@ -156,6 +156,24 @@ const SignupPage: React.FC = () => {
                 </div>
               </div>
             </Link>
+            
+            {/* Powered by Appwrite */}
+            <div className="flex items-center justify-center space-x-2 mt-4">
+              <span className="text-sm text-gray-500 dark:text-gray-400">Powered by</span>
+              <a 
+                href="https://appwrite.io" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 transition-all transform hover:scale-105 shadow-md"
+              >
+                <img 
+                  src="https://cdn.simpleicons.org/appwrite/FFFFFF" 
+                  alt="Appwrite"
+                  className="w-5 h-5"
+                />
+                <span className="text-white text-sm font-semibold">Appwrite</span>
+              </a>
+            </div>
           </div>
           
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create your account</h2>

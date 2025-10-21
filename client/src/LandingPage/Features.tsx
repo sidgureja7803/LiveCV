@@ -32,29 +32,108 @@ export const Features = () => {
     }
   ];
 
-  const companies = ['Google', 'Microsoft', 'Amazon', 'Apple', 'Meta', 'Netflix', 'Tesla', 'IBM'];
+  // Company logos with proper color coding for visibility
+  const companies = [
+    { name: 'Google', logo: 'https://cdn.simpleicons.org/google/4285F4' },
+    { name: 'Microsoft', logo: 'https://cdn.simpleicons.org/microsoft/00A4EF' },
+    { name: 'Amazon', logo: 'https://cdn.simpleicons.org/amazon/FF9900' },
+    { name: 'Apple', logo: 'https://cdn.simpleicons.org/apple/000000' },
+    { name: 'Meta', logo: 'https://cdn.simpleicons.org/meta/0668E1' },
+    { name: 'Netflix', logo: 'https://cdn.simpleicons.org/netflix/E50914' },
+    { name: 'Tesla', logo: 'https://cdn.simpleicons.org/tesla/CC0000' },
+    { name: 'IBM', logo: 'https://cdn.simpleicons.org/ibm/052FAD' },
+    { name: 'Adobe', logo: 'https://cdn.simpleicons.org/adobe/FF0000' },
+    { name: 'Intel', logo: 'https://cdn.simpleicons.org/intel/0071C5' }
+  ];
+  
+  // For dark mode, use white logos
+  const companiesDark = [
+    { name: 'Google', logo: 'https://cdn.simpleicons.org/google/FFFFFF' },
+    { name: 'Microsoft', logo: 'https://cdn.simpleicons.org/microsoft/FFFFFF' },
+    { name: 'Amazon', logo: 'https://cdn.simpleicons.org/amazon/FFFFFF' },
+    { name: 'Apple', logo: 'https://cdn.simpleicons.org/apple/FFFFFF' },
+    { name: 'Meta', logo: 'https://cdn.simpleicons.org/meta/FFFFFF' },
+    { name: 'Netflix', logo: 'https://cdn.simpleicons.org/netflix/FFFFFF' },
+    { name: 'Tesla', logo: 'https://cdn.simpleicons.org/tesla/FFFFFF' },
+    { name: 'IBM', logo: 'https://cdn.simpleicons.org/ibm/FFFFFF' },
+    { name: 'Adobe', logo: 'https://cdn.simpleicons.org/adobe/FFFFFF' },
+    { name: 'Intel', logo: 'https://cdn.simpleicons.org/intel/FFFFFF' }
+  ];
+  
+  const displayCompanies = isDark ? companiesDark : companies;
 
   return (
     <>
-      {/* Company Logos Section */}
-      <section className={`py-16 ${isDark ? 'bg-gray-800/30' : 'bg-gray-50'}`}>
+      {/* Company Logos Section - Infinite Scroll */}
+      <section className={`py-16 overflow-hidden ${isDark ? 'bg-gray-800/30' : 'bg-gray-50'}`}>
         <div className="container mx-auto px-6">
           <p className={`text-center text-sm font-bold uppercase tracking-widest mb-12 ${
             isDark ? 'text-gray-400' : 'text-gray-600'
           }`}>
             Trusted by professionals at
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-8">
-            {companies.map((company) => (
-              <div
-                key={company}
-                className={`px-8 py-4 rounded-xl font-bold text-2xl ${
-                  isDark ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'
-                } shadow-lg hover:scale-110 transition-transform`}
-              >
-                {company}
-              </div>
-            ))}
+          
+          {/* Infinite Scrolling Container */}
+          <div className="relative">
+            {/* Gradient Overlays */}
+            <div className={`absolute left-0 top-0 bottom-0 w-32 z-10 ${
+              isDark 
+                ? 'bg-gradient-to-r from-gray-800/90 to-transparent' 
+                : 'bg-gradient-to-r from-gray-50 to-transparent'
+            }`}></div>
+            <div className={`absolute right-0 top-0 bottom-0 w-32 z-10 ${
+              isDark 
+                ? 'bg-gradient-to-l from-gray-800/90 to-transparent' 
+                : 'bg-gradient-to-l from-gray-50 to-transparent'
+            }`}></div>
+            
+            {/* Scrolling Track */}
+            <div className="flex animate-scroll">
+              {/* First set of logos */}
+              {displayCompanies.map((company, index) => (
+                <div
+                  key={`first-${index}`}
+                  className={`flex-shrink-0 mx-8 px-8 py-6 rounded-2xl ${
+                    isDark ? 'bg-gray-800' : 'bg-white'
+                  } shadow-lg hover:scale-110 transition-transform duration-300 group`}
+                >
+                  <div className="flex items-center space-x-4">
+                    <img 
+                      src={company.logo} 
+                      alt={company.name}
+                      className="w-10 h-10 object-contain"
+                    />
+                    <span className={`text-xl font-bold ${
+                      isDark ? 'text-gray-200' : 'text-gray-800'
+                    }`}>
+                      {company.name}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              {/* Duplicate set for seamless loop */}
+              {displayCompanies.map((company, index) => (
+                <div
+                  key={`second-${index}`}
+                  className={`flex-shrink-0 mx-8 px-8 py-6 rounded-2xl ${
+                    isDark ? 'bg-gray-800' : 'bg-white'
+                  } shadow-lg hover:scale-110 transition-transform duration-300 group`}
+                >
+                  <div className="flex items-center space-x-4">
+                    <img 
+                      src={company.logo} 
+                      alt={company.name}
+                      className="w-10 h-10 object-contain"
+                    />
+                    <span className={`text-xl font-bold ${
+                      isDark ? 'text-gray-200' : 'text-gray-800'
+                    }`}>
+                      {company.name}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

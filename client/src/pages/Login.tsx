@@ -80,8 +80,13 @@ const Login: React.FC = () => {
               href="https://appwrite.io" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="inline-flex items-center px-2 py-1 rounded bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 transition-all transform hover:scale-105"
+              className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 transition-all transform hover:scale-105 shadow-md"
             >
+              <img 
+                src="https://cdn.simpleicons.org/appwrite/FFFFFF" 
+                alt="Appwrite"
+                className="w-5 h-5"
+              />
               <span className="text-white text-sm font-semibold">Appwrite</span>
             </a>
           </div>

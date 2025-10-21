@@ -70,16 +70,22 @@ export const FAQs = () => {
               <button
                 className={`w-full px-8 py-6 flex items-center justify-between text-left transition-all ${
                   openItem === index
-                    ? isDark ? 'bg-gray-750' : 'bg-indigo-50'
+                    ? isDark ? 'bg-gray-700' : 'bg-indigo-50'
                     : ''
                 }`}
                 onClick={() => toggleItem(index)}
               >
-                <h3 className="font-bold text-xl">{faq.question}</h3>
+                <h3 className={`font-bold text-xl ${
+                  isDark ? 'text-white' : 'text-gray-900'
+                }`}>{faq.question}</h3>
                 {openItem === index ? (
-                  <ChevronUp className={`w-6 h-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
+                  <ChevronUp className={`w-6 h-6 flex-shrink-0 ${
+                    isDark ? 'text-indigo-400' : 'text-indigo-600'
+                  }`} />
                 ) : (
-                  <ChevronDown className={`w-6 h-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
+                  <ChevronDown className={`w-6 h-6 flex-shrink-0 ${
+                    isDark ? 'text-gray-400' : 'text-gray-600'
+                  }`} />
                 )}
               </button>
               
@@ -98,9 +104,11 @@ export const FAQs = () => {
         
         {/* Still have questions */}
         <div className={`mt-16 p-8 rounded-2xl text-center max-w-2xl mx-auto ${
-          isDark ? 'bg-gray-800/50 border border-gray-700' : 'bg-indigo-50 border border-indigo-100'
+          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-indigo-50 border border-indigo-100'
         }`}>
-          <h3 className="text-2xl font-bold mb-4">Still have questions?</h3>
+          <h3 className={`text-2xl font-bold mb-4 ${
+            isDark ? 'text-white' : 'text-gray-900'
+          }`}>Still have questions?</h3>
           <p className={`mb-6 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
             Can't find the answer you're looking for? Please contact our friendly support team.
           </p>
