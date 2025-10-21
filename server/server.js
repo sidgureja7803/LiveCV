@@ -35,8 +35,30 @@ const templatesRoutes = require('./routes/templates');
 const app = express();
 const server = http.createServer(app);
 
-// Appwrite is used for all data storage - no MongoDB needed!
-console.debug('✅ Using Appwrite for database, storage, and authentication');
+// Import Appwrite configuration
+const { validateConnection, isAppwriteConfigured } = require('./config/appwrite');
+
+// Validate Appwrite is configured
+if (isAppwriteConfigured()) {
+  console.debug('✅ Using Appwrite for database, storage, and authentication');
+  
+  // Validate connection on startup
+  validateConnection()
+    .then(isConnected => {
+      if (isConnected) {
+        console.debug('✅ Appwrite connection validated successfully');
+      } else {
+        console.warn('⚠️ Appwrite connection validation failed, but server will continue');
+      }
+    })
+    .catch(error => {
+      // Catch any unexpected errors in the validation process
+      console.error('⚠️ Error during Appwrite validation:', error);
+      console.warn('⚠️ Server will continue without Appwrite validation');
+    });
+} else {
+  console.warn('⚠️ Appwrite is not configured properly, some features may not work');
+}
 
 // Set up Socket.IO with CORS
 const io = socketIo(server, {

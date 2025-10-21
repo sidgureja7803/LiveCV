@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const resumeController = require('../controllers/resumeController');
 const { verifyToken, getUser } = require('../middleware/auth');
+const { resumeUpload } = require('../middleware/fileUpload');
 
 // GET /resume/:id - Get a specific resume by ID
 router.get('/:id', getUser, resumeController.getResume);
@@ -25,7 +26,7 @@ router.put('/:id', verifyToken, resumeController.updateResume);
 router.delete('/:id', verifyToken, resumeController.deleteResume);
 
 // POST /resume/:id/upload - Upload a file to a resume
-router.post('/:id/upload', verifyToken, resumeController.uploadResumeFile);
+router.post('/:id/upload', verifyToken, resumeUpload, resumeController.uploadResumeFile);
 
 // DELETE /resume/:id/file - Delete a file from a resume
 router.delete('/:id/file', verifyToken, resumeController.deleteResumeFile);

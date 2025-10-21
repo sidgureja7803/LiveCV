@@ -57,12 +57,18 @@ async function validateConnection() {
       return false;
     }
     
-    // Try to list databases to verify connection
-    await databases.list();
-    console.log('[Appwrite] Connection validated successfully');
-    return true;
+    try {
+      // Use a simple API call that doesn't require a request body
+      // Get the health status endpoint which is a GET request
+      const response = await client.call('get', '/health');
+      console.log('[Appwrite] Connection validated successfully');
+      return true;
+    } catch (healthError) {
+      console.error('[Appwrite] Health check failed:', healthError.message || healthError);
+      return false;
+    }
   } catch (error) {
-    console.error('[Appwrite] Connection validation failed:', error.message);
+    console.error('[Appwrite] Connection validation failed:', error.message || error);
     return false;
   }
 }

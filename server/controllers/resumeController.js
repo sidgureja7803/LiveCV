@@ -6,7 +6,8 @@ const mongoose = require('mongoose');
 
 // Service imports
 const templateService = require('../services/templateService');
-const cloudinaryService = require('../services/cloudinaryService');
+const appwriteService = require('../services/appwriteService');
+const { APPWRITE_CONFIG } = require('../config/appwrite');
 
 /**
  * Get a specific resume by ID
@@ -274,13 +275,13 @@ exports.deleteResume = async (req, res) => {
       });
     }
     
-    // Delete resume file from Cloudinary if exists
-    if (resume.resumeFile && resume.resumeFile.publicId) {
+    // Delete resume file from Appwrite if exists
+    if (resume.resumeFile && resume.resumeFile.fileId) {
       try {
-        await cloudinaryService.deleteFile(resume.resumeFile.publicId);
-        console.log(`Deleted resume file with ID: ${resume.resumeFile.publicId}`);
-      } catch (cloudinaryError) {
-        console.error('Error deleting file from Cloudinary:', cloudinaryError);
+        await appwriteService.deleteFile(APPWRITE_CONFIG.buckets.pdfs, resume.resumeFile.fileId);
+        console.log(`Deleted resume file with ID: ${resume.resumeFile.fileId}`);
+      } catch (appwriteError) {
+        console.error('Error deleting file from Appwrite:', appwriteError);
         // Continue with resume deletion even if file deletion fails
       }
     }
@@ -336,25 +337,31 @@ exports.uploadResumeFile = async (req, res) => {
     }
     
     // Delete previous file if exists
-    if (resume.resumeFile && resume.resumeFile.publicId) {
+    if (resume.resumeFile && resume.resumeFile.fileId) {
       try {
-        await cloudinaryService.deleteFile(resume.resumeFile.publicId);
-        console.log(`Deleted previous resume file with ID: ${resume.resumeFile.publicId}`);
-      } catch (cloudinaryError) {
-        console.error('Error deleting previous file from Cloudinary:', cloudinaryError);
+        await appwriteService.deleteFile(APPWRITE_CONFIG.buckets.pdfs, resume.resumeFile.fileId);
+        console.log(`Deleted previous resume file with ID: ${resume.resumeFile.fileId}`);
+      } catch (appwriteError) {
+        console.error('Error deleting previous file from Appwrite:', appwriteError);
         // Continue with upload even if previous file deletion fails
       }
     }
     
-    // Upload new file
+    // Upload new file to Appwrite
     try {
-      const uploadResult = await cloudinaryService.uploadFile(req, res);
+      // Create a file buffer from the uploaded file
+      const fileBuffer = req.file.buffer;
+      const fileName = req.file.originalname;
+      
+      // Upload to Appwrite storage
+      const uploadResult = await appwriteService.uploadPDF(fileBuffer, fileName, req.clerkId);
       
       // Update resume with file information
       resume.resumeFile = {
         url: uploadResult.url,
-        publicId: uploadResult.publicId,
-        originalName: req.file.originalname,
+        fileId: uploadResult.fileId,
+        fileName: uploadResult.fileName,
+        fileSize: uploadResult.fileSize,
         fileType: req.file.mimetype,
         uploadedAt: new Date()
       };
@@ -416,16 +423,16 @@ exports.deleteResumeFile = async (req, res) => {
     }
     
     // Check if resume has a file
-    if (!resume.resumeFile || !resume.resumeFile.publicId) {
+    if (!resume.resumeFile || !resume.resumeFile.fileId) {
       return res.status(400).json({ 
         success: false, 
         message: 'No file associated with this resume' 
       });
     }
     
-    // Delete file from Cloudinary
+    // Delete file from Appwrite
     try {
-      await cloudinaryService.deleteFile(resume.resumeFile.publicId);
+      await appwriteService.deleteFile(APPWRITE_CONFIG.buckets.pdfs, resume.resumeFile.fileId);
       
       // Remove file reference from resume
       resume.resumeFile = undefined;
@@ -435,12 +442,12 @@ exports.deleteResumeFile = async (req, res) => {
         success: true,
         message: 'Resume file deleted successfully'
       });
-    } catch (cloudinaryError) {
-      console.error('Error deleting file from Cloudinary:', cloudinaryError);
+    } catch (appwriteError) {
+      console.error('Error deleting file from Appwrite:', appwriteError);
       res.status(500).json({ 
         success: false, 
         message: 'Failed to delete resume file',
-        error: cloudinaryError.message 
+        error: appwriteError.message 
       });
     }
   } catch (error) {

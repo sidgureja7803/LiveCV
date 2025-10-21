@@ -3,10 +3,13 @@ const mongoose = require('mongoose');
 // Define the schema for resume files
 const resumeFileSchema = new mongoose.Schema({
   url: { type: String, required: true },
-  publicId: { type: String, required: true },
-  originalName: { type: String, required: true },
+  fileId: { type: String, required: true },  // Appwrite file ID
+  fileName: { type: String, required: true },
+  fileSize: { type: Number },
   fileType: { type: String, required: true },
-  uploadedAt: { type: Date, default: Date.now }
+  uploadedAt: { type: Date, default: Date.now },
+  // Legacy field for backward compatibility
+  publicId: { type: String }
 });
 
 // Define the schema for education items
