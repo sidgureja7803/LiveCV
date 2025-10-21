@@ -24,9 +24,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkSession = async () => {
     try {
+      // Check if Appwrite is properly configured
+      const projectId = import.meta.env.VITE_APPWRITE_PROJECT_ID;
+      if (!projectId || projectId === '') {
+        console.warn('Appwrite not configured: Missing VITE_APPWRITE_PROJECT_ID');
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
       const currentUser = await account.get();
+      console.log('Session check: User found', currentUser);
       setUser(currentUser);
-    } catch (error) {
+    } catch (error: any) {
+      console.log('Session check: No active session', error.message);
       setUser(null);
     } finally {
       setLoading(false);
