@@ -222,7 +222,7 @@ export const Pricing = () => {
           </p>
           <button
             onClick={() => {
-              const faqSection = document.getElementById('faq');
+              const faqSection = document.getElementById('faqs');
               faqSection?.scrollIntoView({ behavior: 'smooth' });
             }}
             className={`px-8 py-3 rounded-xl font-bold ${

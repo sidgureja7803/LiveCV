@@ -46,7 +46,7 @@ export const FAQs = () => {
   };
   
   return (
-    <section id="faq" className="py-24 px-6">
+    <section id="faqs" className="py-24 px-6">
       <div className="container mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-5xl md:text-6xl font-black mb-6">

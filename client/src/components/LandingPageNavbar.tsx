@@ -51,27 +51,27 @@ export const LandingPageNavbar = () => {
 
           {/* Navigation Links - Desktop */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/#features" 
+            <a href="#features" 
               className={`font-medium hover:text-indigo-600 transition-colors ${
                 isDark ? 'text-gray-300' : 'text-gray-700'
               }`}
             >
               Features
-            </Link>
-            <Link to="/#pricing" 
+            </a>
+            <a href="#pricing" 
               className={`font-medium hover:text-indigo-600 transition-colors ${
                 isDark ? 'text-gray-300' : 'text-gray-700'
               }`}
             >
               Pricing
-            </Link>
-            <Link to="/#faqs" 
+            </a>
+            <a href="#faqs" 
               className={`font-medium hover:text-indigo-600 transition-colors ${
                 isDark ? 'text-gray-300' : 'text-gray-700'
               }`}
             >
               FAQs
-            </Link>
+            </a>
           </div>
 
           {/* RIGHT SIDE: AUTH BUTTONS - Desktop */}
@@ -175,27 +175,30 @@ export const LandingPageNavbar = () => {
           isDark ? 'border-gray-800 bg-gray-900/95' : 'border-gray-200 bg-white/95'
         }`}>
           <div className="flex flex-col space-y-3 mb-4">
-            <Link to="/#features" 
+            <a href="#features" 
+              onClick={() => setIsMobileMenuOpen(false)}
               className={`font-medium p-2 ${
                 isDark ? 'text-gray-300 hover:bg-gray-800' : 'text-gray-700 hover:bg-gray-100'
               } rounded-lg`}
             >
               Features
-            </Link>
-            <Link to="/#pricing" 
+            </a>
+            <a href="#pricing" 
+              onClick={() => setIsMobileMenuOpen(false)}
               className={`font-medium p-2 ${
                 isDark ? 'text-gray-300 hover:bg-gray-800' : 'text-gray-700 hover:bg-gray-100'
               } rounded-lg`}
             >
               Pricing
-            </Link>
-            <Link to="/#faqs" 
+            </a>
+            <a href="#faqs" 
+              onClick={() => setIsMobileMenuOpen(false)}
               className={`font-medium p-2 ${
                 isDark ? 'text-gray-300 hover:bg-gray-800' : 'text-gray-700 hover:bg-gray-100'
               } rounded-lg`}
             >
               FAQs
-            </Link>
+            </a>
           </div>
 
           {loading ? (

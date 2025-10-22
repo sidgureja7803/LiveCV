@@ -22,6 +22,7 @@
     "lucide-react": "^0.303.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.6.0",
     "react-pdf": "^10.1.0",
     "socket.io-client": "^4.7.2",
     "web-vitals": "^3.5.0"

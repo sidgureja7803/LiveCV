@@ -15,6 +15,7 @@ router.post('/register', async (req, res) => {
   try {
     const { email, password, name } = req.body;
     
+    // Request validation
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -29,8 +30,12 @@ router.post('/register', async (req, res) => {
       });
     }
     
+    // Log the request details (without password) for debugging
+    console.log(`[Auth Route] Registration attempt for email: ${email}, name: ${name || 'not provided'}`);
+    
     const result = await authService.createUser({ email, password, name });
     
+    // Send a successful response
     res.status(201).json({
       success: true,
       message: 'User created successfully',
@@ -40,12 +45,38 @@ router.post('/register', async (req, res) => {
         name: result.user.name
       }
     });
+    
+    console.log(`[Auth Route] Registration successful for ${email}`);
   } catch (error) {
     console.error('[Auth Route] Register error:', error);
-    res.status(400).json({
-      success: false,
-      error: error.message || 'Failed to create user'
-    });
+    
+    // Handle specific error cases
+    if (error.code === 409) {
+      return res.status(409).json({
+        success: false,
+        error: 'An account with this email already exists'
+      });
+    } else if (error.code === 400) {
+      // Determine specific validation error
+      let errorMessage = 'Validation error';
+      
+      if (error.message.includes('password')) {
+        errorMessage = 'Password must be at least 8 characters long';
+      } else if (error.message.includes('email')) {
+        errorMessage = 'Please provide a valid email address';
+      }
+      
+      return res.status(400).json({
+        success: false,
+        error: errorMessage
+      });
+    } else {
+      // Generic error
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to create user'
+      });
+    }
   }
 });
 
@@ -64,7 +95,18 @@ router.post('/login', async (req, res) => {
       });
     }
     
+    // Log login attempt (without password)
+    console.log(`[Auth Route] Login attempt for email: ${email}`);
+    
     const session = await authService.createEmailSession(email, password);
+    
+    // Set cookies for authentication
+    res.cookie('appwrite-session', session.$id, { 
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
     
     res.status(200).json({
       success: true,
@@ -75,12 +117,29 @@ router.post('/login', async (req, res) => {
         expire: session.expire
       }
     });
+    
+    console.log(`[Auth Route] Login successful for ${email}`);
   } catch (error) {
     console.error('[Auth Route] Login error:', error);
-    res.status(401).json({
-      success: false,
-      error: error.message || 'Invalid credentials'
-    });
+    
+    // Handle specific error cases
+    if (error.code === 401) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid email or password'
+      });
+    } else if (error.code === 429) {
+      return res.status(429).json({
+        success: false,
+        error: 'Too many login attempts. Please try again later.'
+      });
+    } else {
+      // Generic error
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Login failed'
+      });
+    }
   }
 });
 
@@ -92,10 +151,19 @@ router.post('/logout', async (req, res) => {
   try {
     await authService.deleteSession();
     
+    // Clear the auth cookie
+    res.clearCookie('appwrite-session', { 
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    });
+    
     res.status(200).json({
       success: true,
       message: 'Logout successful'
     });
+    
+    console.log('[Auth Route] Logout successful');
   } catch (error) {
     console.error('[Auth Route] Logout error:', error);
     res.status(500).json({

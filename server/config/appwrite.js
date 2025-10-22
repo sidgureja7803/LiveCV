@@ -4,10 +4,17 @@ const { Client, Databases, Storage, Account, Users, Functions } = require('node-
 const client = new Client();
 
 // Set Appwrite configuration from environment variables
+const endpoint = process.env.APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
+const projectId = process.env.APPWRITE_PROJECT_ID || '';
+const apiKey = process.env.APPWRITE_API_KEY || '';
+
 client
-  .setEndpoint(process.env.APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1')
-  .setProject(process.env.APPWRITE_PROJECT_ID || '')
-  .setKey(process.env.APPWRITE_API_KEY || '');
+  .setEndpoint(endpoint)
+  .setProject(projectId)
+  .setKey(apiKey);
+  
+// Log configuration status without exposing sensitive data
+console.log(`Appwrite Configuration:\n- Endpoint: ${endpoint}\n- Project ID: ${projectId ? '✅ Set' : '❌ Missing'}\n- API Key: ${apiKey ? '✅ Set' : '❌ Missing'}`);
 
 // Initialize Appwrite services
 const databases = new Databases(client);

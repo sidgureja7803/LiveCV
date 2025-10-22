@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { LandingPage } from './pages/LandingPage';
@@ -71,6 +72,30 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
+        {/* Toast notifications container */}
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: '#333',
+              color: '#fff',
+            },
+            success: {
+              style: {
+                background: '#10B981',
+                color: '#fff',
+              },
+            },
+            error: {
+              style: {
+                background: '#EF4444',
+                color: '#fff',
+              },
+              duration: 5000,
+            },
+          }}
+        />
         <React.Suspense fallback={
           <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-gray-800 dark:via-gray-900 dark:to-black flex items-center justify-center">
             <div className="animate-pulse text-white text-xl">Loading page...</div>

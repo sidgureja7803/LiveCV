@@ -1,12 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { account } from '../config/appwrite';
-import { Models, OAuthProvider } from 'appwrite';
+import { Models, OAuthProvider, AppwriteException } from 'appwrite';
+import { toast } from 'react-hot-toast';
 
 interface AuthContextType {
   user: Models.User<Models.Preferences> | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ success: boolean }>;
+  register: (email: string, password: string, name: string) => Promise<{ success: boolean }>;
   loginWithGoogle: () => void;
   loginWithGithub: () => void;
   logout: () => Promise<void>;
@@ -51,8 +52,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await account.createEmailPasswordSession(email, password);
       const currentUser = await account.get();
       setUser(currentUser);
+      
+      // Store authentication status in localStorage
+      localStorage.setItem('isAuthenticated', 'true');
+      sessionStorage.setItem('isAuthenticated', 'true');
+      
+      return { success: true };
     } catch (error: any) {
-      throw new Error(error.message || 'Login failed');
+      console.error('Login error:', error);
+      
+      let errorMessage = 'Login failed';
+      
+      if (error instanceof AppwriteException) {
+        // Handle specific Appwrite error codes
+        switch (error.code) {
+          case 401:
+            errorMessage = 'Invalid email or password';
+            break;
+          case 429:
+            errorMessage = 'Too many attempts. Please try again later';
+            break;
+          default:
+            errorMessage = error.message || 'Authentication error';
+        }
+      }
+      
+      toast.error(errorMessage);
+      throw new Error(errorMessage);
     }
   };
 
@@ -60,10 +86,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       // Create account
       await account.create('unique()', email, password, name);
+      
       // Automatically login after registration
       await login(email, password);
+      
+      return { success: true };
     } catch (error: any) {
-      throw new Error(error.message || 'Registration failed');
+      console.error('Registration error:', error);
+      
+      let errorMessage = 'Registration failed';
+      
+      if (error instanceof AppwriteException) {
+        // Handle specific Appwrite error codes
+        switch (error.code) {
+          case 409:
+            errorMessage = 'An account with this email already exists';
+            break;
+          case 400:
+            if (error.message.includes('password')) {
+              errorMessage = 'Password must be at least 8 characters long';
+            } else if (error.message.includes('email')) {
+              errorMessage = 'Please provide a valid email address';
+            } else {
+              errorMessage = error.message || 'Invalid registration data';
+            }
+            break;
+          default:
+            errorMessage = error.message || 'Registration failed';
+        }
+      }
+      
+      toast.error(errorMessage);
+      throw new Error(errorMessage);
     }
   };
 
@@ -71,7 +125,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await account.deleteSession('current');
       setUser(null);
+      
+      // Clear authentication status from storage
+      localStorage.removeItem('isAuthenticated');
+      sessionStorage.removeItem('isAuthenticated');
+      
+      toast.success('Logged out successfully');
     } catch (error: any) {
+      console.error('Logout error:', error);
+      toast.error('Logout failed');
       throw new Error(error.message || 'Logout failed');
     }
   };
