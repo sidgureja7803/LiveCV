@@ -11,10 +11,8 @@ import ThemeToggle from '../components/ThemeToggle';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { Moon, Sun } from 'lucide-react';
 
-// Set up the worker for PDF.js - using direct URL with https protocol
-if (!pdfjs.GlobalWorkerOptions.workerSrc) {
-  pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-}
+// Set up the worker for PDF.js - using unpkg for better compatibility
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
 const TemplateSelector: React.FC = () => {
   const navigate = useNavigate();

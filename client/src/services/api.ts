@@ -6,7 +6,7 @@ import { ResumeData } from '../types';
  */
 
 // Check for both API URL environment variables
-const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002';
 console.log('[API Service] Using API URL:', API_BASE_URL);
 
 export const API_CONFIG = {

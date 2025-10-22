@@ -5,16 +5,20 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  publicDir: 'public',
   server: {
     port: 5173,
     cors: true,
     strictPort: false,
     proxy: {
       '/api': {
-        target: 'http://localhost:5001',
+        target: 'http://localhost:5002',
         changeOrigin: true,
         secure: false
       }
+    },
+    fs: {
+      strict: false
     }
   },
   resolve: {
