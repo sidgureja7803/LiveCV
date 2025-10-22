@@ -183,6 +183,29 @@ class ApiService {
       body: JSON.stringify(resumeData),
     });
   }
+  
+  /**
+   * Save resume and generate PDF
+   * @param id Resume ID
+   * @param resumeData Resume data
+   * @param theme Optional theme name
+   * @returns Resume data and PDF info
+   */
+  async saveResumeWithPDF(id: string, resumeData: ResumeData, theme?: string): Promise<{ 
+    resume: ResumeData, 
+    pdf?: {
+      url: string;
+      fileName: string;
+      fileSize: number;
+    };
+    pdfError?: string;
+  }> {
+    const endpoint = `${API_CONFIG.endpoints.updateResume(id)}/save-with-pdf${theme ? `?theme=${theme}` : ''}`;
+    return this.makeRequest(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(resumeData),
+    });
+  }
 
   async getResume(id: string): Promise<{ resume: ResumeData }> {
     return this.makeRequest(API_CONFIG.endpoints.getResume(id));

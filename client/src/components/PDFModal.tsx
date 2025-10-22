@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { X, Download, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import { usePDF } from '../hooks/usePDF';
 
 interface PDFModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ const PDFModal: React.FC<PDFModalProps> = ({
   onDownload
 }) => {
   const [zoom, setZoom] = React.useState(100);
+  const { downloadPDF } = usePDF();
 
   // Close modal on Escape key
   useEffect(() => {
@@ -37,17 +39,29 @@ const PDFModal: React.FC<PDFModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (onDownload) {
       onDownload();
     } else {
-      // Default download behavior
-      const link = document.createElement('a');
-      link.href = pdfUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      try {
+        // Check if the URL is from Appwrite
+        if (pdfUrl.includes('appwrite') || pdfUrl.includes('/api/')) {
+          // Use our enhanced download function for Appwrite URLs
+          await downloadPDF(pdfUrl, fileName);
+        } else {
+          // Default download behavior for other URLs
+          const link = document.createElement('a');
+          link.href = pdfUrl;
+          link.download = fileName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      } catch (error) {
+        console.error('Failed to download PDF:', error);
+        // Show a simple alert for user feedback
+        alert('Failed to download PDF. Please try again.');
+      }
     }
   };
 

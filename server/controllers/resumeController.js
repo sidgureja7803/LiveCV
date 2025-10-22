@@ -244,6 +244,141 @@ exports.updateResume = async (req, res) => {
 };
 
 /**
+ * Save resume and generate PDF
+ * @route PUT /api/resume/:id/save-with-pdf
+ */
+exports.saveResumeWithPDF = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const resumeData = req.body;
+    const { theme } = req.query || {};
+    
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid resume ID format' 
+      });
+    }
+    
+    if (!resumeData) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'No resume data provided' 
+      });
+    }
+    
+    // Find resume
+    const resume = await Resume.findById(id);
+    
+    if (!resume) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Resume not found' 
+      });
+    }
+    
+    // Check ownership
+    if (resume.clerkId !== req.clerkId) {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'You do not have permission to update this resume' 
+      });
+    }
+    
+    // Update resume data
+    Object.assign(resume, resumeData);
+    resume.updatedAt = Date.now();
+    await resume.save();
+    
+    // Check if rendercvService is available
+    const { mapJsonToRenderCVYaml, validateRenderCVYaml } = require('../utils/jsonToYamlMapper');
+    const { renderResume, isRenderCVInstalled } = require('../services/rendercvService');
+    
+    // First check if RenderCV is installed
+    const renderCVAvailable = await isRenderCVInstalled();
+    if (!renderCVAvailable) {
+      return res.status(503).json({
+        success: false,
+        message: 'PDF generation is currently unavailable (RenderCV not installed)',
+        resume: resume
+      });
+    }
+
+    // Convert JSON to RenderCV YAML
+    const yamlContent = mapJsonToRenderCVYaml(resume, theme || 'classic');
+    
+    // Validate YAML
+    const validation = validateRenderCVYaml(yamlContent);
+    if (!validation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid YAML structure',
+        errors: validation.errors
+      });
+    }
+    
+    // Render PDF
+    const pdfBuffer = await renderResume(yamlContent, theme || 'classic');
+    
+    // Upload PDF to Appwrite
+    try {
+      const fileName = `${resume.personalInfo?.fullName || 'resume'}_${Date.now()}.pdf`;
+      
+      // Upload to Appwrite storage
+      const uploadResult = await appwriteService.uploadPDF(pdfBuffer, fileName, req.clerkId);
+      
+      // Update resume with file information
+      resume.resumeFile = {
+        url: uploadResult.url,
+        fileId: uploadResult.fileId,
+        fileName: uploadResult.fileName,
+        fileSize: uploadResult.fileSize,
+        fileType: 'application/pdf',
+        uploadedAt: new Date()
+      };
+      
+      await resume.save();
+      
+      // Broadcast the update to all connected clients
+      req.io?.emit('resumeUpdated', {
+        resumeId: resume._id,
+        lastUpdated: resume.updatedAt
+      });
+      
+      // Return success response with resume and PDF URL
+      res.status(200).json({ 
+        success: true, 
+        message: 'Resume updated and PDF generated successfully',
+        resume,
+        pdf: {
+          url: uploadResult.url,
+          fileName: uploadResult.fileName,
+          fileSize: uploadResult.fileSize
+        }
+      });
+    } catch (uploadError) {
+      console.error('Error uploading PDF to Appwrite:', uploadError);
+      
+      // Still return the updated resume even if PDF upload failed
+      res.status(200).json({ 
+        success: true, 
+        message: 'Resume updated but PDF generation failed',
+        resume,
+        pdfError: uploadError.message
+      });
+    }
+    
+  } catch (error) {
+    console.error('Error updating resume with PDF:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to update resume with PDF',
+      error: error.message 
+    });
+  }
+};
+
+/**
  * Delete a resume
  */
 exports.deleteResume = async (req, res) => {
@@ -374,7 +509,7 @@ exports.uploadResumeFile = async (req, res) => {
         resumeFile: resume.resumeFile
       });
     } catch (uploadError) {
-      console.error('Error uploading file to Cloudinary:', uploadError);
+      console.error('Error uploading file to Appwrite:', uploadError);
       res.status(400).json({ 
         success: false, 
         message: uploadError.message || 'Failed to upload resume file'

@@ -63,7 +63,7 @@ if (isAppwriteConfigured()) {
 // Set up Socket.IO with CORS
 const io = socketIo(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || ['https://livecv-client.vercel.app', 'http://localhost:5173', '*'],
+    origin: process.env.FRONTEND_URL || ['https://livecv-client.vercel.app', 'http://localhost:5173', 'http://localhost:5172', '*'],
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -95,6 +95,7 @@ app.use(cors({
       'https://livecv-client.vercel.app', 
       'https://livecv.netlify.app', 
       'http://localhost:5173',
+      'http://localhost:5172',
       '*'
     ];
     // In development, allow all origins

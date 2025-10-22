@@ -12,7 +12,7 @@ interface Section {
 
 interface ResumeToolbarProps {
   onDownload: () => void;
-  onSave: () => void;
+  onSave: (generatePdf?: boolean) => void;
   downloading?: boolean;
   saving?: boolean;
   sections: Section[];
@@ -68,7 +68,7 @@ const ResumeToolbar: React.FC<ResumeToolbarProps> = ({
 
             {/* Save Button */}
             <button
-              onClick={onSave}
+              onClick={() => onSave(false)}
               disabled={saving}
               className="flex items-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-all"
             >
@@ -76,6 +76,19 @@ const ResumeToolbar: React.FC<ResumeToolbarProps> = ({
               <span className="hidden md:inline">
                 {saving ? 'Saving...' : 'Save'}
               </span>
+            </button>
+            
+            {/* Save with PDF Button */}
+            <button
+              onClick={() => onSave(true)}
+              disabled={saving}
+              className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-all"
+            >
+              <FileText className={`w-5 h-5 ${saving ? 'animate-spin' : ''}`} />
+              <span className="hidden md:inline">
+                {saving ? 'Processing...' : 'Save & Generate PDF'}
+              </span>
+              <span className="md:hidden">PDF</span>
             </button>
 
             {/* Download Button - PROMINENT */}

@@ -22,6 +22,9 @@ router.post('/', verifyToken, resumeController.createResume);
 // PUT /resume/:id - Update an existing resume
 router.put('/:id', verifyToken, resumeController.updateResume);
 
+// PUT /resume/:id/save-with-pdf - Save resume and generate PDF
+router.put('/:id/save-with-pdf', verifyToken, resumeController.saveResumeWithPDF);
+
 // DELETE /resume/:id - Delete a resume
 router.delete('/:id', verifyToken, resumeController.deleteResume);
 

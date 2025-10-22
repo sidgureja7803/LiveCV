@@ -28,12 +28,27 @@ VITE_APPWRITE_PROJECT_ID=your_project_id_here
 VITE_APPWRITE_DATABASE_ID=livecv-production
 ```
 
-## 2. Appwrite Platform Configuration
+## 2. Appwrite Platform Configuration (CRITICAL - THIS FIXES 400 BAD REQUEST)
+
+### Step 1: Add Web Platform
 
 1. Log in to your [Appwrite Console](https://cloud.appwrite.io)
 2. Go to your project
-3. Navigate to **Settings** → **API Keys**
-4. Create a new API key with these permissions:
+3. Click on **"Add Platform"** button
+4. Select **"Web App"**
+5. Enter these details:
+   - **Name**: LiveCV Local Development
+   - **Hostname**: `localhost` (without http://)
+6. Click **"Add"**
+
+⚠️ **IMPORTANT**: Add BOTH ports if you're using different ports:
+   - First platform: `localhost` (this covers localhost:5172, 5173, etc.)
+   - OR add specific: `localhost:5172` and `localhost:5173`
+
+### Step 2: Configure API Keys
+
+1. Navigate to **Settings** → **API Keys**
+2. Create a new API key with these permissions:
    - users.write
    - users.read
    - documents.write
@@ -43,21 +58,24 @@ VITE_APPWRITE_DATABASE_ID=livecv-production
    - storage.read
    - storage.write
 
-5. Navigate to **Authentication** settings
-6. Make sure Email/Password authentication is enabled
-7. Configure Platform settings:
-   - Add http://localhost:5173 to the allowed platforms
-   - Enable Auth Fallback on custom domains
+### Step 3: Enable Authentication
+
+1. Navigate to **Authentication** settings
+2. Make sure **Email/Password** authentication is enabled
+3. Under **Security** settings:
+   - Enable "Email Confirmation" if you want (optional)
+   - Set password strength requirements
 
 ## 3. CORS Configuration
 
-The 400 Bad Request error is often caused by CORS issues. In your Appwrite console:
+⚠️ **This is separate from Platform configuration above**
 
-1. Go to **Settings** → **CORS**
+1. Go to **Settings** → **CORS**  
 2. Add these domains to the allowed origins:
-   - http://localhost:5173
-   - http://localhost:5001
-   - https://yourdomain.com (if you have a production domain)
+   - `http://localhost:5172`
+   - `http://localhost:5173`
+   - `http://localhost:5001`
+   - `*` (for development only, remove in production)
 
 ## 4. Testing Your Setup
 

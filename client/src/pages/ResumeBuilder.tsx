@@ -190,36 +190,84 @@ const ResumeBuilder: React.FC = () => {
     }
   };
     
-    const handleSaveResume = async () => {
-      try {
-        if (resumeId) {
-          await apiService.updateResume(resumeId, resumeData);
+    const handleSaveResume = async (generatePdf = false) => {
+    try {
+      // Show loading state
+      setIsLoading(true);
+      
+      let savedResumeId;
+      let pdfUrl;
+      
+      if (resumeId) {
+        // If we're generating PDF along with the save
+        if (generatePdf) {
+          const result = await apiService.saveResumeWithPDF(resumeId, resumeData, rendercvTheme);
+          savedResumeId = resumeId;
+          
+          // Check if PDF was generated successfully
+          if (result.pdf) {
+            pdfUrl = result.pdf.url;
+            // Trigger preview update
+            triggerPreview();
+          } else if (result.pdfError) {
+            console.error('PDF generation error:', result.pdfError);
+          }
         } else {
-          const { resume } = await apiService.createResume(resumeData, templateId || 'modern-professional');
-          setResumeId(resume._id);
+          // Just update resume without PDF
+          await apiService.updateResume(resumeId, resumeData);
+          savedResumeId = resumeId;
         }
-        alert('Resume saved successfully!');
-      } catch (error) {
-        console.error('Failed to save resume:', error);
-        alert('Failed to save resume. Please try again.');
+      } else {
+        // Create new resume
+        const { resume } = await apiService.createResume(resumeData, templateId || 'modern-professional');
+        savedResumeId = resume._id;
+        setResumeId(resume._id);
+        
+        // If we want to generate PDF immediately after creating
+        if (generatePdf && savedResumeId) {
+          const result = await apiService.saveResumeWithPDF(savedResumeId, resumeData, rendercvTheme);
+          if (result.pdf) {
+            pdfUrl = result.pdf.url;
+            // Trigger preview update
+            triggerPreview();
+          }
+        }
       }
-    };
-
+      
+      // Hide loading state
+      setIsLoading(false);
+      
+      // Show success message
+      if (generatePdf) {
+        alert('Resume saved successfully and PDF generated!');
+      } else {
+        alert('Resume saved successfully!');
+      }
+      
+      return { savedResumeId, pdfUrl };
+    } catch (error) {
+      console.error('Failed to save resume:', error);
+      setIsLoading(false);
+      alert('Failed to save resume. Please try again.');
+      return { error };
+    }
+  };
+    
     const handleReorderSections = (reorderedSections: typeof sections) => {
-      setSections(reorderedSections);
-      // TODO: Apply reordering to actual resume data
-      console.log('Sections reordered:', reorderedSections);
-    };
+    setSections(reorderedSections);
+    // TODO: Apply reordering to actual resume data
+    console.log('Sections reordered:', reorderedSections);
+  };
     
     const handleToggleSectionVisibility = (sectionId: string) => {
-      setSections(prev => prev.map(section => 
-        section.id === sectionId 
-          ? { ...section, visible: !section.visible }
-          : section
-      ));
-      // TODO: Apply visibility changes to resume rendering
-      console.log('Section visibility toggled:', sectionId);
-    };
+    setSections(prev => prev.map(section => 
+      section.id === sectionId 
+        ? { ...section, visible: !section.visible }
+        : section
+    ));
+    // TODO: Apply visibility changes to resume rendering
+    console.log('Section visibility toggled:', sectionId);
+  };
 
     const handleDownloadPdf = async () => {
       if (!resumeId) {
@@ -264,7 +312,7 @@ const ResumeBuilder: React.FC = () => {
               onDownload={handleDownloadPdf}
               onSave={handleSaveResume}
               downloading={downloading}
-              saving={false}
+              saving={isLoading}
               sections={sections}
               onReorderSections={handleReorderSections}
               onToggleSectionVisibility={handleToggleSectionVisibility}
