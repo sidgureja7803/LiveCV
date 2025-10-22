@@ -33,11 +33,30 @@ const Settings: React.FC = () => {
     setLoading(true);
     setSuccess('');
     try {
-      // TODO: Update user profile via Appwrite
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('Updating user profile...');
+      
+      // Update name if changed
+      if (name !== user?.name) {
+        await account.updateName(name);
+        console.log('Name updated successfully');
+        toast.success('Name updated successfully!');
+      }
+      
+      // Note: Email update requires additional verification in Appwrite
+      // We'll handle that separately if needed
+      
       setSuccess('Profile updated successfully!');
-    } catch (error) {
+      
+      // Refresh page to show updated data
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+      
+    } catch (error: any) {
       console.error('Failed to update profile:', error);
+      const errorMessage = error.message || 'Failed to update profile';
+      toast.error(errorMessage);
+      setSuccess('');
     } finally {
       setLoading(false);
     }
@@ -45,19 +64,37 @@ const Settings: React.FC = () => {
 
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
-      alert('Passwords do not match!');
+      toast.error('Passwords do not match!');
       return;
     }
+    
+    if (newPassword.length < 8) {
+      toast.error('Password must be at least 8 characters long');
+      return;
+    }
+    
     setLoading(true);
+    setSuccess('');
     try {
-      // TODO: Update password via Appwrite
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('Updating password...');
+      
+      // Update password in Appwrite
+      await account.updatePassword(newPassword, currentPassword);
+      
+      console.log('Password updated successfully');
+      toast.success('Password changed successfully!');
       setSuccess('Password changed successfully!');
+      
+      // Clear password fields
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-    } catch (error) {
+      
+    } catch (error: any) {
       console.error('Failed to change password:', error);
+      const errorMessage = error.message || 'Failed to change password';
+      toast.error(errorMessage);
+      setSuccess('');
     } finally {
       setLoading(false);
     }

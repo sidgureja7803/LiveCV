@@ -4,9 +4,12 @@ import { RESUME_TEMPLATES } from '../config/templates';
 import type { ResumeTemplate } from '../types/templates';
 import { Document, Page, pdfjs } from 'react-pdf';
 import Modal from '../components/Modal';
+import Sidebar from '../components/Sidebar';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import ThemeToggle from '../components/ThemeToggle';
 import LoadingOverlay from '../components/LoadingOverlay';
+import { Moon, Sun } from 'lucide-react';
 
 // Set up the worker for PDF.js - using direct URL with https protocol
 if (!pdfjs.GlobalWorkerOptions.workerSrc) {
@@ -16,6 +19,7 @@ if (!pdfjs.GlobalWorkerOptions.workerSrc) {
 const TemplateSelector: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [previewTemplate, setPreviewTemplate] = useState<ResumeTemplate | null>(null);
   const [numPages, setNumPages] = useState<number | null>(null);
@@ -70,55 +74,45 @@ const TemplateSelector: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 relative">
-      {/* Loading Overlay */}
-      <LoadingOverlay 
-        isLoading={isNavigating} 
-        message="Preparing Your Resume Builder" 
-      />
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <Link to="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <h1 className="text-2xl font-heading font-bold text-gray-900 dark:text-white">LiveCV</h1>
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              {/* Theme Toggle */}
-              <ThemeToggle />
-              
-              {/* User profile */}
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 rounded-full bg-purple-200 dark:bg-purple-800 flex items-center justify-center overflow-hidden">
-                  <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
-                    {user?.name?.[0]?.toUpperCase() || 'U'}
-                  </span>
-                </div>
-                <span className="text-sm text-gray-700 dark:text-gray-300 hidden sm:inline-block">
-                  {user?.name || 'User'}
-                </span>
-              </div>
-
-              <Link to="/dashboard" className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:underline">
-                Dashboard
-              </Link>
-            </div>
+    <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors">
+      {/* Sidebar */}
+      <Sidebar />
+      
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Loading Overlay */}
+        <LoadingOverlay 
+          isLoading={isNavigating} 
+          message="Preparing Your Resume Builder" 
+        />
+        
+        {/* Header */}
+        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm px-8 py-4">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Resume Templates
+            </h1>
+            
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-3 rounded-xl bg-white dark:bg-gray-700 shadow-md hover:shadow-lg transition-all border border-gray-200 dark:border-gray-600"
+              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {isDark ? (
+                <Sun className="w-5 h-5 text-yellow-500" />
+              ) : (
+                <Moon className="w-5 h-5 text-indigo-600" />
+              )}
+            </button>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Progress steps */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-center">
-            <ol className="flex items-center w-full max-w-3xl">
+        {/* Scrollable Content */}
+        <main className="flex-1 overflow-y-auto p-8">
+          {/* Progress steps */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-8 border border-gray-200 dark:border-gray-700">
+            <ol className="flex items-center justify-center max-w-3xl mx-auto">
               <li className={`flex items-center ${templateSelectionStep >= 1 ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'}`}>
                 <span className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
                   templateSelectionStep >= 1 ? 'border-indigo-600 dark:border-indigo-400 bg-indigo-50 dark:bg-indigo-900/30' : 'border-gray-500 dark:border-gray-600'
@@ -145,12 +139,11 @@ const TemplateSelector: React.FC = () => {
               </li>
             </ol>
           </div>
-        </div>
-      </div>
 
-      {templateSelectionStep === 1 ? (
-        /* Step 1: Template Selection */
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {/* Content */}
+          {templateSelectionStep === 1 ? (
+            /* Step 1: Template Selection */
+            <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-heading font-extrabold text-gray-900 dark:text-white mb-4">
               Choose Your Resume Template
@@ -499,6 +492,8 @@ const TemplateSelector: React.FC = () => {
           </div>
         )}
       </Modal>
+        </main>
+      </div>
     </div>
   );
 };

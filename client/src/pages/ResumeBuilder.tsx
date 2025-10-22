@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { Menu, Layers } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import ResumeEditor from '../components/ResumeEditor';
 import LiveResumeViewer from '../components/LiveResumeViewer';
 import LiveCoding from '../components/LiveCoding';
 import ResumeToolbar from '../components/ResumeToolbar';
+import ResizablePanel from '../components/ResizablePanel';
+import SectionManager from '../components/SectionManager';
 import { getTemplateById, RESUME_TEMPLATES } from '../config/templates';
 import { TemplateService } from '../services/templateService';
 import { apiService } from '../services/api';
@@ -68,9 +71,11 @@ const ResumeBuilder: React.FC = () => {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(templateId || 'modern-professional');
   const [rendercvTheme, setRendercvTheme] = useState<string>('classic');
   const [previewMode, setPreviewMode] = useState<'pdf' | 'html'>('pdf');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sectionManagerOpen, setSectionManagerOpen] = useState(false);
   
   // Section management state
-  type SectionType = 'personal' | 'summary' | 'experience' | 'education' | 'skills' | 'projects' | 'certifications';
+  type SectionType = 'personal' | 'summary' | 'experience' | 'education' | 'skills' | 'projects' | 'certifications' | 'custom';
   type Section = {
     id: string;
     name: string;
@@ -345,6 +350,23 @@ const ResumeBuilder: React.FC = () => {
     console.log('Section visibility toggled:', sectionId);
   };
 
+  const handleAddSection = (sectionType: string) => {
+    const newSection: Section = {
+      id: `${sectionType}-${Date.now()}`,
+      name: sectionType.charAt(0).toUpperCase() + sectionType.slice(1),
+      type: sectionType as SectionType,
+      visible: true,
+      order: sections.length
+    };
+    setSections(prev => [...prev, newSection]);
+    console.log('Section added:', newSection);
+  };
+
+  const handleRemoveSection = (sectionId: string) => {
+    setSections(prev => prev.filter(section => section.id !== sectionId));
+    console.log('Section removed:', sectionId);
+  };
+
     const handleDownloadPdf = async () => {
       if (!resumeId) {
         alert('Please save your resume first before downloading.');
@@ -379,7 +401,9 @@ const ResumeBuilder: React.FC = () => {
 
   return (
       <div className="flex h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
-        <Sidebar />
+        {/* Sidebar - Toggleable */}
+        {sidebarOpen && <Sidebar />}
+        
         <main className="flex-1 flex flex-col overflow-hidden">
             {isLoading && <LoadingOverlay message="Loading resume template..." />}
             
@@ -396,7 +420,26 @@ const ResumeBuilder: React.FC = () => {
             
             <header className="bg-gray-100 dark:bg-gray-800/50 shadow-sm p-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-4">
+                {/* Sidebar Toggle */}
+                <button
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  title={sidebarOpen ? 'Hide Sidebar' : 'Show Sidebar'}
+                >
+                  <Menu className="w-5 h-5" />
+                </button>
+
                 <h1 className="text-2xl font-bold">Resume Builder</h1>
+
+                {/* Section Manager Button */}
+                <button
+                  onClick={() => setSectionManagerOpen(true)}
+                  className="flex items-center space-x-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors"
+                  title="Manage Sections"
+                >
+                  <Layers className="w-4 h-4" />
+                  <span>Sections</span>
+                </button>
                 
                 {/* Preview Mode Toggle */}
                 <div className="flex items-center space-x-2 bg-gray-700 rounded-lg p-1">
@@ -499,26 +542,28 @@ const ResumeBuilder: React.FC = () => {
               </div>
             </header>
             
+            {/* Resizable Panels */}
             <div className="flex-1 flex overflow-hidden">
-                {/* Middle Column: Editor */}
-                <div className="flex-1 overflow-y-auto p-8 relative bg-gray-50 dark:bg-gray-900" style={{ flexBasis: '50%' }}>
-                  {/* LiveCoding component to enable collaborative editing */}
-                  {resumeId && (
-                    <LiveCoding 
-                      resumeId={resumeId}
-                      onResumeUpdate={(data) => setResumeData(data as ResumeData)}
+              <ResizablePanel
+                leftPanel={
+                  <div className="h-full overflow-y-auto p-8 relative bg-gray-50 dark:bg-gray-900">
+                    {/* LiveCoding component to enable collaborative editing */}
+                    {resumeId && (
+                      <LiveCoding 
+                        resumeId={resumeId}
+                        onResumeUpdate={(data) => setResumeData(data as ResumeData)}
+                      />
+                    )}
+                    
+                    <ResumeEditor 
+                      resumeData={resumeData} 
+                      onResumeChange={handleResumeUpdate}
+                      previewHtml={previewHtml}
                     />
-                  )}
-                  
-                  <ResumeEditor 
-                    resumeData={resumeData} 
-                    onResumeChange={handleResumeUpdate}
-                    previewHtml={previewHtml}
-                  />
-                </div>
-        
-                {/* Right Column: Preview */}
-                <div className="flex-1 overflow-y-auto p-8 bg-gray-100 dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700" style={{ flexBasis: '50%' }}>
+                  </div>
+                }
+                rightPanel={
+                  <div className="h-full overflow-y-auto p-8 bg-gray-100 dark:bg-gray-800">
                     <div className="sticky top-8">
                         <div className="flex justify-between items-center mb-4">
                           <h2 className="text-2xl font-bold">Resume Preview</h2>
@@ -584,8 +629,24 @@ const ResumeBuilder: React.FC = () => {
                           />
                         )}
                     </div>
-                </div>
+                  </div>
+                }
+                defaultLeftWidth={50}
+                minLeftWidth={30}
+                maxLeftWidth={70}
+              />
             </div>
+            
+            {/* Section Manager Modal */}
+            <SectionManager
+              sections={sections}
+              onReorder={handleReorderSections}
+              onToggleVisibility={handleToggleSectionVisibility}
+              onAddSection={handleAddSection}
+              onRemoveSection={handleRemoveSection}
+              isOpen={sectionManagerOpen}
+              onClose={() => setSectionManagerOpen(false)}
+            />
         </main>
     </div>
   );
