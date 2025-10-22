@@ -58,8 +58,10 @@ export function useDebouncedPreview(
     setState(prev => ({ ...prev, loading: true, error: null }));
     
     try {
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+      const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
       const url = `${apiBaseUrl}/api/render/${resumeId}/preview?theme=${theme}`;
+      
+      console.log(`[Preview] Fetching PDF from: ${url}`);
       
       const response = await fetch(url, {
         method: 'GET',
@@ -201,8 +203,10 @@ export function useDownloadPDF() {
     setError(null);
     
     try {
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+      const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
       const url = `${apiBaseUrl}/api/render/${resumeId}/download?theme=${theme}`;
+      
+      console.log(`[Download] Downloading PDF from: ${url}`);
       
       const response = await fetch(url, {
         method: 'GET',

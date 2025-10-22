@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import Sidebar from '../components/Sidebar';
+import { account } from '../config/appwrite';
+import { toast } from 'react-hot-toast';
 import { User, Lock, Bell, Shield, Moon, Sun, Save, Mail } from 'lucide-react';
 
 const Settings: React.FC = () => {

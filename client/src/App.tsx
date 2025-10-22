@@ -12,6 +12,10 @@ import NotFound from './pages/NotFound';
 import ResumeBuilder from './pages/ResumeBuilder';
 import TemplateSelector from './pages/TemplateSelector';
 import TailwindTest from './TailwindTest';
+import VerifyEmail from './pages/VerifyEmail';
+import VerifyOTP from './pages/VerifyOTP';
+import VerifyMagicURL from './pages/VerifyMagicURL';
+import VerifyMagicURLSent from './pages/VerifyMagicURLSent';
 import './App.css';
 
 // ProtectedRoute component that requires authentication
@@ -112,6 +116,12 @@ function App() {
               <Route path="/register" element={<SignupPage />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
+              
+              {/* Email verification routes */}
+              <Route path="/verify-email" element={<VerifyEmail />} />
+              <Route path="/verify-otp" element={<VerifyOTP />} />
+              <Route path="/verify-magic-url" element={<VerifyMagicURL />} />
+              <Route path="/verify-magic-url-sent" element={<VerifyMagicURLSent />} />
               
               {/* Templates route - protected with authentication */}
               <Route path="/templates" element={<ProtectedRoute element={<TemplateSelector />} />} />

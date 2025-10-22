@@ -21,6 +21,11 @@ interface AuthContextType {
   loginWithGithub: () => void;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
+  // Email verification methods
+  sendMagicURL: (email: string) => Promise<{ success: boolean; message?: string }>;
+  verifyMagicURL: (userId: string, secret: string) => Promise<{ success: boolean; message?: string }>;
+  sendEmailOTP: (email: string) => Promise<{ success: boolean; message?: string }>;
+  verifyEmailOTP: (userId: string, otp: string) => Promise<{ success: boolean; message?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -132,27 +137,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         createdAt: new Date().toISOString()
       });
       
-      // Delay briefly before login to ensure account is properly created
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Don't auto-login - user needs to verify email first
+      console.log('📧 Account created. User needs to verify email before logging in.');
       
-      try {
-        // Automatically login after registration
-        console.log('⏳ Auto-login after registration...');
-        await login(email, password);
-        console.log('✅ Auto-login successful');
-        return { success: true };
-      } catch (loginError: any) {
-        // If login fails but account was created successfully
-        console.warn('⚠️ Account created but auto-login failed:', loginError.message);
-        
-        // Return success anyway since the account was created
-        // The user can manually log in
-        return { 
-          success: true,
-          loginError: loginError.message,
-          message: 'Account created successfully but automatic login failed. Please log in manually.'
-        };
-      }
+      return { 
+        success: true,
+        message: 'Account created successfully. Please verify your email to continue.'
+      };
     } catch (error: any) {
       console.error('Registration error details:', error);
       
@@ -257,6 +248,119 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Email Verification - Magic URL
+  const sendMagicURL = async (email: string) => {
+    try {
+      console.log('📧 Sending Magic URL to:', email);
+      
+      await account.createMagicURLToken(
+        'unique()',
+        email,
+        `${window.location.origin}/verify-magic-url`
+      );
+      
+      console.log('✅ Magic URL sent successfully');
+      toast.success('Magic link sent! Check your email.');
+      
+      return { success: true, message: 'Magic link sent to your email' };
+    } catch (error: any) {
+      console.error('❌ Magic URL error:', error);
+      
+      let errorMessage = 'Failed to send magic link';
+      if (error instanceof AppwriteException) {
+        errorMessage = error.message || errorMessage;
+      }
+      
+      toast.error(errorMessage);
+      return { success: false, message: errorMessage };
+    }
+  };
+
+  const verifyMagicURL = async (userId: string, secret: string) => {
+    try {
+      console.log('🔐 Verifying Magic URL...');
+      
+      await account.createSession(userId, secret);
+      const currentUser = await account.get();
+      setUser(currentUser);
+      
+      // Store authentication status
+      localStorage.setItem('isAuthenticated', 'true');
+      sessionStorage.setItem('isAuthenticated', 'true');
+      
+      console.log('✅ Magic URL verified successfully');
+      toast.success('Email verified! You are now logged in.');
+      
+      return { success: true };
+    } catch (error: any) {
+      console.error('❌ Magic URL verification error:', error);
+      
+      let errorMessage = 'Invalid or expired magic link';
+      if (error instanceof AppwriteException) {
+        errorMessage = error.message || errorMessage;
+      }
+      
+      toast.error(errorMessage);
+      return { success: false, message: errorMessage };
+    }
+  };
+
+  // Email Verification - OTP
+  const sendEmailOTP = async (email: string) => {
+    try {
+      console.log('📧 Sending OTP to:', email);
+      
+      await account.createEmailToken(
+        'unique()',
+        email
+      );
+      
+      console.log('✅ OTP sent successfully');
+      toast.success('Verification code sent! Check your email.');
+      
+      return { success: true, message: 'OTP sent to your email' };
+    } catch (error: any) {
+      console.error('❌ OTP send error:', error);
+      
+      let errorMessage = 'Failed to send verification code';
+      if (error instanceof AppwriteException) {
+        errorMessage = error.message || errorMessage;
+      }
+      
+      toast.error(errorMessage);
+      return { success: false, message: errorMessage };
+    }
+  };
+
+  const verifyEmailOTP = async (userId: string, otp: string) => {
+    try {
+      console.log('🔐 Verifying OTP...');
+      
+      await account.createSession(userId, otp);
+      const currentUser = await account.get();
+      setUser(currentUser);
+      
+      // Store authentication status
+      localStorage.setItem('isAuthenticated', 'true');
+      sessionStorage.setItem('isAuthenticated', 'true');
+      
+      console.log('✅ OTP verified successfully');
+      toast.success('Email verified! You are now logged in.');
+      
+      return { success: true };
+    } catch (error: any) {
+      console.error('❌ OTP verification error:', error);
+      
+      let errorMessage = 'Invalid or expired verification code';
+      if (error instanceof AppwriteException) {
+        errorMessage = error.message || errorMessage;
+      }
+      
+      toast.error(errorMessage);
+      return { success: false, message: errorMessage };
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -265,7 +369,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loginWithGoogle,
     loginWithGithub,
     logout,
-    isAuthenticated: !!user
+    isAuthenticated: !!user,
+    sendMagicURL,
+    verifyMagicURL,
+    sendEmailOTP,
+    verifyEmailOTP
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -107,12 +107,88 @@ const ResumeBuilder: React.FC = () => {
   // Use download PDF hook
   const { downloading, downloadPDF } = useDownloadPDF();
   
-  // This would normally be loaded from the backend
+  // Load template data from localStorage if available (from Dashboard template selection)
   useEffect(() => {
     setIsLoading(true);
+    
     // Set the selected template based on URL param
     if (templateId) {
       setSelectedTemplateId(templateId);
+      
+      // Extract theme from URL query params
+      const urlParams = new URLSearchParams(window.location.search);
+      const themeParam = urlParams.get('template');
+      if (themeParam) {
+        setRendercvTheme(themeParam);
+      }
+    }
+    
+    // Check if there's template data in localStorage
+    const templateDataStr = localStorage.getItem('templateData');
+    if (templateDataStr) {
+      try {
+        const templateData = JSON.parse(templateDataStr);
+        console.log('📄 Loading template data from localStorage:', templateData);
+        
+        // Convert YAML data to ResumeData format
+        if (templateData.yamlData && templateData.yamlData.cv) {
+          const yamlCV = templateData.yamlData.cv;
+          
+          const convertedData: ResumeData = {
+            personalInfo: {
+              fullName: yamlCV.name || 'John Doe',
+              email: yamlCV.email || 'email@example.com',
+              phone: yamlCV.phone || '',
+              address: yamlCV.location || '',
+              linkedIn: yamlCV.social_networks?.find((n: any) => n.network === 'LinkedIn')?.username || '',
+              github: yamlCV.social_networks?.find((n: any) => n.network === 'GitHub')?.username || ''
+            },
+            summary: '',
+            experience: yamlCV.sections?.experience?.map((exp: any, index: number) => ({
+              id: String(index + 1),
+              company: exp.company || '',
+              position: exp.position || '',
+              startDate: exp.start_date || '',
+              endDate: exp.end_date || exp.date || '',
+              current: exp.end_date === 'present',
+              description: exp.highlights?.join('\n• ') || exp.summary || ''
+            })) || [],
+            education: yamlCV.sections?.education?.map((edu: any, index: number) => ({
+              id: String(index + 1),
+              institution: edu.institution || '',
+              degree: edu.degree || '',
+              fieldOfStudy: edu.area || '',
+              startDate: edu.start_date || '',
+              endDate: edu.end_date || edu.date || '',
+              gpa: edu.highlights?.find((h: string) => h.includes('GPA'))?.match(/\d\.\d/)?.[0] || ''
+            })) || [],
+            skills: yamlCV.sections?.skills?.flatMap((s: any) => 
+              s.details ? s.details.split(',').map((skill: string) => skill.trim()) : []
+            ) || [],
+            projects: yamlCV.sections?.projects?.map((proj: any, index: number) => ({
+              id: String(index + 1),
+              name: proj.name || '',
+              description: proj.summary || proj.highlights?.join(' ') || '',
+              technologies: [],
+              githubLink: proj.highlights?.find((h: string) => h.includes('GitHub')) || '',
+              liveLink: ''
+            })) || []
+          };
+          
+          console.log('✅ Converted YAML data to ResumeData:', convertedData);
+          setResumeData(convertedData);
+          
+          // Set the theme
+          if (templateData.theme) {
+            setRendercvTheme(templateData.theme);
+          }
+        }
+        
+        // Clear the localStorage after loading
+        localStorage.removeItem('templateData');
+      } catch (error) {
+        console.error('❌ Error loading template data:', error);
+      }
     }
     
     // Simulate API call delay
@@ -348,18 +424,48 @@ const ResumeBuilder: React.FC = () => {
                 
                 {/* RenderCV Theme selector (for PDF mode) */}
                 {previewMode === 'pdf' && (
-                  <div className="relative">
-                    <select 
-                      value={rendercvTheme}
-                      onChange={(e) => setRendercvTheme(e.target.value)}
-                      className="bg-gray-700 text-white py-2 px-3 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  <>
+                    <div className="relative">
+                      <select 
+                        value={rendercvTheme}
+                        onChange={(e) => setRendercvTheme(e.target.value)}
+                        className="bg-gray-700 text-white py-2 px-3 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value="classic">Classic</option>
+                        <option value="moderncv">Modern CV</option>
+                        <option value="sb2nov">SB2Nov</option>
+                        <option value="engineeringresumes">Engineering</option>
+                        <option value="engineeringclassic">Engineering Classic</option>
+                      </select>
+                    </div>
+                    
+                    {/* Compile Button */}
+                    <button
+                      onClick={() => {
+                        // Save and generate PDF
+                        handleSaveResume(true);
+                      }}
+                      disabled={pdfLoading}
+                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
                     >
-                      <option value="classic">Classic</option>
-                      <option value="moderncv">Modern CV</option>
-                      <option value="sb2nov">SB2Nov</option>
-                      <option value="engineeringresumes">Engineering</option>
-                    </select>
-                  </div>
+                      {pdfLoading ? (
+                        <>
+                          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          <span>Compiling...</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+                          </svg>
+                          <span>Compile</span>
+                        </>
+                      )}
+                    </button>
+                  </>
                 )}
                 
                 {/* HTML Template selector (for HTML mode) */}

@@ -97,20 +97,12 @@ const TemplateSelector: React.FC = () => {
               {/* User profile */}
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 rounded-full bg-purple-200 dark:bg-purple-800 flex items-center justify-center overflow-hidden">
-                  {user?.profileImageUrl ? (
-                    <img 
-                      src={user.profileImageUrl} 
-                      alt={user.fullName} 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
-                      {user?.fullName?.[0]?.toUpperCase() || 'U'}
-                    </span>
-                  )}
+                  <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
+                    {user?.name?.[0]?.toUpperCase() || 'U'}
+                  </span>
                 </div>
                 <span className="text-sm text-gray-700 dark:text-gray-300 hidden sm:inline-block">
-                  {user?.fullName || 'User'}
+                  {user?.name || 'User'}
                 </span>
               </div>
 
@@ -191,24 +183,31 @@ const TemplateSelector: React.FC = () => {
           </div>
 
           {/* Template Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 xl:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
             {filteredTemplates.map((template) => (
               <div
                 key={template.id}
-                className={`bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 overflow-hidden shadow hover:shadow-xl transition-all ${
-                  selectedTemplate?.id === template.id ? 'ring-2 ring-indigo-600 dark:ring-indigo-400' : ''
+                className={`bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 overflow-hidden shadow-lg hover:shadow-2xl transition-all cursor-pointer ${
+                  selectedTemplate?.id === template.id ? 'ring-4 ring-indigo-600 dark:ring-indigo-400' : ''
                 }`}
+                onClick={() => selectTemplate(template)}
               >
                 {/* Template Preview */}
-                <div className="aspect-w-3 aspect-h-4 bg-gray-50 dark:bg-gray-900 overflow-hidden">
+                <div className="relative bg-white dark:bg-gray-900 overflow-hidden" style={{ height: '400px' }}>
                   <img 
                     src={template.thumbnail} 
                     alt={`${template.name} template`}
-                    className="object-cover w-full h-full"
+                    className="w-full h-full object-contain p-4"
                     onError={(e) => {
+                      console.error('Failed to load template image:', template.thumbnail);
                       (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300x400?text=Template+Preview';
                     }}
                   />
+                  {selectedTemplate?.id === template.id && (
+                    <div className="absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                      Selected
+                    </div>
+                  )}
                 </div>
                 
                 {/* Template Info */}
