@@ -4,7 +4,7 @@ import { GripVertical, Plus, Trash2, Eye, EyeOff } from 'lucide-react';
 interface Section {
   id: string;
   name: string;
-  type: 'personal' | 'summary' | 'experience' | 'education' | 'skills' | 'projects' | 'certifications';
+  type: 'personal' | 'summary' | 'experience' | 'education' | 'skills' | 'projects' | 'certifications' | 'custom';
   visible: boolean;
   order: number;
 }
@@ -84,6 +84,8 @@ const DraggableSectionManager: React.FC<DraggableSectionManagerProps> = ({
         return '🚀';
       case 'certifications':
         return '🏆';
+      case 'custom':
+        return '✨';
       default:
         return '📄';
     }

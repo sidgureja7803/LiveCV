@@ -144,7 +144,7 @@ const TemplateSelector: React.FC = () => {
           {templateSelectionStep === 1 ? (
             /* Step 1: Template Selection */
             <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
+              <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-heading font-extrabold text-gray-900 dark:text-white mb-4">
               Choose Your Resume Template
             </h1>
@@ -256,10 +256,10 @@ const TemplateSelector: React.FC = () => {
               </div>
             ))}
           </div>
-        </main>
+        </div>
       ) : (
         /* Step 2: Template Confirmation */
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
@@ -353,7 +353,7 @@ const TemplateSelector: React.FC = () => {
               </div>
             </div>
           </div>
-        </main>
+        </div>
       )}
 
       {/* Preview Modal */}

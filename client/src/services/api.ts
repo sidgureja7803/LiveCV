@@ -5,7 +5,9 @@ import { ResumeData } from '../types';
  * Handles communication with the backend server
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+// Check for both API URL environment variables
+const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+console.log('[API Service] Using API URL:', API_BASE_URL);
 
 export const API_CONFIG = {
   baseUrl: API_BASE_URL,
@@ -98,16 +100,28 @@ class ApiService {
       },
     };
 
-    const response = await fetch(url, { ...defaultOptions, ...options });
+    try {
+      console.log(`[API] ${options.method || 'GET'} ${url}`);
+      const response = await fetch(url, { ...defaultOptions, ...options });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(
-        errorData?.message || `HTTP ${response.status}: ${response.statusText}`
-      );
+      if (!response.ok) {
+        let errorMessage;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData?.message || errorData?.error || `HTTP ${response.status}: ${response.statusText}`;
+          console.error(`[API Error] ${response.status}:`, errorData);
+        } catch (e) {
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+          console.error(`[API Error] ${response.status}: Could not parse error response`);
+        }
+        throw new Error(errorMessage);
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error(`[API] Request failed to ${endpoint}:`, error);
+      throw error;
     }
-
-    return response.json();
   }
 
   /**

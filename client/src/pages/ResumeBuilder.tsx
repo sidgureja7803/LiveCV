@@ -16,6 +16,15 @@ import type { ResumeData } from '../types';
 import type { ResumeTemplate } from '../types/templates';
 import LoadingOverlay from '../components/LoadingOverlay';
 
+// Section interface matching ResumeToolbar's requirements
+interface Section {
+  id: string;
+  name: string;
+  type: 'personal' | 'summary' | 'experience' | 'education' | 'skills' | 'projects' | 'certifications' | 'custom';
+  visible: boolean;
+  order: number;
+}
+
 const initialResumeData: ResumeData = {
   personalInfo: {
     fullName: 'John Doe',
@@ -75,14 +84,6 @@ const ResumeBuilder: React.FC = () => {
   const [sectionManagerOpen, setSectionManagerOpen] = useState(false);
   
   // Section management state
-  type SectionType = 'personal' | 'summary' | 'experience' | 'education' | 'skills' | 'projects' | 'certifications' | 'custom';
-  type Section = {
-    id: string;
-    name: string;
-    type: SectionType;
-    visible: boolean;
-    order: number;
-  };
   
   const [sections, setSections] = useState<Section[]>([
     { id: 'personal', name: 'Personal Information', type: 'personal', visible: true, order: 0 },
@@ -351,10 +352,13 @@ const ResumeBuilder: React.FC = () => {
   };
 
   const handleAddSection = (sectionType: string) => {
+    // Make sure type is valid for Section type
+    const validSectionType = sectionType as any; 
+    
     const newSection: Section = {
       id: `${sectionType}-${Date.now()}`,
       name: sectionType.charAt(0).toUpperCase() + sectionType.slice(1),
-      type: sectionType as SectionType,
+      type: validSectionType,
       visible: true,
       order: sections.length
     };
@@ -400,7 +404,7 @@ const ResumeBuilder: React.FC = () => {
     };
 
   return (
-      <div className="flex h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+      <div className="flex h-screen bg-white dark:bg-[#0F1218] text-gray-900 dark:text-gray-100">
         {/* Sidebar - Toggleable */}
         {sidebarOpen && <Sidebar />}
         
@@ -418,23 +422,23 @@ const ResumeBuilder: React.FC = () => {
               onToggleSectionVisibility={handleToggleSectionVisibility}
             />
             
-            <header className="bg-gray-100 dark:bg-gray-800/50 shadow-sm p-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
+            <header className="bg-white dark:bg-[#1A1D26] shadow-sm py-3 px-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-800">
               <div className="flex items-center space-x-4">
                 {/* Sidebar Toggle */}
                 <button
                   onClick={() => setSidebarOpen(!sidebarOpen)}
-                  className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                   title={sidebarOpen ? 'Hide Sidebar' : 'Show Sidebar'}
                 >
                   <Menu className="w-5 h-5" />
                 </button>
 
-                <h1 className="text-2xl font-bold">Resume Builder</h1>
+                <h1 className="text-xl font-bold">Resume Builder</h1>
 
                 {/* Section Manager Button */}
                 <button
                   onClick={() => setSectionManagerOpen(true)}
-                  className="flex items-center space-x-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors"
+                  className="flex items-center space-x-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm font-medium transition-colors"
                   title="Manage Sections"
                 >
                   <Layers className="w-4 h-4" />
@@ -442,10 +446,10 @@ const ResumeBuilder: React.FC = () => {
                 </button>
                 
                 {/* Preview Mode Toggle */}
-                <div className="flex items-center space-x-2 bg-gray-700 rounded-lg p-1">
+                <div className="flex items-center space-x-1 bg-[#252A36] dark:bg-[#121622] rounded-md p-1">
                   <button
                     onClick={() => setPreviewMode('html')}
-                    className={`px-3 py-1 rounded-md text-sm transition-colors ${
+                    className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                       previewMode === 'html' 
                         ? 'bg-indigo-600 text-white' 
                         : 'text-gray-300 hover:text-white'
@@ -455,7 +459,7 @@ const ResumeBuilder: React.FC = () => {
                   </button>
                   <button
                     onClick={() => setPreviewMode('pdf')}
-                    className={`px-3 py-1 rounded-md text-sm transition-colors ${
+                    className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                       previewMode === 'pdf' 
                         ? 'bg-indigo-600 text-white' 
                         : 'text-gray-300 hover:text-white'
@@ -472,7 +476,7 @@ const ResumeBuilder: React.FC = () => {
                       <select 
                         value={rendercvTheme}
                         onChange={(e) => setRendercvTheme(e.target.value)}
-                        className="bg-gray-700 text-white py-2 px-3 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="bg-[#252A36] dark:bg-[#121622] text-white py-1.5 px-3 rounded-md border border-gray-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm"
                       >
                         <option value="classic">Classic</option>
                         <option value="moderncv">Modern CV</option>
@@ -489,7 +493,7 @@ const ResumeBuilder: React.FC = () => {
                         handleSaveResume(true);
                       }}
                       disabled={pdfLoading}
-                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                      className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
                     >
                       {pdfLoading ? (
                         <>
@@ -501,9 +505,6 @@ const ResumeBuilder: React.FC = () => {
                         </>
                       ) : (
                         <>
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
-                          </svg>
                           <span>Compile</span>
                         </>
                       )}
@@ -517,7 +518,7 @@ const ResumeBuilder: React.FC = () => {
                     <select 
                       value={selectedTemplateId}
                       onChange={(e) => handleTemplateChange(e.target.value)}
-                      className="bg-gray-700 text-white py-2 px-3 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="bg-[#252A36] dark:bg-[#121622] text-white py-1.5 px-3 rounded-md border border-gray-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm"
                     >
                       {availableTemplates.map(template => (
                         <option key={template.id} value={template.id}>
@@ -546,7 +547,7 @@ const ResumeBuilder: React.FC = () => {
             <div className="flex-1 flex overflow-hidden">
               <ResizablePanel
                 leftPanel={
-                  <div className="h-full overflow-y-auto p-8 relative bg-gray-50 dark:bg-gray-900">
+                  <div className="h-full overflow-y-auto p-6 relative bg-white dark:bg-[#1A1D26] border-r border-gray-200 dark:border-gray-800">
                     {/* LiveCoding component to enable collaborative editing */}
                     {resumeId && (
                       <LiveCoding 
@@ -554,6 +555,11 @@ const ResumeBuilder: React.FC = () => {
                         onResumeUpdate={(data) => setResumeData(data as ResumeData)}
                       />
                     )}
+                    
+                    <div className="mb-4 ml-1">
+                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Resume Editor</h2>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Fill in your details below.</p>
+                    </div>
                     
                     <ResumeEditor 
                       resumeData={resumeData} 
@@ -563,12 +569,12 @@ const ResumeBuilder: React.FC = () => {
                   </div>
                 }
                 rightPanel={
-                  <div className="h-full overflow-y-auto p-8 bg-gray-100 dark:bg-gray-800">
+                  <div className="h-full overflow-y-auto p-6 bg-white dark:bg-[#1A1D26]">
                     <div className="sticky top-8">
                         <div className="flex justify-between items-center mb-4">
-                          <h2 className="text-2xl font-bold">Resume Preview</h2>
+                          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Resume Preview</h2>
                           {previewMode === 'pdf' && lastUpdated && (
-                            <span className="text-sm text-gray-400">
+                            <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                               Updated {new Date(lastUpdated).toLocaleTimeString()}
                             </span>
                           )}
@@ -576,55 +582,54 @@ const ResumeBuilder: React.FC = () => {
                         
                         {previewMode === 'pdf' ? (
                           // PDF Preview using iframe
-                          <div className="bg-white rounded-lg overflow-hidden shadow-2xl" style={{ height: '800px' }}>
+                          <div className="bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700" style={{ height: '800px' }}>
                             {pdfError && (
-                              <div className="p-4 bg-red-100 text-red-700 border border-red-300 rounded-lg mb-4">
+                              <div className="p-4 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-300 dark:border-red-800 rounded-lg mb-4">
                                 <p className="font-bold">PDF Generation Error</p>
                                 <p className="text-sm">{pdfError}</p>
                                 <button 
                                   onClick={triggerPreview}
-                                  className="mt-2 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
+                                  className="mt-2 px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm"
                                 >
                                   Retry
                                 </button>
                               </div>
                             )}
-                            {!resumeId && !pdfUrl && (
-                              <div className="flex items-center justify-center h-full bg-gray-100">
-                                <div className="text-center text-gray-600">
-                                  <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                  </svg>
-                                  <p className="text-lg font-medium">Save your resume to see PDF preview</p>
-                                  <p className="text-sm mt-2">Click "Save Resume" to generate preview</p>
-                                </div>
-                              </div>
-                            )}
-                            {pdfUrl && (
-                              <iframe
-                                src={pdfUrl}
-                                className="w-full h-full border-0"
-                                title="PDF Preview"
+                            
+                            {pdfUrl ? (
+                              <iframe 
+                                src={pdfUrl} 
+                                className="w-full h-[calc(100vh-250px)] border-0"
+                                title="Resume Preview"
+                                data-testid="pdf-preview"
                               />
-                            )}
-                            {pdfLoading && !pdfUrl && (
-                              <div className="flex items-center justify-center h-full bg-gray-100">
-                                <div className="text-center">
-                                  <svg className="animate-spin h-12 w-12 text-indigo-600 mx-auto mb-4" viewBox="0 0 24 24">
+                            ) : pdfLoading ? (
+                              <div className="flex flex-col items-center justify-center p-12 h-[600px] bg-gray-50 dark:bg-gray-900">
+                                <div className="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mb-4">
+                                  <svg className="animate-spin h-8 w-8 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24">
                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                                   </svg>
-                                  <p className="text-gray-600">Generating PDF preview...</p>
+                                </div>
+                                <p className="text-gray-600 dark:text-gray-300 text-lg font-medium">Generating PDF preview...</p>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center justify-center p-12 h-[600px] bg-gray-50 dark:bg-gray-900">
+                                <div className="text-center">
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                  </svg>
+                                  <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">Click "Save" or "Compile" to generate PDF preview</p>
                                 </div>
                               </div>
                             )}
                           </div>
                         ) : (
-                          // HTML Preview (legacy)
+                          // HTML Preview
                           <LiveResumeViewer 
                             htmlContent={previewHtml} 
                             onDownloadPdf={handleDownloadPdf}
-                            isDownloading={false}
+                            isDownloading={downloading}
                             showUpdateIndicator={true}
                           />
                         )}

@@ -8,11 +8,12 @@ const os = require('os');
 
 const execAsync = promisify(exec);
 
-// Initialize cache with 1 hour TTL and check period of 10 minutes
+// Initialize cache with 24 hour TTL and check period of 30 minutes
 const pdfCache = new NodeCache({ 
-  stdTTL: 3600, 
-  checkperiod: 600,
-  useClones: false // Store buffers directly
+  stdTTL: 86400, // 24 hours
+  checkperiod: 1800, // 30 minutes
+  useClones: false, // Store buffers directly
+  deleteOnExpire: true // Clean up expired items
 });
 
 // Cache statistics
@@ -45,42 +46,58 @@ function generateContentHash(yamlContent, theme) {
  */
 async function renderResume(yamlContent, theme = 'classic', options = {}) {
   const startTime = Date.now();
-  cacheStats.totalRenders++;
-  
-  // Generate cache key
-  const cacheKey = generateContentHash(yamlContent, theme);
-  
-  // Check cache first
-  if (!options.bypassCache) {
-    const cachedPdf = pdfCache.get(cacheKey);
-    if (cachedPdf) {
-      cacheStats.hits++;
-      console.log(`[RenderCV Cache] HIT - Key: ${cacheKey.substring(0, 12)}...`);
-      return cachedPdf;
-    }
-  }
-  
-  cacheStats.misses++;
-  console.log(`[RenderCV Cache] MISS - Rendering new PDF...`);
-  
-  // Create temporary directory for this render
-  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'livecv-render-'));
-  const yamlPath = path.join(tempDir, 'resume.yaml');
-  const outputDir = path.join(tempDir, 'output');
+  let tempDir = null;
   
   try {
-    // Write YAML to temp file
-    await fs.writeFile(yamlPath, yamlContent, 'utf8');
+    cacheStats.totalRenders++;
+    
+    // Input validation
+    if (!yamlContent || typeof yamlContent !== 'string') {
+      throw new Error('Invalid YAML content provided');
+    }
+    
+    if (!theme || typeof theme !== 'string') {
+      console.warn('[RenderCV] Invalid theme, falling back to classic');
+      theme = 'classic';
+    }
+    
+    // Generate cache key
+    const cacheKey = generateContentHash(yamlContent, theme);
+    
+    // Check cache first
+    if (!options.bypassCache) {
+      const cachedPdf = pdfCache.get(cacheKey);
+      if (cachedPdf) {
+        cacheStats.hits++;
+        console.log(`[RenderCV Cache] HIT - Key: ${cacheKey.substring(0, 12)}...`);
+        return cachedPdf;
+      }
+    }
+    
+    cacheStats.misses++;
+    console.log(`[RenderCV Cache] MISS - Rendering new PDF for theme: ${theme}...`);
+    
+    // Create temporary directory for this render
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'livecv-render-'));
+    const yamlPath = path.join(tempDir, 'resume.yaml');
+    const outputDir = path.join(tempDir, 'output');
+    
+    // Create output directory
+    await fs.mkdir(outputDir, { recursive: true });
+    
+    // Write sanitized YAML to temp file
+    const sanitizedYaml = sanitizeYamlContent(yamlContent);
+    await fs.writeFile(yamlPath, sanitizedYaml, 'utf8');
     
     // Execute RenderCV command with timeout
-    const timeoutMs = options.timeout || 30000; // 30 seconds default
+    const timeoutMs = options.timeout || 45000; // 45 seconds default
     const renderCommand = `rendercv render "${yamlPath}" --output-dir "${outputDir}"`;
     
     console.log(`[RenderCV] Executing: ${renderCommand}`);
     
     const { stdout, stderr } = await execAsync(renderCommand, {
       timeout: timeoutMs,
-      maxBuffer: 10 * 1024 * 1024 // 10MB buffer
+      maxBuffer: 15 * 1024 * 1024 // 15MB buffer
     });
     
     if (stderr && !stderr.includes('Warning')) {
@@ -98,6 +115,11 @@ async function renderResume(yamlContent, theme = 'classic', options = {}) {
     const pdfPath = path.join(outputDir, pdfFile);
     const pdfBuffer = await fs.readFile(pdfPath);
     
+    // Verify PDF buffer is valid
+    if (!pdfBuffer || pdfBuffer.length < 100) {
+      throw new Error('Generated PDF appears to be invalid or too small');
+    }
+    
     // Cache the result
     pdfCache.set(cacheKey, pdfBuffer);
     
@@ -109,27 +131,29 @@ async function renderResume(yamlContent, theme = 'classic', options = {}) {
     console.log(`[RenderCV] Render complete in ${renderTime}ms (PDF size: ${(pdfBuffer.length / 1024).toFixed(2)} KB)`);
     
     return pdfBuffer;
-    
   } catch (error) {
     console.error('[RenderCV] Render error:', error);
     
     // Enhance error message
+    let errorMessage = 'PDF generation failed';
+    
     if (error.killed) {
-      throw new Error(`RenderCV render timeout after ${options.timeout || 30000}ms`);
+      errorMessage = `RenderCV render timeout after ${options.timeout || 45000}ms. Try again or use a simpler template.`;
+    } else if (error.code === 127 || error.message.includes('command not found')) {
+      errorMessage = 'RenderCV is not installed on the server. Please contact support.';
+    } else if (error.message) {
+      errorMessage = `PDF generation failed: ${error.message}`;
     }
     
-    if (error.code === 127 || error.message.includes('command not found')) {
-      throw new Error('RenderCV is not installed. Please install it using: pip install rendercv');
-    }
-    
-    throw new Error(`RenderCV render failed: ${error.message}`);
-    
+    throw new Error(errorMessage);
   } finally {
     // Clean up temporary files
-    try {
-      await fs.rm(tempDir, { recursive: true, force: true });
-    } catch (cleanupError) {
-      console.warn(`[RenderCV] Cleanup warning: ${cleanupError.message}`);
+    if (tempDir) {
+      try {
+        await fs.rm(tempDir, { recursive: true, force: true });
+      } catch (cleanupError) {
+        console.warn(`[RenderCV] Cleanup warning: ${cleanupError.message}`);
+      }
     }
   }
 }

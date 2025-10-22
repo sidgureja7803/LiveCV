@@ -28,9 +28,9 @@ const Sidebar: React.FC = () => {
     {
       title: 'User Details',
       links: [
-        { name: 'Personal Info', path: '#' },
-        { name: 'Education', path: '#' },
-        { name: 'Accomplishments', path: '#' },
+        { name: 'Personal Info', path: '/settings' },
+        { name: 'Experience', path: '/resume/builder' },
+        { name: 'Education', path: '/resume/builder' },
       ],
     },
   ];

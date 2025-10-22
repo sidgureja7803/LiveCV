@@ -116,7 +116,7 @@ app.use(cookieParser()); // Parse cookies
 
 // Use express-session for pending user registration data
 app.use(session({
-  secret: process.env.SESSION_SECRET || process.env.JWT_SECRET,
+  secret: process.env.SESSION_SECRET || process.env.JWT_SECRET || 'livecv-fallback-secret-key-2025',
   resave: false,
   saveUninitialized: true,
   cookie: {

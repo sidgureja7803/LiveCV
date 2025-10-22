@@ -5,7 +5,7 @@ import DraggableSectionManager from './DraggableSectionManager';
 interface Section {
   id: string;
   name: string;
-  type: 'personal' | 'summary' | 'experience' | 'education' | 'skills' | 'projects' | 'certifications';
+  type: 'personal' | 'summary' | 'experience' | 'education' | 'skills' | 'projects' | 'certifications' | 'custom';
   visible: boolean;
   order: number;
 }
