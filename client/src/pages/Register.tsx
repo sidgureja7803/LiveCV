@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { FileText, UserPlus, AlertCircle, CheckCircle, Sun, Moon } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ const Register: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [detailedError, setDetailedError] = useState<any>(null);
 
   // Redirect if already authenticated
   React.useEffect(() => {
@@ -21,6 +23,15 @@ const Register: React.FC = () => {
       navigate('/dashboard');
     }
   }, [isAuthenticated, navigate]);
+  
+  // Log debug info on mount
+  React.useEffect(() => {
+    console.log('🔍 Debug Info - Register Component:', { 
+      appwriteEndpoint: import.meta.env.VITE_APPWRITE_ENDPOINT,
+      appwriteProjectId: import.meta.env.VITE_APPWRITE_PROJECT_ID,
+      devKeyConfigured: !!import.meta.env.VITE_APPWRITE_DEV_KEY
+    });
+  }, []);
 
   const validatePassword = () => {
     if (password.length < 8) {
@@ -35,6 +46,7 @@ const Register: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setDetailedError(null);
 
     // Validate password
     const passwordError = validatePassword();
@@ -46,10 +58,39 @@ const Register: React.FC = () => {
     setLoading(true);
 
     try {
-      await register(email, password, name);
-      navigate('/dashboard');
+      console.log('⏳ Starting registration process...');
+      
+      // Add a loading message toast
+      toast.loading('Creating your account...', { id: 'registration' });
+      
+      const result = await register(email, password, name);
+      
+      console.log('✅ Registration successful!', result);
+      toast.success('Account created successfully!', { id: 'registration' });
+      
+      // Add a short delay before redirecting
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 500);
+      
     } catch (err: any) {
-      setError(err.message || 'Registration failed. Please try again.');
+      console.error('❌ Registration failed:', err);
+      setDetailedError(err);
+      
+      // Display toast error with more details
+      toast.error(err.message || 'Registration failed', { id: 'registration' });
+      
+      // Set more user-friendly error message
+      if (err.code === 429) {
+        setError('Too many attempts. Please try again later.');
+      } else if (err.code === 400) {
+        setError(err.message || 'Invalid registration data. Please check all fields.');
+      } else {
+        setError(
+          'Registration failed. Please try again or contact support. ' + 
+          (err.message || '')
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -127,7 +168,26 @@ const Register: React.FC = () => {
             {error && (
               <div className="bg-red-500/10 border border-red-500 rounded-lg p-4 flex items-start space-x-3">
                 <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-500">{error}</p>
+                <div className="flex-1">
+                  <p className="text-sm text-red-500 font-medium">{error}</p>
+                  
+                  {/* Show detailed error if available (for development) */}
+                  {detailedError && import.meta.env.DEV && (
+                    <div className="mt-2 text-xs">
+                      <details className="text-red-400">
+                        <summary className="cursor-pointer font-mono">Technical details</summary>
+                        <pre className="mt-2 p-2 bg-red-500/5 rounded overflow-auto max-h-32 text-red-300">
+                          {JSON.stringify({
+                            code: detailedError.code,
+                            type: detailedError.type,
+                            message: detailedError.message,
+                            ...(detailedError.response ? { response: detailedError.response } : {})
+                          }, null, 2)}
+                        </pre>
+                      </details>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

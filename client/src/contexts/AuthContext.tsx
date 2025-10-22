@@ -84,15 +84,72 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (email: string, password: string, name: string) => {
     try {
-      // Create account
-      await account.create('unique()', email, password, name);
+      // Using Dev Key - Log registration details for debugging
+      console.log('🔄 Registering with Dev Key:', { 
+        email, 
+        name, 
+        endpoint: import.meta.env.VITE_APPWRITE_ENDPOINT,
+        projectId: import.meta.env.VITE_APPWRITE_PROJECT_ID,
+        usingDevKey: true
+      });
       
-      // Automatically login after registration
-      await login(email, password);
+      // Generate a more specific ID with client prefix
+      const generateId = () => {
+        const timestamp = Date.now().toString(36);
+        const randomStr = Math.random().toString(36).substring(2, 10);
+        return `lcv_${timestamp}_${randomStr}`;
+      };
+      const userId = generateId();
+      console.log('Generated userId:', userId);
       
-      return { success: true };
+      try {
+        // Use specific error handling blocks to narrow down issues
+        console.log('⏳ Creating account with Appwrite...');
+        
+        // Create account with the explicit userId - WITH RETRY LOGIC
+        let accountCreated = false;
+        let attempts = 0;
+        const maxAttempts = 2;
+        
+        while (!accountCreated && attempts < maxAttempts) {
+          attempts++;
+          try {
+            await account.create(userId, email, password, name);
+            accountCreated = true;
+            console.log('✅ Account created successfully on attempt', attempts);
+          } catch (createError: any) {
+            console.error(`❌ Attempt ${attempts} failed:`, createError);
+            if (attempts >= maxAttempts) throw createError;
+            
+            // Short wait before retry
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        }
+      
+        // Delay briefly before login to ensure account is ready
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Automatically login after registration
+        console.log('⏳ Auto-login after registration...');
+        await login(email, password);
+        console.log('✅ Auto-login successful');
+        
+        return { success: true };
+      } catch (innerError: any) {
+        // More specific error handling
+        console.error('❌ Registration process failed in inner try block:', innerError);
+        throw innerError;
+      }
     } catch (error: any) {
-      console.error('Registration error:', error);
+      console.error('Registration error details:', error);
+      
+      // Log more detailed info about the error
+      if (error instanceof AppwriteException) {
+        console.error('Appwrite error code:', error.code);
+        console.error('Appwrite error type:', error.type);
+        console.error('Appwrite error message:', error.message);
+        console.error('Response:', error.response);
+      }
       
       let errorMessage = 'Registration failed';
       
@@ -111,8 +168,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               errorMessage = error.message || 'Invalid registration data';
             }
             break;
+          case 404:
+            errorMessage = 'Server configuration error. Please check Appwrite project settings.';
+            break;
           default:
-            errorMessage = error.message || 'Registration failed';
+            errorMessage = `Registration failed: ${error.message || 'Unknown error'}`;
         }
       }
       
