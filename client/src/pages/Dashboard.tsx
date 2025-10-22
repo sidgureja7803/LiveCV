@@ -19,10 +19,14 @@ interface ResumeItem {
 }
 
 interface TemplateFile {
+  id?: string;
   name: string;
   theme: string;
   pdfPath: string;
   yamlPath: string;
+  pdfUrl?: string;
+  yamlUrl?: string;
+  category?: string;
 }
 
 const Dashboard: React.FC = () => {
@@ -84,13 +88,19 @@ const Dashboard: React.FC = () => {
   const fetchTemplates = async () => {
     try {
       // Fetch template files from backend
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/templates`);
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+      console.log('📥 Fetching templates from:', `${apiUrl}/api/templates`);
+      
+      const response = await fetch(`${apiUrl}/api/templates`);
       if (response.ok) {
         const data = await response.json();
+        console.log(`✅ Loaded ${data.count || 0} templates:`, data.templates);
         setTemplates(data.templates || []);
+      } else {
+        console.error('❌ Failed to fetch templates:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('Error fetching templates:', error);
+      console.error('❌ Error fetching templates:', error);
     }
   };
 
@@ -119,6 +129,38 @@ const Dashboard: React.FC = () => {
     if (score >= 80) return 'bg-green-500';
     if (score >= 60) return 'bg-yellow-500';
     return 'bg-red-500';
+  };
+
+  const handleUseTemplate = async (template: TemplateFile) => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+      console.log('📄 Loading YAML data for template:', template.theme);
+      
+      // Fetch the YAML data for this template
+      const response = await fetch(`${apiUrl}/api/templates/yaml/${template.theme}`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ YAML data loaded:', data);
+        
+        // Store the YAML data in localStorage for the builder to use
+        localStorage.setItem('templateData', JSON.stringify({
+          theme: template.theme,
+          yamlData: data.data,
+          templateName: template.name
+        }));
+        
+        // Navigate to builder with the template
+        navigate(`/builder?template=${template.theme}`);
+      } else {
+        console.error('❌ Failed to load template data');
+        alert('Failed to load template data. Using empty template.');
+        navigate(`/builder?template=${template.theme}`);
+      }
+    } catch (error) {
+      console.error('❌ Error loading template:', error);
+      alert('Error loading template. Using empty template.');
+      navigate(`/builder?template=${template.theme}`);
+    }
   };
 
   return (
@@ -228,33 +270,46 @@ const Dashboard: React.FC = () => {
             <p className="text-gray-400 mb-6">Choose from our professional templates</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {templates.map((template, index) => (
-              <div key={index} className="bg-gray-800 rounded-lg p-4 hover:bg-gray-750 transition-all group">
-                <div className="bg-gray-700 rounded-lg h-48 mb-4 flex items-center justify-center relative overflow-hidden">
-                  <FileText className="w-16 h-16 text-indigo-500 opacity-50" />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <button
-                      onClick={() => handleViewPDF(`${import.meta.env.VITE_API_BASE_URL}/templates/${template.pdfPath}`, template.name)}
-                      className="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg"
-                      title="Preview"
-                    >
-                      <Eye className="w-5 h-5" />
-                    </button>
-                    <a
-                      href={`${import.meta.env.VITE_API_BASE_URL}/templates/${template.pdfPath}`}
-                      download
-                      className="p-2 bg-green-600 hover:bg-green-700 rounded-lg"
-                      title="Download"
-                    >
-                      <Download className="w-5 h-5" />
-                    </a>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+            {templates.length > 0 ? (
+              templates.map((template, index) => (
+                <div key={index} className="bg-gray-800 rounded-lg p-4 hover:bg-gray-750 transition-all group">
+                  <div className="bg-gray-700 rounded-lg h-48 mb-4 flex items-center justify-center relative overflow-hidden">
+                    <FileText className="w-16 h-16 text-indigo-500 opacity-50" />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      <button
+                        onClick={() => handleViewPDF(template.pdfUrl || '', template.name)}
+                        className="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg"
+                        title="Preview"
+                      >
+                        <Eye className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleUseTemplate(template)}
+                        className="p-2 bg-green-600 hover:bg-green-700 rounded-lg"
+                        title="Use Template"
+                      >
+                        <Plus className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
+                  <h4 className="font-semibold mb-1 truncate">{template.name}</h4>
+                  <p className="text-xs text-gray-400 mb-2">Theme: {template.theme}</p>
+                  <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                    template.category === 'modern' ? 'bg-blue-600/20 text-blue-400' :
+                    template.category === 'professional' ? 'bg-green-600/20 text-green-400' :
+                    'bg-purple-600/20 text-purple-400'
+                  }`}>
+                    {template.category}
+                  </span>
                 </div>
-                <h4 className="font-semibold mb-1 truncate">{template.name}</h4>
-                <p className="text-xs text-gray-400">Theme: {template.theme}</p>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12 text-gray-400">
+                <FileText className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <p>No templates available. Please check your backend connection.</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </main>

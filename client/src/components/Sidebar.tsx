@@ -1,8 +1,21 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { LogOut, Settings, User } from 'lucide-react';
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const navItems = [
     {
@@ -71,6 +84,37 @@ const Sidebar: React.FC = () => {
             </div>
           ))}
         </nav>
+      </div>
+
+      {/* User Profile and Logout Section */}
+      <div className="border-t border-gray-700 pt-4">
+        <div className="flex items-center space-x-3 px-4 py-3 mb-2">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
+            <User className="w-6 h-6 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-white truncate">{user?.name || 'User'}</p>
+            <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+          </div>
+        </div>
+        
+        <div className="space-y-1">
+          <Link
+            to="/settings"
+            className="flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"
+          >
+            <Settings className="w-5 h-5" />
+            <span>Settings</span>
+          </Link>
+          
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-400 hover:bg-red-600/20 hover:text-red-400 transition-colors"
+          >
+            <LogOut className="w-5 h-5" />
+            <span>Logout</span>
+          </button>
+        </div>
       </div>
     </aside>
   );

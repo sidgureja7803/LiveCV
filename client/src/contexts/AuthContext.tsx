@@ -3,11 +3,20 @@ import { account } from '../config/appwrite';
 import { Models, OAuthProvider, AppwriteException } from 'appwrite';
 import { toast } from 'react-hot-toast';
 
+// Define types for auth operations
+type LoginResult = { success: boolean };
+
+type RegisterResult = { 
+  success: boolean; 
+  loginError?: string; 
+  message?: string;
+};
+
 interface AuthContextType {
   user: Models.User<Models.Preferences> | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean }>;
-  register: (email: string, password: string, name: string) => Promise<{ success: boolean }>;
+  login: (email: string, password: string) => Promise<LoginResult>;
+  register: (email: string, password: string, name: string) => Promise<RegisterResult>;
   loginWithGoogle: () => void;
   loginWithGithub: () => void;
   logout: () => Promise<void>;
@@ -30,17 +39,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Check if Appwrite is properly configured
       const projectId = import.meta.env.VITE_APPWRITE_PROJECT_ID;
       if (!projectId || projectId === '') {
-        console.warn('Appwrite not configured: Missing VITE_APPWRITE_PROJECT_ID');
+        console.warn('⚠️ Appwrite not configured: Missing VITE_APPWRITE_PROJECT_ID');
         setUser(null);
         setLoading(false);
         return;
       }
 
-      const currentUser = await account.get();
-      console.log('Session check: User found', currentUser);
-      setUser(currentUser);
+      // Let's add debug info to help diagnose issues
+      console.log('🔍 Checking session with Appwrite...', {
+        endpoint: import.meta.env.VITE_APPWRITE_ENDPOINT,
+        projectId
+      });
+
+      try {
+        const currentUser = await account.get();
+        console.log('✅ Session check: User found', currentUser);
+        setUser(currentUser);
+      } catch (sessionError: any) {
+        // Handle 401 errors gracefully (expected when not logged in)
+        if (sessionError?.code === 401 || sessionError?.response?.code === 401) {
+          console.log('ℹ️ No active session - User not logged in');
+        } else {
+          console.error('❌ Session check failed with unexpected error:', sessionError);
+        }
+        setUser(null);
+      }
     } catch (error: any) {
-      console.log('Session check: No active session', error.message);
+      console.error('❌ Session check: Unexpected error', error);
       setUser(null);
     } finally {
       setLoading(false);
@@ -84,61 +109,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (email: string, password: string, name: string) => {
     try {
-      // Using Dev Key - Log registration details for debugging
-      console.log('🔄 Registering with Dev Key:', { 
+      // Log registration attempt with detailed info
+      console.log('🔄 Registration attempt:', { 
         email, 
         name, 
-        endpoint: import.meta.env.VITE_APPWRITE_ENDPOINT,
-        projectId: import.meta.env.VITE_APPWRITE_PROJECT_ID,
-        usingDevKey: true
+        endpoint: import.meta.env.VITE_APPWRITE_ENDPOINT || 'https://nyc.cloud.appwrite.io/v1',
+        projectId: import.meta.env.VITE_APPWRITE_PROJECT_ID || '68e970330382476bf61'
       });
       
-      // Generate a more specific ID with client prefix
-      const generateId = () => {
-        const timestamp = Date.now().toString(36);
-        const randomStr = Math.random().toString(36).substring(2, 10);
-        return `lcv_${timestamp}_${randomStr}`;
-      };
-      const userId = generateId();
-      console.log('Generated userId:', userId);
+      // Use 'unique()' - this is the recommended approach by Appwrite
+      // Let Appwrite handle the ID generation to avoid collisions
+      console.log('⏳ Creating account with Appwrite...');
+            
+      // Create account
+      await account.create('unique()', email, password, name);
+      console.log('✅ Account created successfully!');
+      
+      // Show important info for debugging
+      console.log('📝 Account details:', {
+        email,
+        name,
+        createdAt: new Date().toISOString()
+      });
+      
+      // Delay briefly before login to ensure account is properly created
+      await new Promise(resolve => setTimeout(resolve, 800));
       
       try {
-        // Use specific error handling blocks to narrow down issues
-        console.log('⏳ Creating account with Appwrite...');
-        
-        // Create account with the explicit userId - WITH RETRY LOGIC
-        let accountCreated = false;
-        let attempts = 0;
-        const maxAttempts = 2;
-        
-        while (!accountCreated && attempts < maxAttempts) {
-          attempts++;
-          try {
-            await account.create(userId, email, password, name);
-            accountCreated = true;
-            console.log('✅ Account created successfully on attempt', attempts);
-          } catch (createError: any) {
-            console.error(`❌ Attempt ${attempts} failed:`, createError);
-            if (attempts >= maxAttempts) throw createError;
-            
-            // Short wait before retry
-            await new Promise(resolve => setTimeout(resolve, 1000));
-          }
-        }
-      
-        // Delay briefly before login to ensure account is ready
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
         // Automatically login after registration
         console.log('⏳ Auto-login after registration...');
         await login(email, password);
         console.log('✅ Auto-login successful');
-        
         return { success: true };
-      } catch (innerError: any) {
-        // More specific error handling
-        console.error('❌ Registration process failed in inner try block:', innerError);
-        throw innerError;
+      } catch (loginError: any) {
+        // If login fails but account was created successfully
+        console.warn('⚠️ Account created but auto-login failed:', loginError.message);
+        
+        // Return success anyway since the account was created
+        // The user can manually log in
+        return { 
+          success: true,
+          loginError: loginError.message,
+          message: 'Account created successfully but automatic login failed. Please log in manually.'
+        };
       }
     } catch (error: any) {
       console.error('Registration error details:', error);

@@ -23,28 +23,47 @@ router.get('/', async (req, res) => {
       if (file.endsWith('.pdf')) {
         const match = file.match(/John_Doe_(.+)Theme_CV\.pdf/);
         if (match) {
-          const theme = match[1].toLowerCase();
-          if (!templates[theme]) {
-            templates[theme] = {
-              name: `John Doe ${match[1]} Theme`,
-              theme: theme,
+          const themeName = match[1];
+          const themeKey = themeName.toLowerCase();
+          
+          if (!templates[themeKey]) {
+            // Map theme names to categories
+            const categoryMap = {
+              'moderncv': 'modern',
+              'classic': 'professional',
+              'sb2nov': 'creative',
+              'engineeringclassic': 'professional',
+              'engineeringresumes': 'modern'
+            };
+            
+            templates[themeKey] = {
+              id: themeKey,
+              name: themeName.replace(/([A-Z])/g, ' $1').trim(),
+              theme: themeKey,
+              category: categoryMap[themeKey] || 'modern',
               pdfPath: file,
-              yamlPath: file.replace('.pdf', '.yaml')
+              yamlPath: file.replace('.pdf', '.yaml'),
+              pdfUrl: `/api/templates/${file}`,
+              yamlUrl: `/api/templates/${file.replace('.pdf', '.yaml')}`
             };
           }
         }
       }
     });
     
+    console.log(`[Templates] Found ${Object.keys(templates).length} templates`);
+    
     res.status(200).json({
       success: true,
+      count: Object.keys(templates).length,
       templates: Object.values(templates)
     });
   } catch (error) {
     console.error('[Templates] Error:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to load templates'
+      error: 'Failed to load templates',
+      message: error.message
     });
   }
 });
@@ -83,6 +102,51 @@ router.get('/:filename', async (req, res) => {
     res.status(404).json({
       success: false,
       error: 'Template file not found'
+    });
+  }
+});
+
+/**
+ * GET /api/templates/yaml/:theme
+ * Get parsed YAML data for a specific template theme
+ */
+router.get('/yaml/:theme', async (req, res) => {
+  try {
+    const { theme } = req.params;
+    const templatesDir = path.join(__dirname, '..', 'templates');
+    
+    // Find the YAML file for this theme
+    const files = await fs.readdir(templatesDir);
+    const yamlFile = files.find(file => 
+      file.toLowerCase().includes(theme.toLowerCase()) && file.endsWith('.yaml')
+    );
+    
+    if (!yamlFile) {
+      return res.status(404).json({
+        success: false,
+        error: 'Template YAML not found'
+      });
+    }
+    
+    const yamlPath = path.join(templatesDir, yamlFile);
+    const yamlContent = await fs.readFile(yamlPath, 'utf8');
+    
+    // Parse YAML using a simple parser (you may want to install 'yaml' package)
+    const yaml = require('yaml');
+    const parsedData = yaml.parse(yamlContent);
+    
+    res.status(200).json({
+      success: true,
+      theme,
+      data: parsedData,
+      filename: yamlFile
+    });
+  } catch (error) {
+    console.error('[Templates] YAML parse error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to parse template YAML',
+      message: error.message
     });
   }
 });

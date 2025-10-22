@@ -65,13 +65,28 @@ const Register: React.FC = () => {
       
       const result = await register(email, password, name);
       
-      console.log('✅ Registration successful!', result);
-      toast.success('Account created successfully!', { id: 'registration' });
+      console.log('✅ Registration result:', result);
       
-      // Add a short delay before redirecting
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 500);
+      if (result.loginError) {
+        // Account created but auto-login failed
+        toast.success(
+          'Account created successfully! Please log in manually.', 
+          { id: 'registration', duration: 5000 }
+        );
+        
+        // Wait longer before redirecting to login page
+        setTimeout(() => {
+          navigate('/login');
+        }, 1500);
+      } else {
+        // Complete success
+        toast.success('Account created successfully!', { id: 'registration' });
+        
+        // Add a short delay before redirecting
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 500);
+      }
       
     } catch (err: any) {
       console.error('❌ Registration failed:', err);

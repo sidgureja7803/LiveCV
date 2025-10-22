@@ -5,28 +5,22 @@ const client = new Client();
 
 // Use the NYC endpoint directly to avoid .env issues
 const APPWRITE_ENDPOINT = import.meta.env.VITE_APPWRITE_ENDPOINT || 'https://nyc.cloud.appwrite.io/v1';
-const APPWRITE_PROJECT_ID = import.meta.env.VITE_APPWRITE_PROJECT_ID || '';
-// Get Dev Key from environment variable or set directly for testing
-// Replace this with your actual Dev Key from Appwrite console
-const APPWRITE_DEV_KEY = import.meta.env.VITE_APPWRITE_DEV_KEY || '';
-// Configure client with Dev Key for bypass rate limits and CORS during development
+const APPWRITE_PROJECT_ID = import.meta.env.VITE_APPWRITE_PROJECT_ID || '68e970330382476bf61';
+
+// Simple configuration - The Dev Key approach is not needed and was causing errors
 client
   .setEndpoint(APPWRITE_ENDPOINT)
   .setProject(APPWRITE_PROJECT_ID);
 
-// Add Dev Key to bypass rate limits and CORS during development
-// Note: Using type assertion since TypeScript definitions might not include setDevKey
-try {
-  // @ts-ignore - The Dev Key method exists in the latest Appwrite SDK but TypeScript definitions might be outdated
-  (client as any).setDevKey(APPWRITE_DEV_KEY);
-} catch (err) {
-  console.error('Failed to set Dev Key:', err);
+// If needed, we can set additional headers instead of using dev key
+if (typeof window !== 'undefined') {
+  // Add SameSite cookie attribute for better security in development
+  document.cookie = 'appwrite-cookie=appwrite; SameSite=Lax; secure=false; path=/;';
 }
 
 console.log('Appwrite client configured with:', { 
   APPWRITE_ENDPOINT, 
-  APPWRITE_PROJECT_ID,
-  devKeyConfigured: !!APPWRITE_DEV_KEY
+  APPWRITE_PROJECT_ID
 });
 
 // Initialize Appwrite Services

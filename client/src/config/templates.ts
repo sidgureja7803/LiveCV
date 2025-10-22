@@ -8,10 +8,10 @@ export const RESUME_TEMPLATES: ResumeTemplate[] = [
     category: 'modern',
     thumbnail: '/images/template1.png',
     pdfPreview: '/images/template1.png',
-    htmlStructure: 'modern-professional',
-    cssStyles: 'modern-professional.css',
-    features: ['ATS-Optimized', 'Clean Layout', 'Modern Typography'],
-    recommended: ['Software Engineers', 'Product Managers', 'Consultants']
+    htmlStructure: 'moderncv',
+    cssStyles: 'moderncv.css',
+    features: ['ATS-Optimized', 'Clean Layout', '+1 more'],
+    recommended: ['Software Engineers', 'Product Managers', 'Tech Professionals']
   },
   {
     id: 'professional-elegant',
@@ -20,10 +20,10 @@ export const RESUME_TEMPLATES: ResumeTemplate[] = [
     category: 'professional',
     thumbnail: '/images/template2.png',
     pdfPreview: '/images/template2.png',
-    htmlStructure: 'professional-elegant',
-    cssStyles: 'professional-elegant.css',
-    features: ['Elegant Design', 'Professional Typography', 'ATS-Friendly'],
-    recommended: ['Business Professionals', 'Finance Specialists', 'Consultants']
+    htmlStructure: 'classic',
+    cssStyles: 'classic.css',
+    features: ['Elegant Design', 'Professional Typography', '+1 more'],
+    recommended: ['Business Professionals', 'Finance', 'Management']
   },
   {
     id: 'creative-portfolio',
@@ -32,10 +32,34 @@ export const RESUME_TEMPLATES: ResumeTemplate[] = [
     category: 'creative',
     thumbnail: '/images/template3.png',
     pdfPreview: '/images/template3.png',
-    htmlStructure: 'creative-portfolio',
-    cssStyles: 'creative-portfolio.css',
-    features: ['Visual Impact', 'Portfolio Section', 'Creative Layout'],
-    recommended: ['Designers', 'Artists', 'Marketing Professionals']
+    htmlStructure: 'sb2nov',
+    cssStyles: 'sb2nov.css',
+    features: ['Visual Impact', 'Portfolio Section', '+1 more'],
+    recommended: ['Designers', 'Artists', 'Marketing']
+  },
+  {
+    id: 'engineering-classic',
+    name: 'Engineering Classic',
+    description: 'Traditional academic and engineering focused resume template',
+    category: 'professional',
+    thumbnail: '/images/template4.png',
+    pdfPreview: '/images/template4.png',
+    htmlStructure: 'engineeringclassic',
+    cssStyles: 'engineeringclassic.css',
+    features: ['Academic Focus', 'Publications Ready', '+1 more'],
+    recommended: ['Engineers', 'Researchers', 'PhD Candidates']
+  },
+  {
+    id: 'engineering-resumes',
+    name: 'Engineering Resumes',
+    description: 'Specialized template optimized for engineering positions',
+    category: 'modern',
+    thumbnail: '/images/template5.png',
+    pdfPreview: '/images/template5.png',
+    htmlStructure: 'engineeringresumes',
+    cssStyles: 'engineeringresumes.css',
+    features: ['Technical Projects', 'Skills Highlighted', '+1 more'],
+    recommended: ['Software Engineers', 'Hardware Engineers', 'Technical Roles']
   }
 ];
 
