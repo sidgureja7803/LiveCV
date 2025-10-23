@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Menu, Layers } from 'lucide-react';
+import { Menu, Layers, ChevronLeft, ChevronRight } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import ResumeEditor from '../components/ResumeEditor';
 import LiveResumeViewer from '../components/LiveResumeViewer';
@@ -15,6 +15,11 @@ import { useDebouncedPreview, useDownloadPDF } from '../hooks/useDebouncedPrevie
 import type { ResumeData } from '../types';
 import type { ResumeTemplate } from '../types/templates';
 import LoadingOverlay from '../components/LoadingOverlay';
+import { parseRenderCVYaml } from '../utils/yamlParser';
+import { Document, Page, pdfjs } from 'react-pdf';
+
+// Set PDF.js worker path
+pdfjs.GlobalWorkerOptions.workerSrc = `/pdf-worker/pdf.worker.min.js`;
 
 // Section interface matching ResumeToolbar's requirements
 interface Section {
@@ -80,11 +85,21 @@ const ResumeBuilder: React.FC = () => {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(templateId || 'modern-professional');
   const [rendercvTheme, setRendercvTheme] = useState<string>('classic');
   const [previewMode, setPreviewMode] = useState<'pdf' | 'html'>('pdf');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    const saved = localStorage.getItem('resumeBuilder_sidebarOpen');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
   const [sectionManagerOpen, setSectionManagerOpen] = useState(false);
   
-  // Section management state
+  // PDF viewer state
+  const [numPages, setNumPages] = useState<number | null>(null);
+  const [pageNumber, setPageNumber] = useState<number>(1);
+  const [pdfZoom, setPdfZoom] = useState<number>(100);
   
+  // Panel size state
+  const [panelSizes, setPanelSizes] = useState({ left: 50, right: 50 });
+  
+  // Section management state
   const [sections, setSections] = useState<Section[]>([
     { id: 'personal', name: 'Personal Information', type: 'personal', visible: true, order: 0 },
     { id: 'summary', name: 'Professional Summary', type: 'summary', visible: true, order: 1 },
@@ -120,16 +135,38 @@ const ResumeBuilder: React.FC = () => {
     // Set the selected template based on URL param
     if (templateId) {
       setSelectedTemplateId(templateId);
+      setRendercvTheme(templateId); // Use template ID as theme
       
-      // Extract theme from URL query params
-      const urlParams = new URLSearchParams(window.location.search);
-      const themeParam = urlParams.get('template');
-      if (themeParam) {
-        setRendercvTheme(themeParam);
+      // Check if template YAML was loaded
+      const templateYaml = localStorage.getItem('selectedTemplateYaml');
+      const templateTheme = localStorage.getItem('selectedTemplateTheme');
+      
+      if (templateYaml) {
+        console.log('✅ Loading template YAML from localStorage');
+        
+        // Parse YAML to ResumeData
+        const parsedData = parseRenderCVYaml(templateYaml);
+        
+        if (parsedData && Object.keys(parsedData).length > 0) {
+          setResumeData(prev => ({
+            ...prev,
+            ...parsedData
+          }));
+          
+          if (templateTheme) {
+            setRendercvTheme(templateTheme);
+          }
+          
+          console.log('✅ Template data loaded successfully');
+        }
+        
+        // Clear localStorage after loading
+        localStorage.removeItem('selectedTemplateYaml');
+        localStorage.removeItem('selectedTemplateTheme');
       }
     }
     
-    // Check if there's template data in localStorage
+    // Check if there's template data in localStorage (legacy support)
     const templateDataStr = localStorage.getItem('templateData');
     if (templateDataStr) {
       try {
@@ -262,8 +299,42 @@ const ResumeBuilder: React.FC = () => {
     }
   }, [resumeData, currentTemplate]);
   
+  // Auto-save functionality with debouncing
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+
+  const debouncedAutoSave = useCallback(async (data: ResumeData) => {
+    if (!resumeId) return; // Only auto-save existing resumes
+    
+    setSaveStatus('saving');
+    
+    try {
+      await apiService.updateResume(resumeId, data);
+      setSaveStatus('saved');
+      
+      // Reset to idle after 2 seconds
+      setTimeout(() => setSaveStatus('idle'), 2000);
+    } catch (error) {
+      console.error('Auto-save failed:', error);
+      setSaveStatus('error');
+      
+      // Reset to idle after 5 seconds
+      setTimeout(() => setSaveStatus('idle'), 5000);
+    }
+  }, [resumeId]);
+
   const handleResumeUpdate = (newData: ResumeData) => {
     setResumeData(newData);
+    
+    // Clear existing auto-save timeout
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
+    
+    // Set new auto-save timeout (2 seconds after user stops typing)
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      debouncedAutoSave(newData);
+    }, 2000);
     
     // If we have a resumeId, we can use socket.io to broadcast changes
     if (resumeId) {
@@ -371,6 +442,16 @@ const ResumeBuilder: React.FC = () => {
     console.log('Section removed:', sectionId);
   };
 
+  const handlePanelResize = (leftWidth: number) => {
+    setPanelSizes({ left: leftWidth, right: 100 - leftWidth });
+  };
+
+  const toggleSidebar = () => {
+    const newState = !sidebarOpen;
+    setSidebarOpen(newState);
+    localStorage.setItem('resumeBuilder_sidebarOpen', JSON.stringify(newState));
+  };
+
     const handleDownloadPdf = async () => {
       if (!resumeId) {
         alert('Please save your resume first before downloading.');
@@ -405,10 +486,12 @@ const ResumeBuilder: React.FC = () => {
 
   return (
       <div className="flex h-screen bg-white dark:bg-[#0F1218] text-gray-900 dark:text-gray-100">
-        {/* Sidebar - Toggleable */}
-        {sidebarOpen && <Sidebar />}
+        {/* Sidebar - Toggleable with smooth transition */}
+        <div className={`transition-all duration-300 ease-in-out ${sidebarOpen ? 'w-64' : 'w-0'} overflow-hidden`}>
+          <Sidebar />
+        </div>
         
-        <main className="flex-1 flex flex-col overflow-hidden">
+        <main className="flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out">
             {isLoading && <LoadingOverlay message="Loading resume template..." />}
             
             {/* Professional Toolbar */}
@@ -426,7 +509,7 @@ const ResumeBuilder: React.FC = () => {
               <div className="flex items-center space-x-4">
                 {/* Sidebar Toggle */}
                 <button
-                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  onClick={toggleSidebar}
                   className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                   title={sidebarOpen ? 'Hide Sidebar' : 'Show Sidebar'}
                 >
@@ -546,6 +629,10 @@ const ResumeBuilder: React.FC = () => {
             {/* Resizable Panels */}
             <div className="flex-1 flex overflow-hidden">
               <ResizablePanel
+                defaultLeftWidth={50}
+                minLeftWidth={30}
+                maxLeftWidth={70}
+                onResize={handlePanelResize}
                 leftPanel={
                   <div className="h-full overflow-y-auto p-6 relative bg-white dark:bg-[#1A1D26] border-r border-gray-200 dark:border-gray-800">
                     {/* LiveCoding component to enable collaborative editing */}
@@ -565,24 +652,72 @@ const ResumeBuilder: React.FC = () => {
                       resumeData={resumeData} 
                       onResumeChange={handleResumeUpdate}
                       previewHtml={previewHtml}
+                      sections={sections}
                     />
                   </div>
                 }
                 rightPanel={
-                  <div className="h-full overflow-y-auto p-6 bg-white dark:bg-[#1A1D26]">
-                    <div className="sticky top-8">
-                        <div className="flex justify-between items-center mb-4">
+                  <div className="h-full flex flex-col bg-white dark:bg-[#1A1D26]">
+                    {/* Preview Header - Fixed */}
+                    <div className="flex-shrink-0 p-6 border-b border-gray-200 dark:border-gray-700">
+                        <div className="flex justify-between items-center">
                           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Resume Preview</h2>
-                          {previewMode === 'pdf' && lastUpdated && (
-                            <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-                              Updated {new Date(lastUpdated).toLocaleTimeString()}
-                            </span>
-                          )}
+                          <div className="flex items-center space-x-3">
+                            {previewMode === 'pdf' && lastUpdated && (
+                              <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                                Updated {new Date(lastUpdated).toLocaleTimeString()}
+                              </span>
+                            )}
+                            {/* Save Status Indicator */}
+                            {saveStatus !== 'idle' && (
+                              <div className={`flex items-center space-x-2 ${
+                                saveStatus === 'saving' ? 'text-yellow-600 dark:text-yellow-400' :
+                                saveStatus === 'saved' ? 'text-green-600 dark:text-green-400' :
+                                'text-red-600 dark:text-red-400'
+                              }`}>
+                                {saveStatus === 'saving' && (
+                                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                  </svg>
+                                )}
+                                {saveStatus === 'saved' && (
+                                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                )}
+                                {saveStatus === 'error' && (
+                                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                )}
+                                <span className="text-sm">
+                                  {saveStatus === 'saving' && 'Saving...'}
+                                  {saveStatus === 'saved' && 'Saved'}
+                                  {saveStatus === 'error' && 'Save failed'}
+                                </span>
+                              </div>
+                            )}
+                            
+                            {pdfLoading && (
+                              <div className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400">
+                                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                </svg>
+                                <span className="text-sm">Generating...</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
+                    </div>
+                    
+                    {/* Preview Content - Scrollable */}
+                    <div className="flex-1 overflow-y-auto p-6">
                         
                         {previewMode === 'pdf' ? (
-                          // PDF Preview using iframe
-                          <div className="bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700" style={{ height: '800px' }}>
+                          // PDF Preview with responsive design
+                          <div className="bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700 min-h-[600px] max-h-[800px] h-full">
                             {pdfError && (
                               <div className="p-4 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-300 dark:border-red-800 rounded-lg mb-4">
                                 <p className="font-bold">PDF Generation Error</p>
@@ -597,12 +732,103 @@ const ResumeBuilder: React.FC = () => {
                             )}
                             
                             {pdfUrl ? (
-                              <iframe 
-                                src={pdfUrl} 
-                                className="w-full h-[calc(100vh-250px)] border-0"
-                                title="Resume Preview"
-                                data-testid="pdf-preview"
-                              />
+                              <div className="flex flex-col items-center justify-center">
+                                <Document
+                                  file={pdfUrl}
+                                  onLoadSuccess={({ numPages }) => {
+                                    setNumPages(numPages);
+                                    setPageNumber(1); // Reset to first page when new PDF loads
+                                  }}
+                                  onLoadError={(error) => {
+                                    console.error('Error loading PDF:', error);
+                                  }}
+                                  loading={
+                                    <div className="flex flex-col items-center justify-center p-12 h-[300px]">
+                                      <div className="w-10 h-10 rounded-full border-4 border-gray-300 border-t-indigo-500 animate-spin mb-4"></div>
+                                      <p className="text-gray-500 dark:text-gray-400">Loading PDF...</p>
+                                    </div>
+                                  }
+                                  error={
+                                    <div className="flex flex-col items-center justify-center p-12 h-[300px]">
+                                      <p className="text-red-500">Failed to load PDF. Try again.</p>
+                                      <button 
+                                        onClick={triggerPreview}
+                                        className="mt-4 px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm"
+                                      >
+                                        Retry
+                                      </button>
+                                    </div>
+                                  }
+                                >
+                                  <div 
+                                    style={{ 
+                                      transform: `scale(${pdfZoom / 100})`, 
+                                      transformOrigin: 'top center',
+                                      transition: 'transform 0.2s ease-in-out'
+                                    }}
+                                    className="bg-white shadow-xl rounded-lg overflow-hidden"
+                                  >
+                                    <Page 
+                                      pageNumber={pageNumber} 
+                                      width={600}
+                                      renderTextLayer={false}
+                                      renderAnnotationLayer={false}
+                                    />
+                                  </div>
+                                </Document>
+                                
+                                {/* Page navigation */}
+                                {numPages && numPages > 1 && (
+                                  <div className="flex items-center justify-center mt-4 bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-lg">
+                                    <button
+                                      onClick={() => setPageNumber(prev => Math.max(prev - 1, 1))}
+                                      disabled={pageNumber <= 1}
+                                      className="p-1 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                      aria-label="Previous page"
+                                    >
+                                      <ChevronLeft className="w-5 h-5" />
+                                    </button>
+                                    
+                                    <span className="mx-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                      Page {pageNumber} of {numPages}
+                                    </span>
+                                    
+                                    <button
+                                      onClick={() => setPageNumber(prev => Math.min(prev + 1, numPages))}
+                                      disabled={pageNumber >= numPages}
+                                      className="p-1 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                      aria-label="Next page"
+                                    >
+                                      <ChevronRight className="w-5 h-5" />
+                                    </button>
+                                  </div>
+                                )}
+                                
+                                {/* Zoom controls */}
+                                <div className="flex items-center justify-center mt-2 space-x-3">
+                                  <button
+                                    onClick={() => setPdfZoom(prev => Math.max(prev - 10, 50))}
+                                    disabled={pdfZoom <= 50}
+                                    className="p-1 text-xs bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-700"
+                                    aria-label="Zoom out"
+                                  >
+                                    -
+                                  </button>
+                                  
+                                  <span className="text-xs text-gray-600 dark:text-gray-400">
+                                    {pdfZoom}%
+                                  </span>
+                                  
+                                  <button
+                                    onClick={() => setPdfZoom(prev => Math.min(prev + 10, 200))}
+                                    disabled={pdfZoom >= 200}
+                                    className="p-1 text-xs bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-700"
+                                    aria-label="Zoom in"
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              </div>
                             ) : pdfLoading ? (
                               <div className="flex flex-col items-center justify-center p-12 h-[600px] bg-gray-50 dark:bg-gray-900">
                                 <div className="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mb-4">
@@ -626,12 +852,14 @@ const ResumeBuilder: React.FC = () => {
                           </div>
                         ) : (
                           // HTML Preview
-                          <LiveResumeViewer 
-                            htmlContent={previewHtml} 
-                            onDownloadPdf={handleDownloadPdf}
-                            isDownloading={downloading}
-                            showUpdateIndicator={true}
-                          />
+                          <div className="bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700">
+                            <LiveResumeViewer 
+                              htmlContent={previewHtml} 
+                              onDownloadPdf={handleDownloadPdf}
+                              isDownloading={downloading}
+                              showUpdateIndicator={true}
+                            />
+                          </div>
                         )}
                     </div>
                   </div>

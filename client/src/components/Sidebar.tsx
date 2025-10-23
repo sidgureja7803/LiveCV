@@ -38,7 +38,7 @@ const Sidebar: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <aside className="w-1/5 h-screen flex-shrink-0 bg-gray-800 p-6 flex flex-col justify-between">
+    <aside className="w-64 h-screen flex-shrink-0 bg-gray-800 p-6 flex flex-col justify-between">
       <div>
         <div className="flex items-center space-x-3 mb-10">
           <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">

@@ -1,6 +1,10 @@
-import React, { useEffect } from 'react';
-import { X, Download, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { X, Download, ZoomIn, ZoomOut, Maximize2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { usePDF } from '../hooks/usePDF';
+import { Document, Page, pdfjs } from 'react-pdf';
+
+// Set PDF.js worker path
+pdfjs.GlobalWorkerOptions.workerSrc = `/pdf-worker/pdf.worker.min.js`;
 
 interface PDFModalProps {
   isOpen: boolean;
@@ -17,7 +21,11 @@ const PDFModal: React.FC<PDFModalProps> = ({
   fileName = 'resume.pdf',
   onDownload
 }) => {
-  const [zoom, setZoom] = React.useState(100);
+  const [zoom, setZoom] = useState(100);
+  const [numPages, setNumPages] = useState<number | null>(null);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const { downloadPDF } = usePDF();
 
   // Close modal on Escape key
@@ -74,10 +82,32 @@ const PDFModal: React.FC<PDFModalProps> = ({
   };
 
   const handleFullscreen = () => {
-    const iframe = document.getElementById('pdf-iframe') as HTMLIFrameElement;
-    if (iframe?.requestFullscreen) {
-      iframe.requestFullscreen();
+    const pdfContainer = document.getElementById('pdf-container');
+    if (pdfContainer?.requestFullscreen) {
+      pdfContainer.requestFullscreen();
     }
+  };
+
+  // PDF document loading handlers
+  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
+    setNumPages(numPages);
+    setLoading(false);
+    setError(null);
+  };
+
+  const onDocumentLoadError = (error: Error) => {
+    setLoading(false);
+    setError(error);
+    console.error('Error loading PDF:', error);
+  };
+  
+  // Page navigation
+  const goToPrevPage = () => {
+    setPageNumber(prev => Math.max(prev - 1, 1));
+  };
+
+  const goToNextPage = () => {
+    setPageNumber(prev => Math.min(prev + 1, numPages || 1));
   };
 
   return (
@@ -148,18 +178,77 @@ const PDFModal: React.FC<PDFModalProps> = ({
         </div>
 
         {/* PDF Viewer */}
-        <div className="flex-1 bg-gray-800 overflow-auto">
-          <div
-            className="h-full flex items-center justify-center p-4"
-            style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
-          >
-            <iframe
-              id="pdf-iframe"
-              src={pdfUrl}
-              className="w-full h-full bg-white rounded shadow-2xl"
-              title="PDF Preview"
-              style={{ minHeight: '800px' }}
-            />
+        <div className="flex-1 bg-gray-800 overflow-auto" id="pdf-container">
+          <div className="h-full flex flex-col items-center justify-center p-4">
+            {loading && (
+              <div className="flex items-center justify-center h-full w-full">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+              </div>
+            )}
+            
+            {error && (
+              <div className="text-red-500 bg-red-100 p-4 rounded-lg shadow-md">
+                <h3 className="font-bold">Error loading PDF</h3>
+                <p>{error.message}</p>
+                <button 
+                  onClick={() => setLoading(true)}
+                  className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+            
+            <Document
+              file={pdfUrl}
+              onLoadSuccess={onDocumentLoadSuccess}
+              onLoadError={onDocumentLoadError}
+              loading={<div className="animate-pulse">Loading PDF...</div>}
+              error={<div className="text-red-500">Failed to load PDF.</div>}
+              className="mx-auto"
+            >
+              <div 
+                style={{ 
+                  transform: `scale(${zoom / 100})`,
+                  transformOrigin: 'top center',
+                  transition: 'transform 0.2s ease-in-out'
+                }}
+                className="bg-white shadow-2xl rounded-lg overflow-hidden"
+              >
+                <Page
+                  pageNumber={pageNumber}
+                  renderAnnotationLayer={false}
+                  renderTextLayer={false}
+                  width={600}
+                />
+              </div>
+            </Document>
+            
+            {numPages && numPages > 1 && (
+              <div className="flex items-center justify-center space-x-4 mt-4 bg-gray-700/50 px-4 py-2 rounded-full">
+                <button
+                  onClick={goToPrevPage}
+                  disabled={pageNumber <= 1}
+                  className="p-2 text-gray-400 hover:text-white disabled:opacity-50 rounded-full hover:bg-gray-700"
+                  aria-label="Previous page"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                
+                <span className="text-sm text-white font-medium">
+                  Page {pageNumber} of {numPages}
+                </span>
+                
+                <button
+                  onClick={goToNextPage}
+                  disabled={pageNumber >= (numPages || 1)}
+                  className="p-2 text-gray-400 hover:text-white disabled:opacity-50 rounded-full hover:bg-gray-700"
+                  aria-label="Next page"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
