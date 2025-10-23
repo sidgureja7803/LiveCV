@@ -216,15 +216,20 @@ export const Features = () => {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className={`group p-8 rounded-3xl transition-all hover:scale-105 ${
+                className={`group p-8 rounded-3xl transition-all duration-300 hover:scale-105 hover:-translate-y-2 ${
                   isDark ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:shadow-2xl'
-                } border-2 ${isDark ? 'border-gray-700' : 'border-gray-200'}`}
+                } border-2 ${isDark ? 'border-gray-700 hover:border-gray-600' : 'border-gray-200 hover:border-blue-300'} relative overflow-hidden`}
               >
-                <div className={`mb-6 bg-gradient-to-r ${feature.color} p-4 rounded-2xl inline-block text-white`}>
+                {/* Background gradient on hover */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}></div>
+                
+                <div className={`mb-6 bg-gradient-to-r ${feature.color} p-4 rounded-2xl inline-block text-white shadow-lg group-hover:shadow-xl transition-shadow duration-300`}>
                   {feature.icon}
                 </div>
-                <h3 className="text-2xl font-bold mb-4">{feature.title}</h3>
-                <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>
+                <h3 className={`text-2xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'} group-hover:text-blue-600 transition-colors duration-300`}>
+                  {feature.title}
+                </h3>
+                <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'} leading-relaxed`}>
                   {feature.description}
                 </p>
               </div>

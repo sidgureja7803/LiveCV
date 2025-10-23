@@ -77,18 +77,24 @@ async function analyzeWithOpenAI(resumeText, jobDescription) {
       prompt += `\nJOB DESCRIPTION:\n${jobDescription}\n\nProvide specific feedback on how well the resume matches this job description.`;
     }
     
-    const response = await openai.createCompletion({
-      model: "text-davinci-003", // or newer model if available
-      prompt,
+    const response = await openai.chat.completions.create({
+      model: process.env.OPENAI_MODEL || "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert ATS (Applicant Tracking System) analyzer. Analyze resumes for ATS compatibility and provide specific, actionable feedback. Always include a numerical score between 0-100."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
       max_tokens: 1000,
       temperature: 0.3,
-      top_p: 1.0,
-      frequency_penalty: 0.0,
-      presence_penalty: 0.0,
     });
     
     // Parse the AI response
-    const analysisText = response.data.choices[0].text.trim();
+    const analysisText = response.choices[0].message.content.trim();
     
     // Extract score and suggestions using regex
     const scoreMatch = analysisText.match(/score:?\s*(\d+)/i);

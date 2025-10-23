@@ -128,7 +128,6 @@ const Login: React.FC = () => {
           <p className="text-gray-600 dark:text-gray-400 mb-8">Sign in to continue building amazing resumes</p>
 
           {/* Login Form */}
-          <div className="space-y-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Error Message */}
             {error && (

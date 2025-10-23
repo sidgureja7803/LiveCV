@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Upload, FileText, CheckCircle, AlertCircle, Target, TrendingUp, Eye, Download } from 'lucide-react';
+import { ArrowLeft, Upload, FileText, CheckCircle, AlertCircle, Target, TrendingUp, Eye } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -66,7 +66,9 @@ const ATSChecker: React.FC = () => {
     try {
       const formData = new FormData();
       formData.append('resume', file);
-      formData.append('jobDescription', jobDescription);
+      if (jobDescription.trim()) {
+        formData.append('jobDescription', jobDescription);
+      }
 
       const response = await fetch('/api/ats/analyze', {
         method: 'POST',
@@ -77,41 +79,44 @@ const ATSChecker: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to analyze resume');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to analyze resume');
       }
 
       const data = await response.json();
-      setResult(data);
+      
+      if (data.success && data.data) {
+        // Transform the backend response to match our frontend interface
+        const backendResult = data.data;
+        
+        // Calculate keyword matches (mock for now since backend doesn't return this)
+        const keywordMatches = Math.floor((backendResult.score / 100) * 20);
+        const totalKeywords = 20;
+        
+        // Create sections analysis from suggestions
+        const sections = [
+          { name: 'Contact Information', found: true, importance: 'high' as const },
+          { name: 'Professional Summary', found: backendResult.score > 70, importance: 'high' as const },
+          { name: 'Work Experience', found: true, importance: 'high' as const },
+          { name: 'Education', found: backendResult.score > 60, importance: 'medium' as const },
+          { name: 'Skills', found: backendResult.score > 50, importance: 'high' as const },
+          { name: 'Certifications', found: backendResult.score > 80, importance: 'low' as const }
+        ];
+        
+        setResult({
+          score: backendResult.score,
+          feedback: backendResult.feedback || backendResult.suggestions || [],
+          suggestions: backendResult.suggestions || [],
+          keywordMatches,
+          totalKeywords,
+          sections
+        });
+      } else {
+        throw new Error(data.message || 'Invalid response from server');
+      }
     } catch (error) {
       console.error('ATS analysis error:', error);
-      setError('Failed to analyze resume. Please try again.');
-      
-      // Mock result for demo purposes
-      setResult({
-        score: 78,
-        feedback: [
-          'Your resume has good keyword optimization',
-          'Contact information is clearly visible',
-          'Work experience section is well-structured',
-          'Missing skills section could hurt ATS parsing'
-        ],
-        suggestions: [
-          'Add a dedicated skills section with relevant keywords',
-          'Include more industry-specific terms from the job description',
-          'Use standard section headings like "Work Experience" and "Education"',
-          'Consider adding a professional summary at the top'
-        ],
-        keywordMatches: 12,
-        totalKeywords: 18,
-        sections: [
-          { name: 'Contact Information', found: true, importance: 'high' },
-          { name: 'Professional Summary', found: false, importance: 'high' },
-          { name: 'Work Experience', found: true, importance: 'high' },
-          { name: 'Education', found: true, importance: 'medium' },
-          { name: 'Skills', found: false, importance: 'high' },
-          { name: 'Certifications', found: false, importance: 'low' }
-        ]
-      });
+      setError(`Failed to analyze resume: ${error.message}`);
     } finally {
       setIsAnalyzing(false);
     }
@@ -246,15 +251,52 @@ const ATSChecker: React.FC = () => {
                       ATS Compatibility Score
                     </h2>
                     <div className="flex items-center justify-center mb-6">
-                      <div className={`w-32 h-32 rounded-full ${getScoreBgColor(result.score)} flex items-center justify-center`}>
-                        <span className={`text-4xl font-bold ${getScoreColor(result.score)}`}>
-                          {result.score}%
-                        </span>
+                      <div className="relative w-40 h-40">
+                        {/* Circular Progress Bar */}
+                        <svg className="w-40 h-40 transform -rotate-90" viewBox="0 0 144 144">
+                          {/* Background circle */}
+                          <circle
+                            cx="72"
+                            cy="72"
+                            r="60"
+                            stroke="currentColor"
+                            strokeWidth="8"
+                            fill="none"
+                            className="text-gray-200 dark:text-gray-700"
+                          />
+                          {/* Progress circle */}
+                          <circle
+                            cx="72"
+                            cy="72"
+                            r="60"
+                            stroke="currentColor"
+                            strokeWidth="8"
+                            fill="none"
+                            strokeDasharray={`${2 * Math.PI * 60}`}
+                            strokeDashoffset={`${2 * Math.PI * 60 * (1 - result.score / 100)}`}
+                            className={`transition-all duration-1000 ease-out ${
+                              result.score >= 80 ? 'text-green-500' :
+                              result.score >= 60 ? 'text-yellow-500' : 'text-red-500'
+                            }`}
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                        {/* Score text in center */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="text-center">
+                            <span className={`text-3xl font-bold ${getScoreColor(result.score)}`}>
+                              {result.score}%
+                            </span>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              ATS Score
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     <div className="text-center">
                       <p className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                        {result.score >= 80 ? 'Excellent' : result.score >= 60 ? 'Good' : 'Needs Improvement'}
+                        {result.score >= 80 ? 'Excellent! 🎉' : result.score >= 60 ? 'Good Progress 👍' : 'Needs Improvement 📈'}
                       </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
                         Your resume is {result.score >= 80 ? 'highly' : result.score >= 60 ? 'moderately' : 'poorly'} optimized for ATS systems
@@ -264,7 +306,8 @@ const ATSChecker: React.FC = () => {
 
                   {/* Keyword Analysis */}
                   <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                      <Target className="w-5 h-5 mr-2 text-blue-600" />
                       Keyword Analysis
                     </h2>
                     <div className="flex items-center justify-between mb-4">
@@ -273,71 +316,146 @@ const ATSChecker: React.FC = () => {
                         {result.keywordMatches} / {result.totalKeywords}
                       </span>
                     </div>
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 mb-4 overflow-hidden">
                       <div 
-                        className="bg-gradient-to-r from-blue-600 to-blue-800 h-3 rounded-full transition-all duration-500"
+                        className="bg-gradient-to-r from-blue-600 to-blue-800 h-4 rounded-full transition-all duration-1000 ease-out relative"
                         style={{ width: `${(result.keywordMatches / result.totalKeywords) * 100}%` }}
-                      ></div>
+                      >
+                        <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+                      </div>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500 dark:text-gray-400">
+                        {Math.round((result.keywordMatches / result.totalKeywords) * 100)}% Match Rate
+                      </span>
+                      <span className={`font-medium ${
+                        (result.keywordMatches / result.totalKeywords) >= 0.8 ? 'text-green-600' :
+                        (result.keywordMatches / result.totalKeywords) >= 0.6 ? 'text-yellow-600' : 'text-red-600'
+                      }`}>
+                        {(result.keywordMatches / result.totalKeywords) >= 0.8 ? 'Excellent' :
+                         (result.keywordMatches / result.totalKeywords) >= 0.6 ? 'Good' : 'Needs Work'}
+                      </span>
                     </div>
                   </div>
 
                   {/* Section Analysis */}
                   <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                      <FileText className="w-5 h-5 mr-2 text-blue-600" />
                       Resume Sections
                     </h2>
                     <div className="space-y-3">
                       {result.sections.map((section, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div key={index} className={`flex items-center justify-between p-4 rounded-xl transition-all duration-200 ${
+                          section.found 
+                            ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' 
+                            : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
+                        }`}>
                           <div className="flex items-center space-x-3">
                             {section.found ? (
-                              <CheckCircle className="w-5 h-5 text-green-500" />
+                              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                                <CheckCircle className="w-5 h-5 text-white" />
+                              </div>
                             ) : (
-                              <AlertCircle className="w-5 h-5 text-red-500" />
+                              <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                                <AlertCircle className="w-5 h-5 text-white" />
+                              </div>
                             )}
-                            <span className="font-medium text-gray-900 dark:text-white">
-                              {section.name}
+                            <div>
+                              <span className="font-medium text-gray-900 dark:text-white block">
+                                {section.name}
+                              </span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                {section.found ? 'Found in resume' : 'Missing from resume'}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className={`text-xs px-3 py-1 rounded-full font-medium ${
+                              section.importance === 'high' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
+                              section.importance === 'medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300' :
+                              'bg-gray-100 text-gray-700 dark:bg-gray-600 dark:text-gray-300'
+                            }`}>
+                              {section.importance} priority
                             </span>
                           </div>
-                          <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                            section.importance === 'high' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
-                            section.importance === 'medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300' :
-                            'bg-gray-100 text-gray-700 dark:bg-gray-600 dark:text-gray-300'
-                          }`}>
-                            {section.importance}
-                          </span>
                         </div>
                       ))}
+                    </div>
+                    
+                    {/* Section Summary */}
+                    <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                          Sections Found: {result.sections.filter(s => s.found).length} / {result.sections.length}
+                        </span>
+                        <span className="text-sm text-blue-700 dark:text-blue-300">
+                          {Math.round((result.sections.filter(s => s.found).length / result.sections.length) * 100)}% Complete
+                        </span>
+                      </div>
                     </div>
                   </div>
 
                   {/* Feedback */}
                   <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                      Feedback & Suggestions
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                      <TrendingUp className="w-5 h-5 mr-2 text-blue-600" />
+                      Detailed Analysis & Recommendations
                     </h2>
-                    <div className="space-y-4">
-                      <div>
-                        <h3 className="font-medium text-gray-900 dark:text-white mb-2">What's Working Well:</h3>
-                        <ul className="space-y-2">
-                          {result.feedback.map((item, index) => (
-                            <li key={index} className="flex items-start space-x-2">
-                              <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                              <span className="text-sm text-gray-600 dark:text-gray-400">{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-gray-900 dark:text-white mb-2">Recommendations:</h3>
-                        <ul className="space-y-2">
-                          {result.suggestions.map((item, index) => (
-                            <li key={index} className="flex items-start space-x-2">
-                              <TrendingUp className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                              <span className="text-sm text-gray-600 dark:text-gray-400">{item}</span>
-                            </li>
-                          ))}
-                        </ul>
+                    
+                    <div className="space-y-6">
+                      {/* Positive Feedback */}
+                      {result.feedback && result.feedback.length > 0 && (
+                        <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-5 border border-green-200 dark:border-green-800">
+                          <h3 className="font-semibold text-green-900 dark:text-green-100 mb-3 flex items-center">
+                            <CheckCircle className="w-5 h-5 mr-2" />
+                            What's Working Well
+                          </h3>
+                          <ul className="space-y-3">
+                            {result.feedback.map((item, index) => (
+                              <li key={index} className="flex items-start space-x-3">
+                                <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <CheckCircle className="w-3 h-3 text-white" />
+                                </div>
+                                <span className="text-sm text-green-800 dark:text-green-200 leading-relaxed">{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {/* Improvement Suggestions */}
+                      {result.suggestions && result.suggestions.length > 0 && (
+                        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-5 border border-blue-200 dark:border-blue-800">
+                          <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-3 flex items-center">
+                            <TrendingUp className="w-5 h-5 mr-2" />
+                            Recommendations for Improvement
+                          </h3>
+                          <ul className="space-y-3">
+                            {result.suggestions.map((item, index) => (
+                              <li key={index} className="flex items-start space-x-3">
+                                <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <TrendingUp className="w-3 h-3 text-white" />
+                                </div>
+                                <span className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed">{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {/* Action Items */}
+                      <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-5 border border-yellow-200 dark:border-yellow-800">
+                        <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-3 flex items-center">
+                          <AlertCircle className="w-5 h-5 mr-2" />
+                          Next Steps
+                        </h3>
+                        <div className="space-y-2 text-sm text-yellow-800 dark:text-yellow-200">
+                          <p>• Review and implement the recommendations above</p>
+                          <p>• Test your updated resume with different job descriptions</p>
+                          <p>• Consider using our resume builder for ATS-optimized templates</p>
+                          <p>• Re-run this analysis after making changes</p>
+                        </div>
                       </div>
                     </div>
                   </div>

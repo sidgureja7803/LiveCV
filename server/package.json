@@ -25,6 +25,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.2",
     "multer": "^2.0.2",
+    "pdf-parse": "^1.1.1",
+    "mammoth": "^1.6.0",
     "node-appwrite": "^11.0.0",
     "node-cache": "^5.1.2",
     "nodemailer": "^7.0.9",

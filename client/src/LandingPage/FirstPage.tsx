@@ -44,7 +44,7 @@ export const FirstPage = () => {
 
               {/* Main Heading */}
               <h1 className="text-5xl md:text-7xl font-black mb-8 leading-tight">
-                <span className="bg-gradient-to-r from-blue-600 via-blue-700 to-slate-800 text-transparent bg-clip-text">
+                <span className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-900 text-transparent bg-clip-text">
                   Build Your Dream Resume
                 </span>
                 <br />
@@ -57,8 +57,8 @@ export const FirstPage = () => {
               <p className={`text-xl md:text-2xl mb-8 font-medium ${
                 isDark ? 'text-gray-300' : 'text-gray-600'
               }`}>
-                Create professional, ATS-optimized resumes with our powerful platform.
-                Stand out from the competition and land your dream job.
+                Create professional, ATS-optimized resumes with our AI-powered platform.
+                Beat the bots, impress recruiters, and land your dream job faster.
               </p>
               
               {/* Feature bullets */}
