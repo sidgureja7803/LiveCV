@@ -19,6 +19,9 @@ router.get('/user/all', verifyToken, resumeController.getUserResumes);
 // POST /resume - Create a new resume
 router.post('/', verifyToken, resumeController.createResume);
 
+// POST /resume/render-pdf - Generate PDF from raw resume data (no save)
+router.post('/render-pdf', resumeController.renderPDFFromData);
+
 // PUT /resume/:id - Update an existing resume
 router.put('/:id', verifyToken, resumeController.updateResume);
 

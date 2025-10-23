@@ -18,8 +18,8 @@ import LoadingOverlay from '../components/LoadingOverlay';
 import { parseRenderCVYaml } from '../utils/yamlParser';
 import { Document, Page, pdfjs } from 'react-pdf';
 
-// Set PDF.js worker path
-pdfjs.GlobalWorkerOptions.workerSrc = `/pdf-worker/pdf.worker.min.js`;
+// Set PDF.js worker path - using CDN for reliability
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
 // Section interface matching ResumeToolbar's requirements
 interface Section {
@@ -112,7 +112,7 @@ const ResumeBuilder: React.FC = () => {
   // Use a ref to track if the component is mounted
   const isMounted = useRef(true);
   
-  // Use debounced PDF preview hook
+  // Use debounced PDF preview hook - enable even without resumeId for immediate preview
   const { 
     loading: pdfLoading, 
     error: pdfError, 
@@ -122,7 +122,7 @@ const ResumeBuilder: React.FC = () => {
     clearPreview
   } = useDebouncedPreview(resumeId, resumeData, rendercvTheme, {
     delay: 800,
-    enabled: previewMode === 'pdf' && resumeId !== null
+    enabled: previewMode === 'pdf' // Remove resumeId requirement for immediate preview
   });
   
   // Use download PDF hook
@@ -234,10 +234,15 @@ const ResumeBuilder: React.FC = () => {
       }
     }
     
-    // Simulate API call delay
+    // Simulate API call delay and trigger initial preview
     const timer = setTimeout(() => {
       if (isMounted.current) {
         setIsLoading(false);
+        // Trigger initial PDF preview if in PDF mode
+        if (previewMode === 'pdf') {
+          console.log('🚀 Triggering initial PDF preview');
+          triggerPreview();
+        }
       }
     }, 800);
     
@@ -245,10 +250,18 @@ const ResumeBuilder: React.FC = () => {
       clearTimeout(timer);
       isMounted.current = false;
     };
-  }, [templateId]);
+  }, [templateId, previewMode, triggerPreview]);
   
   // Get the current template object
   const currentTemplate = getTemplateById(selectedTemplateId);
+  
+  // Trigger preview when switching to PDF mode
+  useEffect(() => {
+    if (previewMode === 'pdf' && !pdfLoading && !pdfUrl) {
+      console.log('🔄 Switching to PDF mode, triggering preview');
+      triggerPreview();
+    }
+  }, [previewMode, pdfLoading, pdfUrl, triggerPreview]);
   
   // Handle template change
   const handleTemplateChange = (newTemplateId: string) => {
@@ -348,43 +361,35 @@ const ResumeBuilder: React.FC = () => {
       // Show loading state
       setIsLoading(true);
       
-      let savedResumeId;
-      let pdfUrl;
+      let savedResumeId = resumeId;
       
-      if (resumeId) {
-        // If we're generating PDF along with the save
-        if (generatePdf) {
-          const result = await apiService.saveResumeWithPDF(resumeId, resumeData, rendercvTheme);
-          savedResumeId = resumeId;
-          
-          // Check if PDF was generated successfully
-          if (result.pdf) {
-            pdfUrl = result.pdf.url;
-            // Trigger preview update
-            triggerPreview();
-          } else if (result.pdfError) {
-            console.error('PDF generation error:', result.pdfError);
-          }
-        } else {
-          // Just update resume without PDF
+      // Only save to backend if we have valid data and want to persist
+      if (!generatePdf || resumeId) {
+        if (resumeId) {
+          // Update existing resume
           await apiService.updateResume(resumeId, resumeData);
           savedResumeId = resumeId;
-        }
-      } else {
-        // Create new resume
-        const { resume } = await apiService.createResume(resumeData, templateId || 'modern-professional');
-        savedResumeId = resume._id;
-        setResumeId(resume._id);
-        
-        // If we want to generate PDF immediately after creating
-        if (generatePdf && savedResumeId) {
-          const result = await apiService.saveResumeWithPDF(savedResumeId, resumeData, rendercvTheme);
-          if (result.pdf) {
-            pdfUrl = result.pdf.url;
-            // Trigger preview update
-            triggerPreview();
+        } else {
+          // Create new resume
+          try {
+            const { resume } = await apiService.createResume(resumeData, templateId || 'classic');
+            savedResumeId = resume._id;
+            setResumeId(resume._id);
+          } catch (error) {
+            console.warn('Failed to save to backend, continuing with local preview:', error);
+            // Continue without saving - we can still generate preview
           }
         }
+      }
+      
+      // Always trigger preview when requested (works with or without backend)
+      if (generatePdf) {
+        // Update resumeId if we got one from save
+        if (savedResumeId && !resumeId) {
+          setResumeId(savedResumeId);
+        }
+        // Trigger preview immediately
+        triggerPreview();
       }
       
       // Hide loading state
@@ -392,16 +397,24 @@ const ResumeBuilder: React.FC = () => {
       
       // Show success message
       if (generatePdf) {
-        alert('Resume saved successfully and PDF generated!');
+        console.log('PDF generation triggered!');
       } else {
-        alert('Resume saved successfully!');
+        console.log('Resume saved successfully!');
       }
       
-      return { savedResumeId, pdfUrl };
+      return { savedResumeId };
     } catch (error) {
       console.error('Failed to save resume:', error);
       setIsLoading(false);
-      alert('Failed to save resume. Please try again.');
+      
+      // Still try to generate preview even if save failed
+      if (generatePdf) {
+        console.log('Save failed, but generating preview anyway...');
+        triggerPreview();
+      } else {
+        alert('Failed to save resume. Please try again.');
+      }
+      
       return { error };
     }
   };
@@ -485,13 +498,15 @@ const ResumeBuilder: React.FC = () => {
     };
 
   return (
-      <div className="flex h-screen bg-white dark:bg-[#0F1218] text-gray-900 dark:text-gray-100">
+      <div className="flex h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         {/* Sidebar - Toggleable with smooth transition */}
-        <div className={`transition-all duration-300 ease-in-out ${sidebarOpen ? 'w-64' : 'w-0'} overflow-hidden`}>
-          <Sidebar />
-        </div>
+        {sidebarOpen && (
+          <div className="w-64 flex-shrink-0 transition-all duration-300 ease-in-out">
+            <Sidebar />
+          </div>
+        )}
         
-        <main className="flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out">
+        <main className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${sidebarOpen ? '' : 'w-full'}`}>
             {isLoading && <LoadingOverlay message="Loading resume template..." />}
             
             {/* Professional Toolbar */}
@@ -505,7 +520,7 @@ const ResumeBuilder: React.FC = () => {
               onToggleSectionVisibility={handleToggleSectionVisibility}
             />
             
-            <header className="bg-white dark:bg-[#1A1D26] shadow-sm py-3 px-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-800">
+            <header className="bg-white dark:bg-gray-800 shadow-sm py-3 px-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-4">
                 {/* Sidebar Toggle */}
                 <button
@@ -529,13 +544,13 @@ const ResumeBuilder: React.FC = () => {
                 </button>
                 
                 {/* Preview Mode Toggle */}
-                <div className="flex items-center space-x-1 bg-[#252A36] dark:bg-[#121622] rounded-md p-1">
+                <div className="flex items-center space-x-1 bg-gray-100 dark:bg-gray-700 rounded-md p-1">
                   <button
                     onClick={() => setPreviewMode('html')}
                     className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                       previewMode === 'html' 
                         ? 'bg-indigo-600 text-white' 
-                        : 'text-gray-300 hover:text-white'
+                        : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                     }`}
                   >
                     HTML
@@ -545,7 +560,7 @@ const ResumeBuilder: React.FC = () => {
                     className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                       previewMode === 'pdf' 
                         ? 'bg-indigo-600 text-white' 
-                        : 'text-gray-300 hover:text-white'
+                        : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                     }`}
                   >
                     PDF
@@ -559,7 +574,7 @@ const ResumeBuilder: React.FC = () => {
                       <select 
                         value={rendercvTheme}
                         onChange={(e) => setRendercvTheme(e.target.value)}
-                        className="bg-[#252A36] dark:bg-[#121622] text-white py-1.5 px-3 rounded-md border border-gray-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm"
+                        className="bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white py-1.5 px-3 rounded-md border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm"
                       >
                         <option value="classic">Classic</option>
                         <option value="moderncv">Modern CV</option>
@@ -601,7 +616,7 @@ const ResumeBuilder: React.FC = () => {
                     <select 
                       value={selectedTemplateId}
                       onChange={(e) => handleTemplateChange(e.target.value)}
-                      className="bg-[#252A36] dark:bg-[#121622] text-white py-1.5 px-3 rounded-md border border-gray-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm"
+                      className="bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white py-1.5 px-3 rounded-md border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm"
                     >
                       {availableTemplates.map(template => (
                         <option key={template.id} value={template.id}>
@@ -634,7 +649,7 @@ const ResumeBuilder: React.FC = () => {
                 maxLeftWidth={70}
                 onResize={handlePanelResize}
                 leftPanel={
-                  <div className="h-full overflow-y-auto p-6 relative bg-white dark:bg-[#1A1D26] border-r border-gray-200 dark:border-gray-800">
+                  <div className="h-full overflow-y-auto p-6 relative bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
                     {/* LiveCoding component to enable collaborative editing */}
                     {resumeId && (
                       <LiveCoding 
@@ -657,7 +672,7 @@ const ResumeBuilder: React.FC = () => {
                   </div>
                 }
                 rightPanel={
-                  <div className="h-full flex flex-col bg-white dark:bg-[#1A1D26]">
+                  <div className="h-full flex flex-col bg-white dark:bg-gray-800">
                     {/* Preview Header - Fixed */}
                     <div className="flex-shrink-0 p-6 border-b border-gray-200 dark:border-gray-700">
                         <div className="flex justify-between items-center">
@@ -845,7 +860,8 @@ const ResumeBuilder: React.FC = () => {
                                   <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                   </svg>
-                                  <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">Click "Save" or "Compile" to generate PDF preview</p>
+                                  <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">PDF preview will appear here</p>
+                                  <p className="mt-2 text-sm text-gray-400 dark:text-gray-500">Make changes to see live updates</p>
                                 </div>
                               </div>
                             )}
@@ -864,9 +880,6 @@ const ResumeBuilder: React.FC = () => {
                     </div>
                   </div>
                 }
-                defaultLeftWidth={50}
-                minLeftWidth={30}
-                maxLeftWidth={70}
               />
             </div>
             

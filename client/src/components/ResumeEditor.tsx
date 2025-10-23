@@ -115,11 +115,6 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resumeData, onResumeChange,
 
   return (
     <div className="h-full flex flex-col">
-        {/* Header - Fixed */}
-        <div className="flex-shrink-0 mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">Resume Editor</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Fill in your details below.</p>
-        </div>
         
         {/* Tabs - Fixed */}
         <div className="flex-shrink-0 mb-6">

@@ -11,6 +11,8 @@ import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
 import ResumeBuilder from './pages/ResumeBuilder';
 import TemplateSelector from './pages/TemplateSelector';
+import ExperienceBuilder from './pages/ExperienceBuilder';
+import EducationBuilder from './pages/EducationBuilder';
 import TailwindTest from './TailwindTest';
 import VerifyEmail from './pages/VerifyEmail';
 import VerifyOTP from './pages/VerifyOTP';
@@ -132,6 +134,10 @@ function App() {
               {/* ResumeBuilder route - requires both authentication and template selection */}
               <Route path="/builder/:templateId" element={<TemplateRequiredRoute element={<ResumeBuilder />} />} />
               <Route path="/builder" element={<Navigate to="/templates" replace />} />
+              
+              {/* Individual section builders - protected routes */}
+              <Route path="/builder/experience" element={<ProtectedRoute element={<ExperienceBuilder />} />} />
+              <Route path="/builder/education" element={<ProtectedRoute element={<EducationBuilder />} />} />
               
               {/* Backwards compatibility route */}
               <Route path="/resume/:templateId" element={<ResumeRedirect />} />

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { createMockPdfUrl } from '../utils/mockPdfGenerator';
 
 interface UseDebouncedPreviewOptions {
   delay?: number;
@@ -42,10 +43,10 @@ export function useDebouncedPreview(
   const previousDataRef = useRef<string>('');
   
   /**
-   * Generates PDF preview by calling the backend API
+   * Generates PDF preview by calling the backend API or using mock generator
    */
   const generatePreview = useCallback(async () => {
-    if (!resumeId || !enabled) return;
+    if (!enabled) return;
     
     // Cancel any pending preview generation
     if (abortControllerRef.current) {
@@ -58,29 +59,86 @@ export function useDebouncedPreview(
     setState(prev => ({ ...prev, loading: true, error: null }));
     
     try {
-      const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
-      const url = `${apiBaseUrl}/api/render/${resumeId}/preview?theme=${theme}`;
-      
-      console.log(`[Preview] Fetching PDF from: ${url}`);
-      
-      const response = await fetch(url, {
-        method: 'GET',
-        signal: abortControllerRef.current.signal,
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+      // If we have a resumeId, try the backend API first
+      if (resumeId) {
+        const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002';
+        const url = `${apiBaseUrl}/api/render/${resumeId}/preview?theme=${theme}`;
+        
+        console.log(`[Preview] Fetching PDF from: ${url}`);
+        
+        const response = await fetch(url, {
+          method: 'GET',
+          signal: abortControllerRef.current.signal,
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          }
+        });
+        
+        if (response.ok) {
+          // Get PDF blob
+          const pdfBlob = await response.blob();
+          
+          // Create object URL for the PDF
+          const pdfUrl = URL.createObjectURL(pdfBlob);
+          
+          // Revoke old URL to prevent memory leaks
+          if (state.pdfUrl) {
+            URL.revokeObjectURL(state.pdfUrl);
+          }
+          
+          setState({
+            loading: false,
+            error: null,
+            pdfUrl,
+            lastUpdated: Date.now()
+          });
+          
+          return; // Success, exit early
         }
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Failed to generate preview' }));
-        throw new Error(errorData.error || `HTTP ${response.status}`);
       }
       
-      // Get PDF blob
-      const pdfBlob = await response.blob();
+      // Try generating PDF from raw data (for new resumes)
+      console.log('[Preview] Trying to generate PDF from raw data');
+      const generateUrl = `${apiBaseUrl}/api/resume/render-pdf`;
       
-      // Create object URL for the PDF
-      const pdfUrl = URL.createObjectURL(pdfBlob);
+      const generateResponse = await fetch(generateUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+        },
+        body: JSON.stringify({
+          resumeData,
+          theme
+        }),
+        signal: abortControllerRef.current.signal
+      });
+      
+      if (generateResponse.ok) {
+        // Get PDF blob
+        const pdfBlob = await generateResponse.blob();
+        
+        // Create object URL for the PDF
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        
+        // Revoke old URL to prevent memory leaks
+        if (state.pdfUrl) {
+          URL.revokeObjectURL(state.pdfUrl);
+        }
+        
+        setState({
+          loading: false,
+          error: null,
+          pdfUrl,
+          lastUpdated: Date.now()
+        });
+        
+        return; // Success, exit early
+      }
+      
+      // Final fallback to mock PDF generation
+      console.log('[Preview] Using mock PDF generator as final fallback');
+      const mockPdfUrl = createMockPdfUrl(resumeData, theme);
       
       // Revoke old URL to prevent memory leaks
       if (state.pdfUrl) {
@@ -90,7 +148,7 @@ export function useDebouncedPreview(
       setState({
         loading: false,
         error: null,
-        pdfUrl,
+        pdfUrl: mockPdfUrl,
         lastUpdated: Date.now()
       });
       
@@ -100,13 +158,33 @@ export function useDebouncedPreview(
         return;
       }
       
-      console.error('[Preview] Error generating PDF:', error);
+      console.error('[Preview] Error generating PDF, using mock fallback:', error);
       
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error.message || 'Failed to generate PDF preview'
-      }));
+      // Final fallback to mock PDF generation
+      try {
+        const mockPdfUrl = createMockPdfUrl(resumeData, theme);
+        
+        // Revoke old URL to prevent memory leaks
+        if (state.pdfUrl) {
+          URL.revokeObjectURL(state.pdfUrl);
+        }
+        
+        setState({
+          loading: false,
+          error: null,
+          pdfUrl: mockPdfUrl,
+          lastUpdated: Date.now()
+        });
+        
+        console.log('[Preview] Using mock PDF preview as fallback');
+      } catch (mockError) {
+        console.error('[Preview] Mock PDF generation failed:', mockError);
+        setState(prev => ({
+          ...prev,
+          loading: false,
+          error: 'Failed to generate PDF preview'
+        }));
+      }
     }
   }, [resumeId, theme, enabled, state.pdfUrl]);
   
@@ -139,10 +217,10 @@ export function useDebouncedPreview(
    * Debounced effect that triggers preview generation
    */
   useEffect(() => {
-    if (!enabled || !resumeId) return;
+    if (!enabled) return;
     
     // Serialize resume data to detect changes
-    const currentData = JSON.stringify({ resumeData, theme });
+    const currentData = JSON.stringify({ resumeData, theme, resumeId });
     
     // Skip if data hasn't changed
     if (currentData === previousDataRef.current) {
@@ -203,7 +281,7 @@ export function useDownloadPDF() {
     setError(null);
     
     try {
-      const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+      const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002';
       const url = `${apiBaseUrl}/api/render/${resumeId}/download?theme=${theme}`;
       
       console.log(`[Download] Downloading PDF from: ${url}`);

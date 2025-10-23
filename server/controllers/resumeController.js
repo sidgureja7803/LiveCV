@@ -526,6 +526,75 @@ exports.uploadResumeFile = async (req, res) => {
 };
 
 /**
+ * Generate PDF from raw resume data without saving to database
+ * @route POST /api/resume/render-pdf
+ */
+exports.renderPDFFromData = async (req, res) => {
+  try {
+    const { resumeData, theme } = req.body;
+    
+    if (!resumeData) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Resume data is required' 
+      });
+    }
+    
+    // Check if rendercvService is available
+    const { mapJsonToRenderCVYaml, validateRenderCVYaml } = require('../utils/jsonToYamlMapper');
+    const { renderResume, isRenderCVInstalled } = require('../services/rendercvService');
+    
+    // First check if RenderCV is installed
+    const renderCVAvailable = await isRenderCVInstalled();
+    if (!renderCVAvailable) {
+      return res.status(503).json({
+        success: false,
+        message: 'PDF generation is currently unavailable (RenderCV not installed)'
+      });
+    }
+
+    // Convert JSON to RenderCV YAML
+    const yamlContent = mapJsonToRenderCVYaml(resumeData, theme || 'classic');
+    
+    // Validate YAML
+    const validation = validateRenderCVYaml(yamlContent);
+    if (!validation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid YAML structure',
+        errors: validation.errors
+      });
+    }
+    
+    // Render PDF
+    const pdfBuffer = await renderResume(yamlContent, theme || 'classic');
+    
+    // Generate filename
+    const fileName = `${resumeData.personalInfo?.fullName || 'Resume'}_${theme || 'classic'}_Preview.pdf`
+      .replace(/[^a-zA-Z0-9_-]/g, '_');
+    
+    // Set headers for PDF streaming
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
+    res.setHeader('Content-Length', pdfBuffer.length);
+    res.setHeader('Cache-Control', 'no-cache');
+    
+    // Send PDF
+    res.send(pdfBuffer);
+    
+    console.log(`[Render PDF] Generated PDF from raw data in ${theme || 'classic'} theme`);
+    
+  } catch (error) {
+    console.error('Error rendering PDF from data:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to generate PDF',
+      error: error.message 
+    });
+  }
+};
+
+/**
  * Delete a resume file but keep the resume record
  */
 exports.deleteResumeFile = async (req, res) => {
