@@ -30,6 +30,7 @@ const reportRoutes = require('./routes/reportRoutes');
 const renderRoutes = require('./routes/renderRoute');
 const appwriteAuthRoutes = require('./routes/auth');
 const templatesRoutes = require('./routes/templates');
+const jdMatchRoutes = require('./routes/jdMatchRoutes');
 
 // Initialize Express app
 const app = express();
@@ -224,6 +225,7 @@ app.use('/api/templates', templatesRoutes);
 app.use('/api/ats', atsRoutes);
 app.use('/api/match', matchRoutes);
 app.use('/api/report', reportRoutes);
+app.use('/api/jd-match', jdMatchRoutes);
 
 // Legacy routes for backward compatibility
 app.use('/ats-score', atsRoutes);

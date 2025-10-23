@@ -3,10 +3,37 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { ArrowRight, Star, Users, FileText, TrendingUp, CheckCircle, Clock, FileCheck } from 'lucide-react';
 import livePreviewImage from '/images/live_preview.png';
+import Lenis from 'lenis';
 
 export const FirstPage = () => {
   const navigate = useNavigate();
   const { isDark } = useTheme();
+
+  // Initialize Lenis smooth scrolling
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      direction: 'vertical',
+      gestureDirection: 'vertical',
+      smooth: true,
+      mouseMultiplier: 1,
+      smoothTouch: false,
+      touchMultiplier: 2,
+      infinite: false,
+    });
+
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
   
   const stats = [
     { icon: <Users className="w-8 h-8" />, number: '10K+', label: 'Active Users' },
@@ -167,29 +194,35 @@ export const FirstPage = () => {
           
           {/* Powered by Appwrite Badge */}
           <div className="flex items-center justify-center mt-12">
-            <div className={`inline-flex items-center space-x-3 px-6 py-3 rounded-xl border backdrop-blur-sm ${
+            <div className={`inline-flex items-center space-x-4 px-8 py-4 rounded-2xl border backdrop-blur-sm shadow-lg ${
               isDark 
-                ? 'bg-gray-800/50 border-gray-700' 
-                : 'bg-white/50 border-gray-200'
+                ? 'bg-gray-800/80 border-gray-700' 
+                : 'bg-white/80 border-gray-200'
             }`}>
-              <span className={`text-sm font-medium ${
-                isDark ? 'text-gray-400' : 'text-gray-600'
-              }`}>Powered by</span>
-              <a 
-                href="https://appwrite.io" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 transition-all transform hover:scale-105"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  className="w-5 h-5 text-white fill-current"
+              <div className="flex items-center space-x-3">
+                <span className={`text-sm font-medium ${
+                  isDark ? 'text-gray-400' : 'text-gray-600'
+                }`}>Powered by</span>
+                <a 
+                  href="https://appwrite.io" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center space-x-3 px-4 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 transition-all transform hover:scale-105 shadow-lg"
                 >
-                  <path d="M12 0L1.608 6v12L12 24l10.392-6V6L12 0zm-1.02 14.004H6.984v3.996h3.996v-3.996zm0-8.004H6.984v3.996h3.996V6zm5.016 0h-3.996v3.996h3.996V6zm0 8.004h-3.996v3.996h3.996v-3.996z" />
-                </svg>
-                <span className="text-white text-sm font-bold">Appwrite</span>
-              </a>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    className="w-6 h-6 text-white"
+                    fill="currentColor"
+                  >
+                    <path d="M12 0L1.608 6v12L12 24l10.392-6V6L12 0zm-1.02 14.004H6.984v3.996h3.996v-3.996zm0-8.004H6.984v3.996h3.996V6zm5.016 0h-3.996v3.996h3.996V6zm0 8.004h-3.996v3.996h3.996v-3.996z" />
+                  </svg>
+                  <span className="text-white text-sm font-bold">Appwrite</span>
+                </a>
+              </div>
+              <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'} max-w-xs`}>
+                Secure database & authentication
+              </div>
             </div>
           </div>
         </div>

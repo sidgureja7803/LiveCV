@@ -19,6 +19,9 @@ import VerifyEmail from './pages/VerifyEmail';
 import VerifyOTP from './pages/VerifyOTP';
 import VerifyMagicURL from './pages/VerifyMagicURL';
 import VerifyMagicURLSent from './pages/VerifyMagicURLSent';
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import JDMatcher from './pages/JDMatcher';
 import './App.css';
 
 // ProtectedRoute component that requires authentication
@@ -119,6 +122,8 @@ function App() {
               <Route path="/register" element={<SignupPage />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               
               {/* Email verification routes */}
               <Route path="/verify-email" element={<VerifyEmail />} />
@@ -142,6 +147,9 @@ function App() {
               
               {/* ATS Checker - protected route */}
               <Route path="/ats-checker" element={<ProtectedRoute element={<ATSChecker />} />} />
+              
+              {/* JD Matcher - protected route */}
+              <Route path="/jd-matcher" element={<ProtectedRoute element={<JDMatcher />} />} />
               
               {/* Backwards compatibility route */}
               <Route path="/resume/:templateId" element={<ResumeRedirect />} />

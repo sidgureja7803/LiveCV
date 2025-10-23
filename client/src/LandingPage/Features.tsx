@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTheme } from '../contexts/ThemeContext';
-import { Zap, Award, Shield, FileText } from 'lucide-react';
+import { Zap, Award, Shield, FileText, Database, Lock, CheckCircle } from 'lucide-react';
 
 // Company Logo component to replace CDN images with inline SVGs
 const CompanyLogo = ({ name, color }: { name: string; color: string }) => {
@@ -269,6 +269,132 @@ export const Features = () => {
                 </p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Appwrite Integration Showcase */}
+      <section className="py-24 px-6">
+        <div className="container mx-auto">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center space-x-3 mb-6">
+                <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-red-500 rounded-xl flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    className="w-7 h-7 text-white"
+                    fill="currentColor"
+                  >
+                    <path d="M12 0L1.608 6v12L12 24l10.392-6V6L12 0zm-1.02 14.004H6.984v3.996h3.996v-3.996zm0-8.004H6.984v3.996h3.996V6zm5.016 0h-3.996v3.996h3.996V6zm0 8.004h-3.996v3.996h3.996v-3.996z" />
+                  </svg>
+                </div>
+                <h2 className="text-4xl md:text-5xl font-black">
+                  <span className="bg-gradient-to-r from-pink-600 to-red-600 text-transparent bg-clip-text">
+                    Powered by Appwrite
+                  </span>
+                </h2>
+              </div>
+              <p className={`text-xl ${isDark ? 'text-gray-400' : 'text-gray-600'} max-w-3xl mx-auto`}>
+                Built on Appwrite's secure, open-source backend platform for enterprise-grade reliability and performance
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+              {[
+                {
+                  icon: <Shield className="w-8 h-8" />,
+                  title: 'Secure Authentication',
+                  description: 'OAuth, email verification, and multi-factor authentication',
+                  color: 'from-green-500 to-emerald-500'
+                },
+                {
+                  icon: <Database className="w-8 h-8" />,
+                  title: 'Real-time Database',
+                  description: 'Instant sync across devices with live collaboration features',
+                  color: 'from-blue-500 to-cyan-500'
+                },
+                {
+                  icon: <Lock className="w-8 h-8" />,
+                  title: 'End-to-End Encryption',
+                  description: 'Your resume data is encrypted and protected at all times',
+                  color: 'from-purple-500 to-pink-500'
+                },
+                {
+                  icon: <FileText className="w-8 h-8" />,
+                  title: 'Cloud Storage',
+                  description: 'Secure file storage for PDFs and resume assets',
+                  color: 'from-orange-500 to-red-500'
+                }
+              ].map((feature, index) => (
+                <div
+                  key={index}
+                  className={`group p-6 rounded-2xl transition-all duration-300 hover:scale-105 ${
+                    isDark ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:shadow-xl'
+                  } border ${isDark ? 'border-gray-700' : 'border-gray-200'}`}
+                >
+                  <div className={`mb-4 bg-gradient-to-r ${feature.color} p-3 rounded-xl inline-block text-white`}>
+                    {feature.icon}
+                  </div>
+                  <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                    {feature.title}
+                  </h3>
+                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'} leading-relaxed`}>
+                    {feature.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Technical Details */}
+            <div className={`${isDark ? 'bg-gray-800' : 'bg-gray-50'} rounded-2xl p-8 border ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+              <div className="grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                  <h3 className={`text-2xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                    Why We Chose Appwrite
+                  </h3>
+                  <ul className={`space-y-3 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                    <li className="flex items-start space-x-3">
+                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <span>Open-source and transparent security practices</span>
+                    </li>
+                    <li className="flex items-start space-x-3">
+                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <span>GDPR compliant with data residency options</span>
+                    </li>
+                    <li className="flex items-start space-x-3">
+                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <span>99.9% uptime SLA for reliable access</span>
+                    </li>
+                    <li className="flex items-start space-x-3">
+                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <span>Built-in backup and disaster recovery</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="text-center">
+                  <div className={`inline-flex items-center space-x-4 px-6 py-4 rounded-xl ${isDark ? 'bg-gray-700' : 'bg-white'} border ${isDark ? 'border-gray-600' : 'border-gray-200'} shadow-lg`}>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-500 mb-1">99.9%</div>
+                      <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Uptime</div>
+                    </div>
+                    <div className={`w-px h-8 ${isDark ? 'bg-gray-600' : 'bg-gray-300'}`}></div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-500 mb-1">256-bit</div>
+                      <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Encryption</div>
+                    </div>
+                    <div className={`w-px h-8 ${isDark ? 'bg-gray-600' : 'bg-gray-300'}`}></div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-purple-500 mb-1">SOC 2</div>
+                      <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Compliant</div>
+                    </div>
+                  </div>
+                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'} mt-4`}>
+                    Enterprise-grade security you can trust
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

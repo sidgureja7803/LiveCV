@@ -38,6 +38,7 @@ const Sidebar: React.FC = () => {
       title: 'Tools',
       links: [
         { name: 'ATS Checker', path: '/ats-checker' },
+        { name: 'JD Matcher', path: '/jd-matcher' },
       ],
     },
   ];

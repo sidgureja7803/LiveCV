@@ -104,22 +104,23 @@ const Login: React.FC = () => {
             </Link>
             
             {/* Powered by Appwrite */}
-            <div className="flex items-center justify-center space-x-2 mt-4">
+            <div className="flex items-center justify-center space-x-3 mt-4">
               <span className="text-sm text-gray-500 dark:text-gray-400">Powered by</span>
               <a 
                 href="https://appwrite.io" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 transition-all transform hover:scale-105 shadow-md"
+                className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 transition-all transform hover:scale-105 shadow-lg"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
-                  className="w-5 h-5 text-white fill-current"
+                  className="w-5 h-5 text-white"
+                  fill="currentColor"
                 >
                   <path d="M12 0L1.608 6v12L12 24l10.392-6V6L12 0zm-1.02 14.004H6.984v3.996h3.996v-3.996zm0-8.004H6.984v3.996h3.996V6zm5.016 0h-3.996v3.996h3.996V6zm0 8.004h-3.996v3.996h3.996v-3.996z" />
                 </svg>
-                <span className="text-white text-sm font-semibold">Appwrite</span>
+                <span className="text-white text-sm font-bold">Appwrite</span>
               </a>
             </div>
           </div>
@@ -256,6 +257,16 @@ const Login: React.FC = () => {
               Sign up
             </Link>
           </p>
+          
+          <div className="mt-6 text-center">
+            <Link 
+              to="/" 
+              className="inline-flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
+            </Link>
+          </div>
         </div>
       </div>
     </div>

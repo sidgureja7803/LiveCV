@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { RESUME_TEMPLATES } from "../config/templates";
 import type { ResumeTemplate } from "../types/templates";
-// Removed PDF.js import for simpler image-based previews
 import Modal from "../components/Modal";
 import Sidebar from "../components/Sidebar";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
-import ThemeToggle from "../components/ThemeToggle";
 import LoadingOverlay from "../components/LoadingOverlay";
 import { Moon, Sun } from "lucide-react";
 
