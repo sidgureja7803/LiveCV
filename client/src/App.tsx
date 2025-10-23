@@ -13,6 +13,7 @@ import ResumeBuilder from './pages/ResumeBuilder';
 import TemplateSelector from './pages/TemplateSelector';
 import ExperienceBuilder from './pages/ExperienceBuilder';
 import EducationBuilder from './pages/EducationBuilder';
+import ATSChecker from './pages/ATSChecker';
 import TailwindTest from './TailwindTest';
 import VerifyEmail from './pages/VerifyEmail';
 import VerifyOTP from './pages/VerifyOTP';
@@ -138,6 +139,9 @@ function App() {
               {/* Individual section builders - protected routes */}
               <Route path="/builder/experience" element={<ProtectedRoute element={<ExperienceBuilder />} />} />
               <Route path="/builder/education" element={<ProtectedRoute element={<EducationBuilder />} />} />
+              
+              {/* ATS Checker - protected route */}
+              <Route path="/ats-checker" element={<ProtectedRoute element={<ATSChecker />} />} />
               
               {/* Backwards compatibility route */}
               <Route path="/resume/:templateId" element={<ResumeRedirect />} />

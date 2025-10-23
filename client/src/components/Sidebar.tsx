@@ -34,6 +34,12 @@ const Sidebar: React.FC = () => {
         { name: 'Skills & Projects', path: '/builder/skills' },
       ],
     },
+    {
+      title: 'Tools',
+      links: [
+        { name: 'ATS Checker', path: '/ats-checker' },
+      ],
+    },
   ];
 
   const isActive = (path: string) => location.pathname === path;

@@ -44,7 +44,7 @@ export const FirstPage = () => {
 
               {/* Main Heading */}
               <h1 className="text-5xl md:text-7xl font-black mb-8 leading-tight">
-                <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-transparent bg-clip-text">
+                <span className="bg-gradient-to-r from-blue-600 via-blue-700 to-slate-800 text-transparent bg-clip-text">
                   Build Your Dream Resume
                 </span>
                 <br />
@@ -65,7 +65,7 @@ export const FirstPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
                 {features.map((feature, index) => (
                   <div key={index} className="flex items-center space-x-3">
-                    <div className={`${isDark ? 'text-indigo-400' : 'text-indigo-600'}`}>
+                    <div className={`${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
                       {feature.icon}
                     </div>
                     <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'} font-medium`}>
@@ -79,7 +79,7 @@ export const FirstPage = () => {
               <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center sm:justify-start gap-6 mb-16">
                 <button
                   onClick={() => navigate('/register')}
-                  className="group px-10 py-5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-2xl font-black text-xl transition-all transform hover:scale-105 shadow-2xl hover:shadow-indigo-500/50 w-full sm:w-auto"
+                  className="group px-10 py-5 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white rounded-2xl font-black text-xl transition-all transform hover:scale-105 shadow-2xl hover:shadow-blue-500/50 w-full sm:w-auto"
                 >
                   <span className="flex items-center justify-center space-x-3">
                     <span>Get Started Free</span>

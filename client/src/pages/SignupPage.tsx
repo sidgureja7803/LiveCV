@@ -108,7 +108,7 @@ const SignupPage: React.FC = () => {
       
       {/* Left Side - Image */}
       <div className="hidden lg:block lg:w-1/2 bg-cover bg-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 to-purple-900 opacity-90"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-slate-900 opacity-90"></div>
         <div className="absolute inset-0" style={{
           backgroundImage: `url('https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80')`,
           backgroundSize: 'cover',
@@ -145,7 +145,7 @@ const SignupPage: React.FC = () => {
           <div className="text-center mb-8">
             <Link to="/" className="inline-block">
               <div className="flex items-center justify-center">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
+                <div className="h-12 w-12 rounded-xl bg-gradient-to-r from-blue-600 to-blue-800 flex items-center justify-center">
                   <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
@@ -192,7 +192,7 @@ const SignupPage: React.FC = () => {
                   type="text"
                   id="firstName"
                   name="firstName"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="John"
                   value={formData.firstName}
                   onChange={handleChange}
@@ -207,7 +207,7 @@ const SignupPage: React.FC = () => {
                   type="text"
                   id="lastName"
                   name="lastName"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="Doe"
                   value={formData.lastName}
                   onChange={handleChange}
@@ -327,7 +327,7 @@ const SignupPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium py-3 px-4 rounded-xl hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-all disabled:opacity-50"
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white font-medium py-3 px-4 rounded-xl hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-all disabled:opacity-50"
               >
                 {loading ? (
                   <div className="flex items-center justify-center">
