@@ -65,7 +65,7 @@ export const RESUME_TEMPLATES: ResumeTemplate[] = [
 
 export const TEMPLATE_CONFIG: TemplateConfig = {
   templates: RESUME_TEMPLATES,
-  defaultTemplate: 'modern-professional'
+  defaultTemplate: 'moderncv'
 };
 
 export const getTemplateById = (id: string): ResumeTemplate | undefined => {

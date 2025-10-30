@@ -9,19 +9,33 @@ import { FAQs } from "../LandingPage/FAQs"
 import { Footer } from "../LandingPage/Footer";
 import { DebugAuthButton } from "../components/DebugAuthButton";
 import { useTheme } from "../contexts/ThemeContext";
+import Lenis from 'lenis';
 import "../styles/LandingPage.css";
 
 export const LandingPage = () => {
   const { isDark } = useTheme();
   
-  // Add smooth scrolling behavior to the document
+  // Initialize Lenis smooth scrolling
   useEffect(() => {
-    // Save the original scroll behavior
-    const originalStyle = window.getComputedStyle(document.documentElement).scrollBehavior;
-    
-    // Apply smooth scrolling
-    document.documentElement.style.scrollBehavior = 'smooth';
-    
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      direction: 'vertical',
+      gestureDirection: 'vertical',
+      smooth: true,
+      mouseMultiplier: 1,
+      smoothTouch: false,
+      touchMultiplier: 2,
+      infinite: false,
+    });
+
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
     // Handle hash links for smooth scrolling
     const handleHashLinkClick = (e: MouseEvent) => {
       const target = e.target as HTMLAnchorElement;
@@ -29,7 +43,7 @@ export const LandingPage = () => {
         const element = document.querySelector(target.hash);
         if (element) {
           e.preventDefault();
-          element.scrollIntoView({ behavior: 'smooth' });
+          lenis.scrollTo(element, { duration: 1.5 });
           // Update URL without reload
           window.history.pushState(null, '', target.hash);
         }
@@ -44,15 +58,14 @@ export const LandingPage = () => {
       setTimeout(() => {
         const element = document.querySelector(window.location.hash);
         if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
+          lenis.scrollTo(element, { duration: 1.5 });
         }
       }, 100);
     }
     
     // Cleanup function
     return () => {
-      // Restore original scroll behavior
-      document.documentElement.style.scrollBehavior = originalStyle;
+      lenis.destroy();
       document.removeEventListener('click', handleHashLinkClick);
     };
   }, []);

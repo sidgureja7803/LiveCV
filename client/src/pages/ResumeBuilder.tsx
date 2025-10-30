@@ -15,6 +15,7 @@ import { useDebouncedPreview, useDownloadPDF } from '../hooks/useDebouncedPrevie
 import type { ResumeData } from '../types';
 import type { ResumeTemplate } from '../types/templates';
 import LoadingOverlay from '../components/LoadingOverlay';
+import ErrorBoundary from '../components/ErrorBoundary';
 import { parseRenderCVYaml } from '../utils/yamlParser';
 import { Document, Page, pdfjs } from 'react-pdf';
 
@@ -121,8 +122,8 @@ const ResumeBuilder: React.FC = () => {
     triggerPreview,
     clearPreview
   } = useDebouncedPreview(resumeId, resumeData, rendercvTheme, {
-    delay: 800,
-    enabled: previewMode === 'pdf' // Remove resumeId requirement for immediate preview
+    delay: 1200, // Increased delay to reduce API calls
+    enabled: previewMode === 'pdf' && selectedTemplate !== null // Only enable when template is selected
   });
   
   // Use download PDF hook
@@ -144,10 +145,11 @@ const ResumeBuilder: React.FC = () => {
       if (templateYaml) {
         console.log('✅ Loading template YAML from localStorage');
         
-        // Parse YAML to ResumeData
-        const parsedData = parseRenderCVYaml(templateYaml);
-        
-        if (parsedData && Object.keys(parsedData).length > 0) {
+        try {
+          // Parse YAML to ResumeData
+          const parsedData = parseRenderCVYaml(templateYaml);
+          
+          if (parsedData && Object.keys(parsedData).length > 0) {
           setResumeData(prev => ({
             ...prev,
             ...parsedData
@@ -160,9 +162,14 @@ const ResumeBuilder: React.FC = () => {
           console.log('✅ Template data loaded successfully');
         }
         
-        // Clear localStorage after loading
-        localStorage.removeItem('selectedTemplateYaml');
-        localStorage.removeItem('selectedTemplateTheme');
+          // Clear localStorage after loading
+          localStorage.removeItem('selectedTemplateYaml');
+          localStorage.removeItem('selectedTemplateTheme');
+        } catch (error) {
+          console.error('Error parsing template YAML:', error);
+          // Use default data if parsing fails
+          console.log('Using default resume data due to parsing error');
+        }
       }
     }
     
@@ -498,6 +505,7 @@ const ResumeBuilder: React.FC = () => {
     };
 
   return (
+    <ErrorBoundary>
       <div className="flex h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         {/* Sidebar - Toggleable with smooth transition */}
         {sidebarOpen && (
@@ -895,6 +903,7 @@ const ResumeBuilder: React.FC = () => {
             />
         </main>
     </div>
+    </ErrorBoundary>
   );
   };
 

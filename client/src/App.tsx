@@ -22,6 +22,7 @@ import VerifyMagicURLSent from './pages/VerifyMagicURLSent';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import JDMatcher from './pages/JDMatcher';
+import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
 
 // ProtectedRoute component that requires authentication
@@ -111,7 +112,8 @@ function App() {
             <div className="animate-pulse text-white text-xl">Loading page...</div>
           </div>
         }>
-          <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
+          <ErrorBoundary>
+            <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
             <Routes>
               {/* Temporary Tailwind test route */}
               <Route path="/test" element={<TailwindTest />} />
@@ -163,7 +165,8 @@ function App() {
               {/* 404 - Must be last route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </div>
+            </div>
+          </ErrorBoundary>
         </React.Suspense>
       </AuthProvider>
     </ThemeProvider>

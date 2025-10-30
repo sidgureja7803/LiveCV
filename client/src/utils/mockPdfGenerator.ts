@@ -4,9 +4,93 @@
  */
 
 export const generateMockPDF = (resumeData: any, theme: string = 'classic'): Blob => {
-  // Create a simple PDF-like content using canvas and converting to blob
-  // For now, we'll create an HTML that looks more like a PDF
-  const htmlContent = `
+  // Create a minimal PDF structure
+  // This is a very basic PDF that will work with PDF viewers
+  const pdfContent = `%PDF-1.4
+1 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+
+2 0 obj
+<<
+/Type /Pages
+/Kids [3 0 R]
+/Count 1
+>>
+endobj
+
+3 0 obj
+<<
+/Type /Page
+/Parent 2 0 R
+/MediaBox [0 0 612 792]
+/Contents 4 0 R
+/Resources <<
+/Font <<
+/F1 5 0 R
+>>
+>>
+>>
+endobj
+
+4 0 obj
+<<
+/Length 200
+>>
+stream
+BT
+/F1 18 Tf
+50 750 Td
+(${(resumeData.personalInfo?.fullName || 'Resume Preview').replace(/[()\\]/g, '\\$&')}) Tj
+0 -30 Td
+/F1 12 Tf
+(${(resumeData.personalInfo?.email || 'Loading...').replace(/[()\\]/g, '\\$&')}) Tj
+0 -20 Td
+(${(resumeData.personalInfo?.phone || '').replace(/[()\\]/g, '\\$&')}) Tj
+0 -40 Td
+(Theme: ${theme}) Tj
+0 -20 Td
+(Generated with LiveCV - Mock Preview) Tj
+ET
+endstream
+endobj
+
+5 0 obj
+<<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+endobj
+
+xref
+0 6
+0000000000 65535 f 
+0000000010 00000 n 
+0000000053 00000 n 
+0000000125 00000 n 
+0000000348 00000 n 
+0000000565 00000 n 
+trailer
+<<
+/Size 6
+/Root 1 0 R
+>>
+startxref
+640
+%%EOF`;
+
+  // Convert to blob with proper PDF MIME type
+  const blob = new Blob([pdfContent], { type: 'application/pdf' });
+  return blob;
+};
+
+// Fallback HTML content for when PDF fails
+const generateFallbackHTML = (resumeData: any, theme: string = 'classic'): string => {
+  return `
     <!DOCTYPE html>
     <html>
     <head>
@@ -137,13 +221,17 @@ export const generateMockPDF = (resumeData: any, theme: string = 'classic'): Blo
     </body>
     </html>
   `;
-
-  // Convert HTML to blob with proper MIME type for PDF-like rendering
-  const blob = new Blob([htmlContent], { type: 'text/html' });
-  return blob;
 };
 
 export const createMockPdfUrl = (resumeData: any, theme: string = 'classic'): string => {
-  const pdfBlob = generateMockPDF(resumeData, theme);
-  return URL.createObjectURL(pdfBlob);
+  try {
+    const pdfBlob = generateMockPDF(resumeData, theme);
+    return URL.createObjectURL(pdfBlob);
+  } catch (error) {
+    console.error('Failed to create mock PDF, using HTML fallback:', error);
+    // Fallback to HTML if PDF generation fails
+    const htmlContent = generateFallbackHTML(resumeData, theme);
+    const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
+    return URL.createObjectURL(htmlBlob);
+  }
 };

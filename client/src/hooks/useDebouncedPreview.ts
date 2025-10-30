@@ -61,7 +61,7 @@ export function useDebouncedPreview(
     try {
       // If we have a resumeId, try the backend API first
       if (resumeId) {
-        const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002';
+        const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
         const url = `${apiBaseUrl}/api/render/${resumeId}/preview?theme=${theme}`;
         
         console.log(`[Preview] Fetching PDF from: ${url}`);
@@ -99,6 +99,7 @@ export function useDebouncedPreview(
       
       // Try generating PDF from raw data (for new resumes)
       console.log('[Preview] Trying to generate PDF from raw data');
+      const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
       const generateUrl = `${apiBaseUrl}/api/resume/render-pdf`;
       
       const generateResponse = await fetch(generateUrl, {
@@ -281,7 +282,7 @@ export function useDownloadPDF() {
     setError(null);
     
     try {
-      const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002';
+      const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
       const url = `${apiBaseUrl}/api/render/${resumeId}/download?theme=${theme}`;
       
       console.log(`[Download] Downloading PDF from: ${url}`);

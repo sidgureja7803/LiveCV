@@ -237,6 +237,17 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// API health check
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    message: 'LiveCV API is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    appwrite: isAppwriteConfigured() ? 'configured' : 'not configured'
+  });
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { FileText, LogIn, AlertCircle, Sun, Moon } from 'lucide-react';
+import { FileText, LogIn, AlertCircle, Sun, Moon, ArrowLeft } from 'lucide-react';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
