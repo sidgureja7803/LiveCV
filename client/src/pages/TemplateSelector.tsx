@@ -72,6 +72,7 @@ const TemplateSelector: React.FC = () => {
     try {
       const yamlFileName = template.pdfPreview?.replace(".pdf", ".yaml");
       if (yamlFileName) {
+        console.log(`📥 Loading template YAML from: ${yamlFileName}`);
         const response = await fetch(yamlFileName);
         if (response.ok) {
           const yamlContent = await response.text();
@@ -79,10 +80,18 @@ const TemplateSelector: React.FC = () => {
           localStorage.setItem("selectedTemplateYaml", yamlContent);
           localStorage.setItem("selectedTemplateTheme", template.id);
           console.log("✅ Loaded template YAML:", template.name);
+        } else {
+          console.warn(`⚠️ Failed to load YAML: ${response.status} ${response.statusText}`);
+          // Clear any old data
+          localStorage.removeItem("selectedTemplateYaml");
+          localStorage.removeItem("selectedTemplateTheme");
         }
       }
     } catch (error) {
-      console.error("Failed to load template YAML:", error);
+      console.error("❌ Failed to load template YAML:", error);
+      // Clear any old data
+      localStorage.removeItem("selectedTemplateYaml");
+      localStorage.removeItem("selectedTemplateTheme");
     }
   };
 

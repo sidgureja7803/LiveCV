@@ -1,39 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { ArrowRight, Star, Users, FileText, TrendingUp, CheckCircle, Clock, FileCheck } from 'lucide-react';
 import livePreviewImage from '/images/live_preview.png';
-import Lenis from 'lenis';
 
 export const FirstPage = () => {
   const navigate = useNavigate();
   const { isDark } = useTheme();
-
-  // Initialize Lenis smooth scrolling
-  useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      direction: 'vertical',
-      gestureDirection: 'vertical',
-      smooth: true,
-      mouseMultiplier: 1,
-      smoothTouch: false,
-      touchMultiplier: 2,
-      infinite: false,
-    });
-
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-
-    requestAnimationFrame(raf);
-
-    return () => {
-      lenis.destroy();
-    };
-  }, []);
   
   const stats = [
     { icon: <Users className="w-8 h-8" />, number: '10K+', label: 'Active Users' },

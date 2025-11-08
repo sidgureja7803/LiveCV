@@ -4,19 +4,12 @@ import type { ResumeData } from '../types';
 export class TemplateService {
   /**
    * Load template HTML from the public templates directory and inject data
+   * Note: Currently not used - we generate HTML directly
    */
   static async loadTemplateHTML(templateId: string): Promise<string> {
-    try {
-      const response = await fetch(`/templates/${templateId}.html`);
-      if (!response.ok) {
-        throw new Error(`Failed to load template: ${response.statusText}`);
-      }
-      return await response.text();
-    } catch (error) {
-      console.error('Error loading template:', error);
-      // Fallback to generated HTML
-      return '';
-    }
+    // Templates are generated directly, not loaded from files
+    console.log(`[TemplateService] Generating HTML for template: ${templateId}`);
+    return '';
   }
 
   /**

@@ -19,7 +19,7 @@ export const LandingPage = () => {
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // easeOutExpo
       direction: 'vertical',
       gestureDirection: 'vertical',
       smooth: true,
@@ -27,7 +27,12 @@ export const LandingPage = () => {
       smoothTouch: false,
       touchMultiplier: 2,
       infinite: false,
+      wrapper: window,
+      content: document.documentElement,
     });
+
+    // Add lenis class to html element
+    document.documentElement.classList.add('lenis');
 
     function raf(time: number) {
       lenis.raf(time);
@@ -66,6 +71,7 @@ export const LandingPage = () => {
     // Cleanup function
     return () => {
       lenis.destroy();
+      document.documentElement.classList.remove('lenis');
       document.removeEventListener('click', handleHashLinkClick);
     };
   }, []);

@@ -97,48 +97,8 @@ export function useDebouncedPreview(
         }
       }
       
-      // Try generating PDF from raw data (for new resumes)
-      console.log('[Preview] Trying to generate PDF from raw data');
-      const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
-      const generateUrl = `${apiBaseUrl}/api/resume/render-pdf`;
-      
-      const generateResponse = await fetch(generateUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-        },
-        body: JSON.stringify({
-          resumeData,
-          theme
-        }),
-        signal: abortControllerRef.current.signal
-      });
-      
-      if (generateResponse.ok) {
-        // Get PDF blob
-        const pdfBlob = await generateResponse.blob();
-        
-        // Create object URL for the PDF
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-        
-        // Revoke old URL to prevent memory leaks
-        if (state.pdfUrl) {
-          URL.revokeObjectURL(state.pdfUrl);
-        }
-        
-        setState({
-          loading: false,
-          error: null,
-          pdfUrl,
-          lastUpdated: Date.now()
-        });
-        
-        return; // Success, exit early
-      }
-      
-      // Final fallback to mock PDF generation
-      console.log('[Preview] Using mock PDF generator as final fallback');
+      // If backend failed, use mock PDF generator
+      console.log('[Preview] Backend unavailable, using mock PDF generator');
       const mockPdfUrl = createMockPdfUrl(resumeData, theme);
       
       // Revoke old URL to prevent memory leaks
@@ -156,10 +116,11 @@ export function useDebouncedPreview(
     } catch (error: any) {
       // Ignore abort errors
       if (error.name === 'AbortError') {
+        console.log('[Preview] Request aborted');
         return;
       }
       
-      console.error('[Preview] Error generating PDF, using mock fallback:', error);
+      console.warn('[Preview] Error generating PDF, using mock fallback:', error.message);
       
       // Final fallback to mock PDF generation
       try {

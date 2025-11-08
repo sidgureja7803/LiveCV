@@ -123,7 +123,7 @@ const ResumeBuilder: React.FC = () => {
     clearPreview
   } = useDebouncedPreview(resumeId, resumeData, rendercvTheme, {
     delay: 1200, // Increased delay to reduce API calls
-    enabled: previewMode === 'pdf' && selectedTemplate !== null // Only enable when template is selected
+    enabled: previewMode === 'pdf' // Enable PDF preview when in PDF mode
   });
   
   // Use download PDF hook
@@ -131,6 +131,7 @@ const ResumeBuilder: React.FC = () => {
   
   // Load template data from localStorage if available (from Dashboard template selection)
   useEffect(() => {
+    console.log('🔄 ResumeBuilder mounting, templateId:', templateId);
     setIsLoading(true);
     
     // Set the selected template based on URL param
@@ -150,23 +151,26 @@ const ResumeBuilder: React.FC = () => {
           const parsedData = parseRenderCVYaml(templateYaml);
           
           if (parsedData && Object.keys(parsedData).length > 0) {
-          setResumeData(prev => ({
-            ...prev,
-            ...parsedData
-          }));
-          
-          if (templateTheme) {
-            setRendercvTheme(templateTheme);
+            console.log('📋 Parsed template data:', parsedData);
+            setResumeData(prev => ({
+              ...prev,
+              ...parsedData
+            }));
+            
+            if (templateTheme) {
+              setRendercvTheme(templateTheme);
+            }
+            
+            console.log('✅ Template data loaded successfully');
+          } else {
+            console.warn('⚠️ Parsed data is empty, using default data');
           }
           
-          console.log('✅ Template data loaded successfully');
-        }
-        
           // Clear localStorage after loading
           localStorage.removeItem('selectedTemplateYaml');
           localStorage.removeItem('selectedTemplateTheme');
         } catch (error) {
-          console.error('Error parsing template YAML:', error);
+          console.error('❌ Error parsing template YAML:', error);
           // Use default data if parsing fails
           console.log('Using default resume data due to parsing error');
         }
@@ -248,19 +252,32 @@ const ResumeBuilder: React.FC = () => {
         // Trigger initial PDF preview if in PDF mode
         if (previewMode === 'pdf') {
           console.log('🚀 Triggering initial PDF preview');
-          triggerPreview();
+          // Small delay to ensure component is fully mounted
+          setTimeout(() => {
+            triggerPreview();
+          }, 300);
         }
       }
-    }, 800);
+    }, 500); // Reduced from 800ms to 500ms
+    
+    // Safety timeout to prevent infinite loading
+    const safetyTimer = setTimeout(() => {
+      if (isMounted.current && isLoading) {
+        console.warn('⚠️ Loading timeout reached, forcing completion');
+        setIsLoading(false);
+      }
+    }, 5000); // 5 second safety timeout
     
     return () => {
       clearTimeout(timer);
+      clearTimeout(safetyTimer);
       isMounted.current = false;
     };
-  }, [templateId, previewMode, triggerPreview]);
+  }, [templateId, previewMode, triggerPreview, isLoading]);
   
   // Get the current template object
   const currentTemplate = getTemplateById(selectedTemplateId);
+  const selectedTemplate = currentTemplate; // Alias for compatibility
   
   // Trigger preview when switching to PDF mode
   useEffect(() => {
@@ -285,30 +302,20 @@ const ResumeBuilder: React.FC = () => {
   
   // Update preview HTML whenever resume data or template changes
   useEffect(() => {
-    if (currentTemplate) {
+    if (currentTemplate && previewMode === 'html') {
       // Set loading state while generating HTML
       setIsLoading(true);
       
-      // Try to load the template from public directory first
+      // Generate HTML directly without trying to load from public directory
       const loadAndProcessTemplate = async () => {
         try {
-          // Load the template HTML
-          const templateHtml = await TemplateService.loadTemplateHTML(currentTemplate.htmlStructure);
-          
-          if (templateHtml) {
-            // Process the template with data
-            const processedHtml = TemplateService.processTemplateWithData(templateHtml, resumeData);
-            setPreviewHtml(processedHtml);
-          } else {
-            // Fall back to generated HTML if loading fails
-            const generatedHtml = TemplateService.generateTemplateHTML(currentTemplate, resumeData);
-            setPreviewHtml(generatedHtml);
-          }
-        } catch (error) {
-          console.error("Error loading template:", error);
-          // Fall back to generated HTML
+          // Generate HTML directly
           const generatedHtml = TemplateService.generateTemplateHTML(currentTemplate, resumeData);
           setPreviewHtml(generatedHtml);
+        } catch (error) {
+          console.error("Error generating template:", error);
+          // Set empty HTML as fallback
+          setPreviewHtml('<div>Error generating preview</div>');
         } finally {
           // Turn off loading state
           setIsLoading(false);
@@ -317,7 +324,7 @@ const ResumeBuilder: React.FC = () => {
       
       loadAndProcessTemplate();
     }
-  }, [resumeData, currentTemplate]);
+  }, [resumeData, currentTemplate, previewMode]);
   
   // Auto-save functionality with debouncing
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);

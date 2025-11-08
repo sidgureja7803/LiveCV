@@ -1,8 +1,29 @@
 /* LandingPage.css - Custom styles for the landing page */
 
-/* Smooth scrolling for the entire page */
+/* Disable native smooth scrolling - Lenis handles this */
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
+}
+
+/* Lenis smooth scroll container */
+html.lenis {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
 }
 
 /* Animation for gradient text */

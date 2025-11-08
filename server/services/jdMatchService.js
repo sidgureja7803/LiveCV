@@ -2,15 +2,10 @@ const htmlToText = require('html-to-text');
 
 /**
  * JD Match Service - Analyzes how well a resume matches a job description
- * Uses OpenAI API for advanced analysis when available
+ * Uses AIML API for advanced analysis when available
  */
-const OpenAI = require('openai');
+const fetch = require('node-fetch');
 require('dotenv').config();
-
-// Initialize OpenAI API
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || 'sk-mock-key-for-development',
-});
 
 // Common technical skills to look for
 const COMMON_SKILLS = [
@@ -55,17 +50,17 @@ exports.analyzeJobMatch = async (resumeContent, jobDescription) => {
     
     let results;
     
-    // If OpenAI API key is available, use AI for advanced analysis
-    if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'sk-mock-key-for-development') {
+    // If AIML API key is available, use AI for advanced analysis
+    if (process.env.AIML_API_KEY) {
       try {
-        results = await analyzeWithOpenAI(cleanResumeContent, jobDescription);
+        results = await analyzeWithAIML(cleanResumeContent, jobDescription);
       } catch (aiError) {
-        console.error('Error with OpenAI analysis, falling back to basic analysis:', aiError);
+        console.error('Error with AIML analysis, falling back to basic analysis:', aiError);
         results = performBasicAnalysis(cleanResumeContent, jobDescription);
       }
     } else {
       // Fall back to basic analysis if no API key
-      console.warn('No OpenAI API key found, using basic JD match analysis');
+      console.warn('No AIML API key found, using basic JD match analysis');
       results = performBasicAnalysis(cleanResumeContent, jobDescription);
     }
     
@@ -77,12 +72,12 @@ exports.analyzeJobMatch = async (resumeContent, jobDescription) => {
 };
 
 /**
- * Analyzes job match using OpenAI GPT API
+ * Analyzes job match using AIML API
  * @param {string} resumeText - Plain text resume content
  * @param {string} jobDescription - Job description text
  * @returns {Object} Job match analysis results
  */
-async function analyzeWithOpenAI(resumeText, jobDescription) {
+async function analyzeWithAIML(resumeText, jobDescription) {
   try {
     const prompt = `Analyze how well this resume matches the job description. Provide a detailed analysis with:
 
@@ -102,82 +97,149 @@ ${resumeText}
 JOB DESCRIPTION:
 ${jobDescription}
 
-Please provide the analysis in a structured format with clear sections.`;
+Please provide the analysis in a structured JSON format with the following structure:
+{
+  "matchPercentage": number,
+  "matchedSkills": [string],
+  "missingSkills": [string],
+  "matchedKeywords": [string],
+  "missingKeywords": [string],
+  "recommendations": [string],
+  "strengths": [string],
+  "improvements": [string],
+  "sectionAnalysis": [{"name": string, "score": number, "feedback": string}]
+}`;
 
-    const response = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: "You are an expert HR analyst and resume reviewer. Analyze resumes against job descriptions and provide detailed, actionable feedback with specific match percentages and recommendations."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      max_tokens: 1500,
-      temperature: 0.3,
+    const response = await fetch('https://api.aimlapi.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.AIML_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert HR analyst and resume reviewer. Analyze resumes against job descriptions and provide detailed, actionable feedback with specific match percentages and recommendations. Always respond with valid JSON format.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: 2000,
+        temperature: 0.3,
+      }),
     });
 
+    if (!response.ok) {
+      throw new Error(`AIML API error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      throw new Error('Invalid response format from AIML API');
+    }
+
     // Parse the AI response
-    const analysisText = response.choices[0].message.content.trim();
+    const analysisText = data.choices[0].message.content.trim();
     
-    // Extract match percentage
-    const scoreMatch = analysisText.match(/(?:match|score).*?(\d+)%/i);
-    const matchPercentage = scoreMatch ? parseInt(scoreMatch[1], 10) : 75;
+    // Try to parse as JSON first
+    let analysisResult;
+    try {
+      // Remove any markdown code blocks if present
+      const cleanedText = analysisText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+      analysisResult = JSON.parse(cleanedText);
+    } catch (parseError) {
+      console.warn('Failed to parse JSON response, falling back to text extraction');
+      
+      // Fallback to text extraction if JSON parsing fails
+      const scoreMatch = analysisText.match(/(?:match|score).*?(\d+)%/i);
+      const matchPercentage = scoreMatch ? parseInt(scoreMatch[1], 10) : 75;
+      
+      const matchedSkillsMatch = analysisText.match(/matched skills?:?\s*(.*?)(?:\n\n|missing skills|$)/is);
+      const missingSkillsMatch = analysisText.match(/missing skills?:?\s*(.*?)(?:\n\n|matched keywords|$)/is);
+      
+      const matchedSkills = matchedSkillsMatch ? 
+        extractListItems(matchedSkillsMatch[1]) : 
+        findMatchedSkills(resumeText, jobDescription);
+      
+      const missingSkills = missingSkillsMatch ? 
+        extractListItems(missingSkillsMatch[1]) : 
+        findMissingSkills(resumeText, jobDescription);
+      
+      const recommendationsMatch = analysisText.match(/recommendations?:?\s*(.*?)(?:\n\n|strengths|$)/is);
+      const recommendations = recommendationsMatch ? 
+        extractListItems(recommendationsMatch[1]) : 
+        ["Focus on highlighting relevant experience", "Add missing technical skills", "Quantify achievements with metrics"];
+      
+      analysisResult = {
+        matchPercentage: Math.min(100, Math.max(0, matchPercentage)),
+        matchedSkills: matchedSkills.slice(0, 10),
+        missingSkills: missingSkills.slice(0, 8),
+        matchedKeywords: findMatchedKeywords(resumeText, jobDescription).slice(0, 10),
+        missingKeywords: findMissingKeywords(resumeText, jobDescription).slice(0, 8),
+        recommendations: recommendations.slice(0, 6),
+        strengths: [
+          "Strong technical background",
+          "Relevant industry experience", 
+          "Good educational foundation",
+          "Demonstrated problem-solving skills"
+        ],
+        improvements: [
+          "Add more specific metrics and achievements",
+          "Include missing technical skills",
+          "Highlight leadership experience",
+          "Add relevant certifications"
+        ],
+        sectionAnalysis: [
+          { name: 'Technical Skills', score: Math.min(100, matchPercentage + 5), feedback: 'Good technical skill alignment' },
+          { name: 'Experience Level', score: Math.max(60, matchPercentage - 10), feedback: 'Experience level matches requirements' },
+          { name: 'Industry Knowledge', score: matchPercentage, feedback: 'Relevant industry background' },
+          { name: 'Education', score: Math.min(95, matchPercentage + 10), feedback: 'Educational background is suitable' }
+        ]
+      };
+    }
     
-    // Extract skills (this is a simplified extraction - in production you'd want more sophisticated parsing)
-    const matchedSkillsMatch = analysisText.match(/matched skills?:?\s*(.*?)(?:\n\n|missing skills|$)/is);
-    const missingSkillsMatch = analysisText.match(/missing skills?:?\s*(.*?)(?:\n\n|matched keywords|$)/is);
-    
-    const matchedSkills = matchedSkillsMatch ? 
-      extractListItems(matchedSkillsMatch[1]) : 
-      findMatchedSkills(resumeText, jobDescription);
-    
-    const missingSkills = missingSkillsMatch ? 
-      extractListItems(missingSkillsMatch[1]) : 
-      findMissingSkills(resumeText, jobDescription);
-    
-    // Extract recommendations
-    const recommendationsMatch = analysisText.match(/recommendations?:?\s*(.*?)(?:\n\n|strengths|$)/is);
-    const recommendations = recommendationsMatch ? 
-      extractListItems(recommendationsMatch[1]) : 
-      ["Focus on highlighting relevant experience", "Add missing technical skills", "Quantify achievements with metrics"];
-    
+    // Ensure all required fields are present and properly formatted
     return {
-      matchPercentage: Math.min(100, Math.max(0, matchPercentage)),
-      matchedSkills: matchedSkills.slice(0, 10),
-      missingSkills: missingSkills.slice(0, 8),
-      matchedKeywords: findMatchedKeywords(resumeText, jobDescription).slice(0, 10),
-      missingKeywords: findMissingKeywords(resumeText, jobDescription).slice(0, 8),
-      recommendations: recommendations.slice(0, 6),
-      strengths: [
+      matchPercentage: Math.min(100, Math.max(0, analysisResult.matchPercentage || 75)),
+      matchedSkills: (analysisResult.matchedSkills || []).slice(0, 10),
+      missingSkills: (analysisResult.missingSkills || []).slice(0, 8),
+      matchedKeywords: (analysisResult.matchedKeywords || findMatchedKeywords(resumeText, jobDescription)).slice(0, 10),
+      missingKeywords: (analysisResult.missingKeywords || findMissingKeywords(resumeText, jobDescription)).slice(0, 8),
+      recommendations: (analysisResult.recommendations || [
+        "Focus on highlighting relevant experience",
+        "Add missing technical skills", 
+        "Quantify achievements with metrics"
+      ]).slice(0, 6),
+      strengths: (analysisResult.strengths || [
         "Strong technical background",
         "Relevant industry experience",
-        "Good educational foundation",
-        "Demonstrated problem-solving skills"
-      ],
-      improvements: [
+        "Good educational foundation"
+      ]).slice(0, 6),
+      improvements: (analysisResult.improvements || [
         "Add more specific metrics and achievements",
         "Include missing technical skills",
-        "Highlight leadership experience",
-        "Add relevant certifications"
-      ],
-      sectionAnalysis: [
-        { name: 'Technical Skills', score: Math.min(100, matchPercentage + 5), feedback: 'Good technical skill alignment' },
-        { name: 'Experience Level', score: Math.max(60, matchPercentage - 10), feedback: 'Experience level matches requirements' },
-        { name: 'Industry Knowledge', score: matchPercentage, feedback: 'Relevant industry background' },
-        { name: 'Education', score: Math.min(95, matchPercentage + 10), feedback: 'Educational background is suitable' }
-      ],
+        "Highlight leadership experience"
+      ]).slice(0, 6),
+      sectionAnalysis: (analysisResult.sectionAnalysis || [
+        { name: 'Technical Skills', score: 75, feedback: 'Technical skill analysis' },
+        { name: 'Experience Level', score: 70, feedback: 'Experience level assessment' },
+        { name: 'Industry Knowledge', score: 75, feedback: 'Industry knowledge evaluation' },
+        { name: 'Education', score: 80, feedback: 'Educational background review' }
+      ]).slice(0, 6),
       metadata: {
         timestamp: new Date().toISOString(),
         aiPowered: true,
-        wordCount: resumeText.split(/\s+/).length
+        wordCount: resumeText.split(/\s+/).length,
+        apiProvider: 'AIML'
       }
     };
   } catch (error) {
-    console.error('OpenAI API Error:', error);
+    console.error('AIML API Error:', error);
     throw new Error('Failed to analyze job match using AI');
   }
 }
