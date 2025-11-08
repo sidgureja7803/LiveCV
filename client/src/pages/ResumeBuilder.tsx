@@ -19,8 +19,8 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import { parseRenderCVYaml } from '../utils/yamlParser';
 import { Document, Page, pdfjs } from 'react-pdf';
 
-// Set PDF.js worker path - using CDN for reliability
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+// Set PDF.js worker path - using jsDelivr CDN which has better CORS support
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
 // Section interface matching ResumeToolbar's requirements
 interface Section {
@@ -262,7 +262,7 @@ const ResumeBuilder: React.FC = () => {
     
     // Safety timeout to prevent infinite loading
     const safetyTimer = setTimeout(() => {
-      if (isMounted.current && isLoading) {
+      if (isMounted.current) {
         console.warn('⚠️ Loading timeout reached, forcing completion');
         setIsLoading(false);
       }
@@ -273,7 +273,7 @@ const ResumeBuilder: React.FC = () => {
       clearTimeout(safetyTimer);
       isMounted.current = false;
     };
-  }, [templateId, previewMode, triggerPreview, isLoading]);
+  }, [templateId]); // Removed isLoading from dependencies to prevent infinite loop
   
   // Get the current template object
   const currentTemplate = getTemplateById(selectedTemplateId);

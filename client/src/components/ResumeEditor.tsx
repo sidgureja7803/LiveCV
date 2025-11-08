@@ -161,131 +161,110 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({
       {/* Content - Scrollable */}
       <div className="flex-1 overflow-y-auto">
         {activeTab === "personalInfo" && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="John Doe"
-                  value={resumeData.personalInfo.fullName}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "fullName",
-                      e.target.value,
-                      "personalInfo"
-                    )
-                  }
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  placeholder="john@example.com"
-                  value={resumeData.personalInfo.email}
-                  onChange={(e) =>
-                    handleFieldChange("email", e.target.value, "personalInfo")
-                  }
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Phone
-                </label>
-                <input
-                  type="tel"
-                  placeholder="(555) 123-4567"
-                  value={resumeData.personalInfo.phone}
-                  onChange={(e) =>
-                    handleFieldChange("phone", e.target.value, "personalInfo")
-                  }
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Address
-                </label>
-                <input
-                  type="text"
-                  placeholder="New York, NY"
-                  value={resumeData.personalInfo.address}
-                  onChange={(e) =>
-                    handleFieldChange("address", e.target.value, "personalInfo")
-                  }
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  LinkedIn Profile
-                </label>
-                <input
-                  type="text"
-                  placeholder="linkedin.com/in/johndoe"
-                  value={resumeData.personalInfo.linkedIn || ""}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "linkedIn",
-                      e.target.value,
-                      "personalInfo"
-                    )
-                  }
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  GitHub Profile
-                </label>
-                <input
-                  type="text"
-                  placeholder="github.com/johndoe"
-                  value={resumeData.personalInfo.github || ""}
-                  onChange={(e) =>
-                    handleFieldChange("github", e.target.value, "personalInfo")
-                  }
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
-                />
-              </div>
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">
+                Name
+              </label>
+              <input
+                type="text"
+                placeholder="John Doe"
+                value={resumeData.personalInfo.fullName}
+                onChange={(e) =>
+                  handleFieldChange(
+                    "fullName",
+                    e.target.value,
+                    "personalInfo"
+                  )
+                }
+                className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">
+                Phone
+              </label>
+              <input
+                type="tel"
+                placeholder="+1 234 567 8901"
+                value={resumeData.personalInfo.phone}
+                onChange={(e) =>
+                  handleFieldChange("phone", e.target.value, "personalInfo")
+                }
+                className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                placeholder="johndoe@example.com"
+                value={resumeData.personalInfo.email}
+                onChange={(e) =>
+                  handleFieldChange("email", e.target.value, "personalInfo")
+                }
+                className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">
+                Social1
+              </label>
+              <input
+                type="text"
+                placeholder="github.com/johndoe"
+                value={resumeData.personalInfo.github || ""}
+                onChange={(e) =>
+                  handleFieldChange("github", e.target.value, "personalInfo")
+                }
+                className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">
+                Social2
+              </label>
+              <input
+                type="text"
+                placeholder="linkedin.com/in/johndoe"
+                value={resumeData.personalInfo.linkedIn || ""}
+                onChange={(e) =>
+                  handleFieldChange(
+                    "linkedIn",
+                    e.target.value,
+                    "personalInfo"
+                  )
+                }
+                className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors"
+              />
             </div>
           </div>
         )}
         {activeTab === "summary" && (
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-400 mb-2">
                 Professional Summary
               </label>
               <textarea
                 placeholder="Write a brief professional summary highlighting your key skills and experience..."
                 value={resumeData.summary}
                 onChange={(e) => handleFieldChange("summary", e.target.value)}
-                rows={6}
-                className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors resize-none"
+                rows={8}
+                className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors resize-none"
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Tip: Keep it concise (2-3 sentences) and focus on your most
-                relevant achievements.
-              </p>
             </div>
           </div>
         )}
         {activeTab === "skills" && (
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-400 mb-2">
                 Skills
               </label>
-              <input
-                type="text"
+              <textarea
                 placeholder="JavaScript, React, Node.js, Python, AWS..."
                 value={resumeData.skills.join(", ")}
                 onChange={(e) =>
@@ -297,19 +276,16 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({
                       .filter((s) => s)
                   )
                 }
-                className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
+                rows={6}
+                className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors resize-none"
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Separate skills with commas. Focus on relevant technical and
-                soft skills.
-              </p>
             </div>
             {resumeData.skills.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {resumeData.skills.map((skill, index) => (
                   <span
                     key={index}
-                    className="px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-200 text-sm rounded-md"
+                    className="px-3 py-1 bg-indigo-900/30 text-indigo-300 text-sm rounded-md"
                   >
                     {skill}
                   </span>
@@ -323,62 +299,62 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({
             {resumeData.experience.map((exp, index) => (
               <div
                 key={exp.id}
-                className="p-6 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700"
+                className="p-5 bg-gray-800/30 rounded-lg border border-gray-700/50"
               >
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                  <h3 className="text-base font-medium text-gray-300">
                     Experience #{index + 1}
                   </h3>
                   <button
                     onClick={() => removeExperienceEntry(index)}
-                    className="text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium transition-colors"
+                    className="text-red-400 hover:text-red-300 text-sm font-medium transition-colors"
                   >
                     Remove
                   </button>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      Position
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Senior Software Engineer"
+                      value={exp.position}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          "position",
+                          e.target.value,
+                          "experience",
+                          index
+                        )
+                      }
+                      className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      Company
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Tech Corp"
+                      value={exp.company}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          "company",
+                          e.target.value,
+                          "experience",
+                          index
+                        )
+                      }
+                      className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Position
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Senior Software Engineer"
-                        value={exp.position}
-                        onChange={(e) =>
-                          handleFieldChange(
-                            "position",
-                            e.target.value,
-                            "experience",
-                            index
-                          )
-                        }
-                        className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Company
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Tech Corp"
-                        value={exp.company}
-                        onChange={(e) =>
-                          handleFieldChange(
-                            "company",
-                            e.target.value,
-                            "experience",
-                            index
-                          )
-                        }
-                        className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <label className="block text-sm font-medium text-gray-400 mb-2">
                         Start Date
                       </label>
                       <input
@@ -392,11 +368,11 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({
                             index
                           )
                         }
-                        className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
+                        className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <label className="block text-sm font-medium text-gray-400 mb-2">
                         End Date
                       </label>
                       <input
@@ -410,13 +386,12 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({
                             index
                           )
                         }
-                        className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
+                        className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors"
                       />
                     </div>
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
                       Description
                     </label>
                     <textarea
@@ -430,13 +405,9 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({
                           index
                         )
                       }
-                      rows={4}
-                      className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors resize-none"
+                      rows={5}
+                      className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors resize-none"
                     />
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      Use bullet points to highlight key achievements and
-                      quantify results when possible.
-                    </p>
                   </div>
                 </div>
               </div>
@@ -444,7 +415,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({
 
             <button
               onClick={addExperienceEntry}
-              className="w-full py-3 px-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium"
+              className="w-full py-3 px-4 border-2 border-dashed border-gray-600 rounded-lg text-gray-400 hover:border-indigo-500 hover:text-indigo-400 transition-colors font-medium"
             >
               + Add Experience
             </button>
@@ -455,101 +426,98 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({
             {resumeData.education.map((edu, index) => (
               <div
                 key={edu.id}
-                className="p-6 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700"
+                className="p-5 bg-gray-800/30 rounded-lg border border-gray-700/50"
               >
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                  <h3 className="text-base font-medium text-gray-300">
                     Education #{index + 1}
                   </h3>
                   <button
                     onClick={() => removeEducationEntry(index)}
-                    className="text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium transition-colors"
+                    className="text-red-400 hover:text-red-300 text-sm font-medium transition-colors"
                   >
                     Remove
                   </button>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Institution
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="University of Technology"
-                        value={edu.institution}
-                        onChange={(e) =>
-                          handleFieldChange(
-                            "institution",
-                            e.target.value,
-                            "education",
-                            index
-                          )
-                        }
-                        className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Degree
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Bachelor of Science"
-                        value={edu.degree}
-                        onChange={(e) =>
-                          handleFieldChange(
-                            "degree",
-                            e.target.value,
-                            "education",
-                            index
-                          )
-                        }
-                        className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Field of Study
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Computer Science"
-                        value={edu.fieldOfStudy}
-                        onChange={(e) =>
-                          handleFieldChange(
-                            "fieldOfStudy",
-                            e.target.value,
-                            "education",
-                            index
-                          )
-                        }
-                        className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Graduation Date
-                      </label>
-                      <input
-                        type="month"
-                        value={edu.endDate}
-                        onChange={(e) =>
-                          handleFieldChange(
-                            "endDate",
-                            e.target.value,
-                            "education",
-                            index
-                          )
-                        }
-                        className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
-                      />
-                    </div>
-                  </div>
-
+                <div className="space-y-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      Course
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Bachelor of Technology"
+                      value={edu.degree}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          "degree",
+                          e.target.value,
+                          "education",
+                          index
+                        )
+                      }
+                      className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      Department
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Computer Science and Engineering"
+                      value={edu.fieldOfStudy}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          "fieldOfStudy",
+                          e.target.value,
+                          "education",
+                          index
+                        )
+                      }
+                      className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      College
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="XYZ University"
+                      value={edu.institution}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          "institution",
+                          e.target.value,
+                          "education",
+                          index
+                        )
+                      }
+                      className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      Graduation Date
+                    </label>
+                    <input
+                      type="month"
+                      value={edu.endDate}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          "endDate",
+                          e.target.value,
+                          "education",
+                          index
+                        )
+                      }
+                      className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
                       GPA (Optional)
                     </label>
                     <input
@@ -564,7 +532,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({
                           index
                         )
                       }
-                      className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
+                      className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors"
                     />
                   </div>
                 </div>
@@ -573,7 +541,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({
 
             <button
               onClick={addEducationEntry}
-              className="w-full py-3 px-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium"
+              className="w-full py-3 px-4 border-2 border-dashed border-gray-600 rounded-lg text-gray-400 hover:border-indigo-500 hover:text-indigo-400 transition-colors font-medium"
             >
               + Add Education
             </button>
@@ -584,67 +552,64 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({
             {(resumeData.projects || []).map((project, index) => (
               <div
                 key={project.id}
-                className="p-6 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700"
+                className="p-5 bg-gray-800/30 rounded-lg border border-gray-700/50"
               >
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                  <h3 className="text-base font-medium text-gray-300">
                     Project #{index + 1}
                   </h3>
                   <button
                     onClick={() => removeProjectEntry(index)}
-                    className="text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium transition-colors"
+                    className="text-red-400 hover:text-red-300 text-sm font-medium transition-colors"
                   >
                     Remove
                   </button>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Project Name
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="E-commerce Platform"
-                        value={project.name}
-                        onChange={(e) =>
-                          handleFieldChange(
-                            "name",
-                            e.target.value,
-                            "projects",
-                            index
-                          )
-                        }
-                        className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Technologies
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="React, Node.js, MongoDB"
-                        value={project.technologies.join(", ")}
-                        onChange={(e) =>
-                          handleFieldChange(
-                            "technologies",
-                            e.target.value
-                              .split(",")
-                              .map((s) => s.trim())
-                              .filter((s) => s),
-                            "projects",
-                            index
-                          )
-                        }
-                        className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
-                      />
-                    </div>
-                  </div>
-
+                <div className="space-y-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      Project Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="E-commerce Platform"
+                      value={project.name}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          "name",
+                          e.target.value,
+                          "projects",
+                          index
+                        )
+                      }
+                      className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      Technologies
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="React, Node.js, MongoDB"
+                      value={project.technologies.join(", ")}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          "technologies",
+                          e.target.value
+                            .split(",")
+                            .map((s) => s.trim())
+                            .filter((s) => s),
+                          "projects",
+                          index
+                        )
+                      }
+                      className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
                       Description
                     </label>
                     <textarea
@@ -658,50 +623,47 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({
                           index
                         )
                       }
-                      rows={4}
-                      className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors resize-none"
+                      rows={5}
+                      className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors resize-none"
                     />
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        GitHub Link (Optional)
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="github.com/username/project"
-                        value={project.githubLink || ""}
-                        onChange={(e) =>
-                          handleFieldChange(
-                            "githubLink",
-                            e.target.value,
-                            "projects",
-                            index
-                          )
-                        }
-                        className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Live Demo (Optional)
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="example.com"
-                        value={project.liveLink || ""}
-                        onChange={(e) =>
-                          handleFieldChange(
-                            "liveLink",
-                            e.target.value,
-                            "projects",
-                            index
-                          )
-                        }
-                        className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white transition-colors"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      GitHub Link (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="github.com/username/project"
+                      value={project.githubLink || ""}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          "githubLink",
+                          e.target.value,
+                          "projects",
+                          index
+                        )
+                      }
+                      className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      Live Demo (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="example.com"
+                      value={project.liveLink || ""}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          "liveLink",
+                          e.target.value,
+                          "projects",
+                          index
+                        )
+                      }
+                      className="w-full px-4 py-2.5 bg-gray-700/50 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-200 placeholder-gray-500 transition-colors"
+                    />
                   </div>
 
                   {project.technologies.length > 0 && (
@@ -709,7 +671,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({
                       {project.technologies.map((tech, techIndex) => (
                         <span
                           key={techIndex}
-                          className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-sm rounded-md"
+                          className="px-3 py-1 bg-blue-900/30 text-blue-300 text-sm rounded-md"
                         >
                           {tech}
                         </span>
@@ -722,7 +684,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({
 
             <button
               onClick={addProjectEntry}
-              className="w-full py-3 px-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium"
+              className="w-full py-3 px-4 border-2 border-dashed border-gray-600 rounded-lg text-gray-400 hover:border-indigo-500 hover:text-indigo-400 transition-colors font-medium"
             >
               + Add Project
             </button>

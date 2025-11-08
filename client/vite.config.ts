@@ -27,6 +27,9 @@ export default defineConfig({
     force: true,
     entries: ['./src/main.tsx'],
     // Pre-bundle these problematic dependencies
-    include: ['react', 'react-dom', 'react-router-dom', '@react-pdf/renderer', 'socket.io-client']
+    include: ['react', 'react-dom', 'react-router-dom', '@react-pdf/renderer', 'socket.io-client', 'pdfjs-dist']
+  },
+  worker: {
+    format: 'es'
   }
 })
