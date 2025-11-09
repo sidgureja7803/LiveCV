@@ -29,9 +29,13 @@ function mapJsonToRenderCVYaml(resumeData, theme = 'classic') {
     const entry = {
       company: exp.company || 'Company Name',
       position: exp.position || 'Position',
-      location: exp.location || '',
       highlights: exp.description ? [exp.description] : []
     };
+    
+    // Only add location if it exists
+    if (exp.location) {
+      entry.location = exp.location;
+    }
     
     // Handle dates
     if (exp.startDate) {
@@ -51,9 +55,13 @@ function mapJsonToRenderCVYaml(resumeData, theme = 'classic') {
     const entry = {
       institution: edu.institution || 'University Name',
       area: edu.fieldOfStudy || 'Field of Study',
-      degree: edu.degree || 'Degree',
-      location: edu.location || ''
+      degree: edu.degree || 'Degree'
     };
+    
+    // Only add location if it exists
+    if (edu.location) {
+      entry.location = edu.location;
+    }
     
     if (edu.startDate) {
       entry.start_date = formatDateForRenderCV(edu.startDate);
@@ -109,16 +117,28 @@ function mapJsonToRenderCVYaml(resumeData, theme = 'classic') {
   }
   
   // Build the RenderCV data structure
+  const cvData = {
+    name: personalInfo.fullName || 'Your Name',
+    email: personalInfo.email || 'email@example.com',
+    social_networks: socialNetworks,
+    sections: {}
+  };
+  
+  // Only add optional fields if they have values
+  if (personalInfo.location || personalInfo.address) {
+    cvData.location = personalInfo.location || personalInfo.address;
+  }
+  
+  if (personalInfo.phone) {
+    cvData.phone = personalInfo.phone;
+  }
+  
+  if (personalInfo.website) {
+    cvData.website = personalInfo.website;
+  }
+  
   const rendercvData = {
-    cv: {
-      name: personalInfo.fullName || 'Your Name',
-      location: personalInfo.address || '',
-      email: personalInfo.email || 'email@example.com',
-      phone: personalInfo.phone || '',
-      website: personalInfo.website || '',
-      social_networks: socialNetworks,
-      sections: {}
-    },
+    cv: cvData,
     design: getThemeDesign(theme),
     locale: getDefaultLocale()
   };

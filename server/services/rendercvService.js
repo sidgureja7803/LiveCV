@@ -80,18 +80,15 @@ async function renderResume(yamlContent, theme = 'classic', options = {}) {
     // Create temporary directory for this render
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'livecv-render-'));
     const yamlPath = path.join(tempDir, 'resume.yaml');
-    const outputDir = path.join(tempDir, 'output');
-    
-    // Create output directory
-    await fs.mkdir(outputDir, { recursive: true });
     
     // Write sanitized YAML to temp file
     const sanitizedYaml = sanitizeYamlContent(yamlContent);
     await fs.writeFile(yamlPath, sanitizedYaml, 'utf8');
     
     // Execute RenderCV command with timeout
+    // RenderCV v2.3+ creates rendercv_output folder automatically
     const timeoutMs = options.timeout || 45000; // 45 seconds default
-    const renderCommand = `rendercv render "${yamlPath}" --output-dir "${outputDir}"`;
+    const renderCommand = `cd "${tempDir}" && rendercv render "${yamlPath}"`;
     
     console.log(`[RenderCV] Executing: ${renderCommand}`);
     
@@ -104,7 +101,8 @@ async function renderResume(yamlContent, theme = 'classic', options = {}) {
       console.warn(`[RenderCV] STDERR: ${stderr}`);
     }
     
-    // Find the generated PDF
+    // Find the generated PDF in the rendercv_output directory
+    const outputDir = path.join(tempDir, 'rendercv_output');
     const files = await fs.readdir(outputDir);
     const pdfFile = files.find(f => f.endsWith('.pdf'));
     
