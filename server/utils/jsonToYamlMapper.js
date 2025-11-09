@@ -231,6 +231,16 @@ function getThemeDesign(theme) {
         left_margin: '2cm',
         right_margin: '2cm'
       }
+    },
+    engineeringclassic: {
+      theme: 'engineeringresumes',
+      page: {
+        size: 'us-letter',
+        top_margin: '2cm',
+        bottom_margin: '2cm',
+        left_margin: '2cm',
+        right_margin: '2cm'
+      }
     }
   };
   

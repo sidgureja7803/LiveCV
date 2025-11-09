@@ -59,9 +59,10 @@ export function useDebouncedPreview(
     setState(prev => ({ ...prev, loading: true, error: null }));
     
     try {
-      // If we have a resumeId, try the backend API first
+      const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+      
+      // If we have a resumeId, use the preview endpoint
       if (resumeId) {
-        const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
         const url = `${apiBaseUrl}/api/render/${resumeId}/preview?theme=${theme}`;
         
         console.log(`[Preview] Fetching PDF from: ${url}`);
@@ -72,6 +73,47 @@ export function useDebouncedPreview(
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
           }
+        });
+        
+        if (response.ok) {
+          // Get PDF blob
+          const pdfBlob = await response.blob();
+          
+          // Create object URL for the PDF
+          const pdfUrl = URL.createObjectURL(pdfBlob);
+          
+          // Revoke old URL to prevent memory leaks
+          if (state.pdfUrl) {
+            URL.revokeObjectURL(state.pdfUrl);
+          }
+          
+          setState({
+            loading: false,
+            error: null,
+            pdfUrl,
+            lastUpdated: Date.now()
+          });
+          
+          return; // Success, exit early
+        }
+      } else {
+        // No resumeId yet - use the generate endpoint with raw data
+        const url = `${apiBaseUrl}/api/render/generate`;
+        
+        console.log(`[Preview] Generating PDF from raw data: ${url}`);
+        
+        const response = await fetch(url, {
+          method: 'POST',
+          signal: abortControllerRef.current.signal,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          },
+          body: JSON.stringify({
+            resumeData,
+            theme,
+            fileName: `${resumeData.personalInfo?.fullName || 'Resume'}_CV.pdf`
+          })
         });
         
         if (response.ok) {
@@ -148,7 +190,7 @@ export function useDebouncedPreview(
         }));
       }
     }
-  }, [resumeId, theme, enabled, state.pdfUrl]);
+  }, [resumeId, resumeData, theme, enabled, state.pdfUrl]);
   
   /**
    * Manually trigger preview generation (bypasses debounce)

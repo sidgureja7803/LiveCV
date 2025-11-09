@@ -164,31 +164,47 @@ export function convertToRenderCVYaml(data: ResumeData, theme: string = 'classic
       username: ${data.personalInfo?.linkedIn || ''}
     - network: GitHub
       username: ${data.personalInfo?.github || ''}
-  summary: ${data.summary || ''}
-  
-  experience:
-${data.experience?.map(exp => `    - company: ${exp.company}
-      position: ${exp.position}
-      start_date: ${exp.startDate}
-      end_date: ${exp.current ? 'present' : exp.endDate}
-      highlights:
-${exp.description?.split('\n').map(line => `        - ${line}`).join('\n') || '        - Description here'}`).join('\n') || ''}
+  sections:
+    summary:
+      - bullet: ${data.summary || 'Professional summary'}
+    
+    education:
+${data.education?.map(edu => `      - institution: ${edu.institution}
+        area: ${edu.fieldOfStudy}
+        degree: ${edu.degree}
+        start_date: ${edu.startDate}
+        end_date: ${edu.endDate}
+        highlights:
+          - ${edu.gpa ? `GPA: ${edu.gpa}` : 'Academic achievement'}`).join('\n') || ''}
 
-  education:
-${data.education?.map(edu => `    - institution: ${edu.institution}
-      degree: ${edu.degree}
-      area: ${edu.fieldOfStudy}
-      start_date: ${edu.startDate}
-      end_date: ${edu.endDate}
-      ${edu.gpa ? `gpa: ${edu.gpa}` : ''}`).join('\n') || ''}
+    experience:
+${data.experience?.map(exp => `      - company: ${exp.company}
+        position: ${exp.position}
+        start_date: ${exp.startDate}
+        end_date: ${exp.current ? 'present' : exp.endDate}
+        highlights:
+${exp.description ? exp.description.split('\n').map(line => `          - ${line.trim().startsWith('-') ? line.trim().substring(1).trim() : line.trim()}`).join('\n') : '          - Responsibilities and achievements'}`).join('\n') || ''}
 
-  skills:
-${data.skills?.map(skill => `    - ${skill}`).join('\n') || ''}
+    projects:
+${data.projects?.map(proj => `      - name: ${proj.name}
+        summary: ${proj.description ? proj.description.split('\n')[0] : 'Project description'}
+        highlights:
+          - ${proj.technologies ? `Technologies: ${proj.technologies.join(', ')}` : 'Key technologies used'}
+          ${proj.githubLink ? `\n          - [GitHub](${proj.githubLink})` : ''}
+          ${proj.liveLink ? `\n          - [Live Demo](${proj.liveLink})` : ''}`).join('\n') || ''}
+
+    skills:
+${data.skills?.map((skill, index) => `      - ${index === 0 ? 'label: Technical Skills' : 'label: Additional Skills'}
+        details: ${skill}`).join('\n') || '      - label: Technical Skills\n        details: List your skills here'}
 
 design:
   theme: ${theme}
-  color: blue
-  page_size: letterpaper
+  page:
+    size: us-letter
+  colors:
+    text: rgb(0, 0, 0)
+    name: rgb(0, 79, 144)
+    section_titles: rgb(0, 79, 144)
   `;
   
   return yaml;

@@ -113,7 +113,7 @@ const ResumeBuilder: React.FC = () => {
   // Use a ref to track if the component is mounted
   const isMounted = useRef(true);
   
-  // Use debounced PDF preview hook - enable even without resumeId for immediate preview
+  // Use debounced PDF preview hook - enable automatic preview
   const { 
     loading: pdfLoading, 
     error: pdfError, 
@@ -122,8 +122,8 @@ const ResumeBuilder: React.FC = () => {
     triggerPreview,
     clearPreview
   } = useDebouncedPreview(resumeId, resumeData, rendercvTheme, {
-    delay: 1200, // Increased delay to reduce API calls
-    enabled: previewMode === 'pdf' // Enable PDF preview when in PDF mode
+    delay: 1500, // Increased delay to reduce API calls while still providing live updates
+    enabled: true // Enable automatic preview for live updates
   });
   
   // Use download PDF hook
@@ -245,20 +245,13 @@ const ResumeBuilder: React.FC = () => {
       }
     }
     
-    // Simulate API call delay and trigger initial preview
+    // Simulate API call delay - don't trigger automatic preview
     const timer = setTimeout(() => {
       if (isMounted.current) {
         setIsLoading(false);
-        // Trigger initial PDF preview if in PDF mode
-        if (previewMode === 'pdf') {
-          console.log('🚀 Triggering initial PDF preview');
-          // Small delay to ensure component is fully mounted
-          setTimeout(() => {
-            triggerPreview();
-          }, 300);
-        }
+        console.log('✅ ResumeBuilder loaded successfully');
       }
-    }, 500); // Reduced from 800ms to 500ms
+    }, 500);
     
     // Safety timeout to prevent infinite loading
     const safetyTimer = setTimeout(() => {
@@ -279,13 +272,8 @@ const ResumeBuilder: React.FC = () => {
   const currentTemplate = getTemplateById(selectedTemplateId);
   const selectedTemplate = currentTemplate; // Alias for compatibility
   
-  // Trigger preview when switching to PDF mode
-  useEffect(() => {
-    if (previewMode === 'pdf' && !pdfLoading && !pdfUrl) {
-      console.log('🔄 Switching to PDF mode, triggering preview');
-      triggerPreview();
-    }
-  }, [previewMode, pdfLoading, pdfUrl, triggerPreview]);
+  // Don't automatically trigger preview when switching modes
+  // User must click "Compile" button to generate PDF
   
   // Handle template change
   const handleTemplateChange = (newTemplateId: string) => {
@@ -323,6 +311,10 @@ const ResumeBuilder: React.FC = () => {
       };
       
       loadAndProcessTemplate();
+    } else if (previewMode === 'pdf') {
+      // When in PDF mode, we depend on the useDebouncedPreview hook
+      // to automatically update the PDF preview when resumeData changes
+      console.log('📄 PDF mode active - automatic preview updates enabled');
     }
   }, [resumeData, currentTemplate, previewMode]);
   
@@ -368,6 +360,10 @@ const ResumeBuilder: React.FC = () => {
       // The LiveCoding component will handle the socket communication
       // We just need to make sure it's included in the component tree
     }
+    
+    // For PDF preview mode, the useDebouncedPreview hook will automatically
+    // trigger updates thanks to the enabled: true setting
+    // No need to manually trigger preview here
   };
     
     const handleSaveResume = async (generatePdf = false) => {
@@ -480,15 +476,44 @@ const ResumeBuilder: React.FC = () => {
   };
 
     const handleDownloadPdf = async () => {
-      if (!resumeId) {
-        alert('Please save your resume first before downloading.');
-        return;
-      }
-      
       try {
         if (previewMode === 'pdf') {
-          // Use RenderCV download
-          await downloadPDF(resumeId, rendercvTheme, `${resumeData.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`);
+          // Use RenderCV download - works with or without resumeId
+          if (resumeId) {
+            // If we have a saved resume, download using the ID
+            await downloadPDF(resumeId, rendercvTheme, `${resumeData.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`);
+          } else {
+            // If no saved resume, generate PDF from current data
+            const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+            const url = `${apiBaseUrl}/api/render/generate`;
+            
+            const response = await fetch(url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+              },
+              body: JSON.stringify({
+                resumeData,
+                theme: rendercvTheme,
+                fileName: `${resumeData.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`
+              })
+            });
+            
+            if (!response.ok) {
+              throw new Error('Failed to generate PDF for download');
+            }
+            
+            const pdfBlob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = `${resumeData.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(downloadUrl);
+            a.remove();
+          }
         } else {
           // Legacy HTML to PDF
           if (!previewHtml) {
@@ -588,7 +613,11 @@ const ResumeBuilder: React.FC = () => {
                     <div className="relative">
                       <select 
                         value={rendercvTheme}
-                        onChange={(e) => setRendercvTheme(e.target.value)}
+                        onChange={(e) => {
+                          setRendercvTheme(e.target.value);
+                          // Force a new PDF preview with the updated theme
+                          setTimeout(() => triggerPreview(), 100);
+                        }}
                         className="bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white py-1.5 px-3 rounded-md border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm"
                       >
                         <option value="classic">Classic</option>
@@ -599,11 +628,11 @@ const ResumeBuilder: React.FC = () => {
                       </select>
                     </div>
                     
-                    {/* Compile Button */}
+                    {/* Update PDF Button */}
                     <button
                       onClick={() => {
-                        // Save and generate PDF
-                        handleSaveResume(true);
+                        // Force regenerate PDF preview
+                        triggerPreview();
                       }}
                       disabled={pdfLoading}
                       className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
@@ -614,11 +643,11 @@ const ResumeBuilder: React.FC = () => {
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                           </svg>
-                          <span>Compiling...</span>
+                          <span>Updating...</span>
                         </>
                       ) : (
                         <>
-                          <span>Compile</span>
+                          <span>Update PDF</span>
                         </>
                       )}
                     </button>
@@ -831,6 +860,15 @@ const ResumeBuilder: React.FC = () => {
                                     >
                                       <ChevronRight className="w-5 h-5" />
                                     </button>
+                                  </div>
+                                )}
+                                
+                                {/* Display last update time for PDF */}
+                                {lastUpdated && (
+                                  <div className="text-center mt-2">
+                                    <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                                      Last updated: {new Date(lastUpdated).toLocaleTimeString()}
+                                    </span>
                                   </div>
                                 )}
                                 
