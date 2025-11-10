@@ -19,8 +19,8 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import { parseRenderCVYaml } from '../utils/yamlParser';
 import { Document, Page, pdfjs } from 'react-pdf';
 
-// Set PDF.js worker path - using jsDelivr CDN which has better CORS support
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+// Set PDF.js worker path - using local worker file
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf-worker/pdf.worker.min.js';
 
 // Section interface matching ResumeToolbar's requirements
 interface Section {
