@@ -78,32 +78,33 @@ const CompanyLogo = ({ name, color }: { name: string; color: string }) => {
 };
 
 export const Features = () => {
-  const { isDark } = useTheme();
-
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  
   const features = [
     {
-      icon: <Zap className="w-12 h-12" />,
-      title: 'Lightning Fast',
-      description: 'Generate professional PDFs in seconds with RenderCV engine',
-      color: 'from-yellow-500 to-orange-500'
+      icon: <Zap className="w-10 h-10" />,
+      title: 'LIGHTNING FAST',
+      description: 'GENERATE PROFESSIONAL PDFS IN SECONDS WITH THE RENDERCV ENGINE',
+      color: 'blue-500'
     },
     {
-      icon: <Award className="w-12 h-12" />,
-      title: 'ATS Optimized',
-      description: 'Beat applicant tracking systems with AI-powered optimization',
-      color: 'from-blue-500 to-indigo-500'
+      icon: <Award className="w-10 h-10" />,
+      title: 'ATS OPTIMIZED',
+      description: 'BEAT APPLICANT TRACKING SYSTEMS WITH AI-POWERED OPTIMIZATION',
+      color: 'blue-500'
     },
     {
-      icon: <Shield className="w-12 h-12" />,
-      title: 'Secure & Private',
-      description: 'Your data is encrypted and stored securely with Appwrite',
-      color: 'from-green-500 to-emerald-500'
+      icon: <Shield className="w-10 h-10" />,
+      title: 'SECURE & PRIVATE',
+      description: 'YOUR DATA IS ENCRYPTED AND STORED SECURELY WITH APPWRITE',
+      color: 'blue-500'
     },
     {
-      icon: <FileText className="w-12 h-12" />,
-      title: 'Multiple Themes',
-      description: 'Professional templates designed for maximum impact',
-      color: 'from-purple-500 to-pink-500'
+      icon: <FileText className="w-10 h-10" />,
+      title: 'MULTIPLE THEMES',
+      description: 'PROFESSIONAL TEMPLATES DESIGNED FOR MAXIMUM IMPACT',
+      color: 'blue-500'
     }
   ];
 
@@ -127,27 +128,17 @@ export const Features = () => {
   return (
     <>
       {/* Company Logos Section - Infinite Scroll */}
-      <section className={`py-16 overflow-hidden ${isDark ? 'bg-gray-800/30' : 'bg-gray-50'}`}>
+      <section className="py-20 overflow-hidden bg-black border-t border-zinc-900">
         <div className="container mx-auto px-6">
-          <p className={`text-center text-sm font-bold uppercase tracking-widest mb-12 ${
-            isDark ? 'text-gray-400' : 'text-gray-600'
-          }`}>
-            Trusted by professionals at
+          <p className="text-center text-xs font-bold uppercase tracking-[0.2em] mb-16 text-zinc-500" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+            TRUSTED BY PROFESSIONALS AT
           </p>
           
           {/* Infinite Scrolling Container */}
           <div className="relative">
             {/* Gradient Overlays */}
-            <div className={`absolute left-0 top-0 bottom-0 w-32 z-10 ${
-              isDark 
-                ? 'bg-gradient-to-r from-gray-800/90 to-transparent' 
-                : 'bg-gradient-to-r from-gray-50 to-transparent'
-            }`}></div>
-            <div className={`absolute right-0 top-0 bottom-0 w-32 z-10 ${
-              isDark 
-                ? 'bg-gradient-to-l from-gray-800/90 to-transparent' 
-                : 'bg-gradient-to-l from-gray-50 to-transparent'
-            }`}></div>
+            <div className="absolute left-0 top-0 bottom-0 w-32 z-10 bg-gradient-to-r from-black to-transparent"></div>
+            <div className="absolute right-0 top-0 bottom-0 w-32 z-10 bg-gradient-to-l from-black to-transparent"></div>
             
             {/* Scrolling Track */}
             <div className="flex animate-scroll">
@@ -155,18 +146,14 @@ export const Features = () => {
               {companies.map((company, index: number) => (
                 <div
                   key={`first-${index}`}
-                  className={`flex-shrink-0 mx-8 px-8 py-6 rounded-2xl ${
-                    isDark ? 'bg-gray-800' : 'bg-white'
-                  } shadow-lg hover:scale-110 transition-transform duration-300 group`}
+                  className="flex-shrink-0 mx-8 px-8 py-6 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 hover:scale-110 transition-all duration-300 group"
                 >
                   <div className="flex items-center space-x-4">
                     <CompanyLogo 
                       name={company.name} 
-                      color={logoColor}
+                      color="#FFFFFF"
                     />
-                    <span className={`text-xl font-bold ${
-                      isDark ? 'text-gray-200' : 'text-gray-800'
-                    }`}>
+                    <span className="text-xl font-bold text-white uppercase tracking-tight" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                       {company.name}
                     </span>
                   </div>
@@ -176,18 +163,14 @@ export const Features = () => {
               {companies.map((company, index: number) => (
                 <div
                   key={`second-${index}`}
-                  className={`flex-shrink-0 mx-8 px-8 py-6 rounded-2xl ${
-                    isDark ? 'bg-gray-800' : 'bg-white'
-                  } shadow-lg hover:scale-110 transition-transform duration-300 group`}
+                  className="flex-shrink-0 mx-8 px-8 py-6 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 hover:scale-110 transition-all duration-300 group"
                 >
                   <div className="flex items-center space-x-4">
                     <CompanyLogo 
                       name={company.name} 
-                      color={logoColor}
+                      color="#FFFFFF"
                     />
-                    <span className={`text-xl font-bold ${
-                      isDark ? 'text-gray-200' : 'text-gray-800'
-                    }`}>
+                    <span className="text-xl font-bold text-white uppercase tracking-tight" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                       {company.name}
                     </span>
                   </div>
@@ -199,37 +182,30 @@ export const Features = () => {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-24 px-6">
+      <section id="features" className="py-24 px-6 bg-black">
         <div className="container mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-5xl md:text-6xl font-black mb-6">
-              <span className="bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">
-                Why Choose LiveCV?
-              </span>
+            <h2 className="text-5xl md:text-6xl font-black mb-6 uppercase text-white" style={{ fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '-0.02em' }}>
+              WHY CHOOSE <span className="bg-gradient-to-r from-blue-400 to-blue-600 text-transparent bg-clip-text">LIVECV?</span>
             </h2>
-            <p className={`text-xl ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              Everything you need to create the perfect resume
+            <p className="text-lg text-zinc-400 uppercase tracking-wide" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+              EVERYTHING YOU NEED TO CREATE THE PERFECT RESUME
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className={`group p-8 rounded-3xl transition-all duration-300 hover:scale-105 hover:-translate-y-2 ${
-                  isDark ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:shadow-2xl'
-                } border-2 ${isDark ? 'border-gray-700 hover:border-gray-600' : 'border-gray-200 hover:border-blue-300'} relative overflow-hidden`}
+                className="group p-8 bg-zinc-900/50 border border-zinc-800 hover:border-zinc-700 transition-all duration-300 hover:bg-zinc-900/70"
               >
-                {/* Background gradient on hover */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}></div>
-                
-                <div className={`mb-6 bg-gradient-to-r ${feature.color} p-4 rounded-2xl inline-block text-white shadow-lg group-hover:shadow-xl transition-shadow duration-300`}>
+                <div className="mb-6 bg-gradient-to-r from-blue-600 to-blue-700 p-4 inline-block text-white">
                   {feature.icon}
                 </div>
-                <h3 className={`text-2xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'} group-hover:text-blue-600 transition-colors duration-300`}>
+                <h3 className="text-xl font-black mb-4 text-white uppercase tracking-tight" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                   {feature.title}
                 </h3>
-                <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'} leading-relaxed`}>
+                <p className="text-sm text-zinc-400 leading-relaxed font-medium" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                   {feature.description}
                 </p>
               </div>
@@ -239,32 +215,34 @@ export const Features = () => {
       </section>
 
       {/* How It Works */}
-      <section className={`py-24 px-6 ${isDark ? 'bg-gray-800/30' : 'bg-gray-50'}`}>
+      <section className="py-24 px-6 bg-zinc-950 border-t border-zinc-900">
         <div className="container mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-5xl md:text-6xl font-black mb-6">
-              How It Works
+            <h2 className="text-5xl md:text-6xl font-black mb-6 uppercase text-white" style={{ fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '-0.02em' }}>
+              HOW IT WORKS
             </h2>
-            <p className={`text-xl ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              Create your perfect resume in 3 simple steps
+            <p className="text-lg text-zinc-400 uppercase tracking-wide" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+              CREATE YOUR PERFECT RESUME IN 3 SIMPLE STEPS
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-12 max-w-6xl mx-auto">
             {[
-              { step: '1', title: 'Sign Up Free', desc: 'Create your account in seconds with email or OAuth', icon: <FileText className="w-12 h-12" /> },
-              { step: '2', title: 'Choose Template', desc: 'Select from professional templates after login', icon: <FileText className="w-12 h-12" /> },
-              { step: '3', title: 'Download & Apply', desc: 'Export your ATS-optimized PDF and land your dream job', icon: <FileText className="w-12 h-12" /> }
+              { step: '01', title: 'SIGN UP FREE', desc: 'CREATE YOUR ACCOUNT IN SECONDS WITH EMAIL OR OAUTH', icon: <FileText className="w-12 h-12" /> },
+              { step: '02', title: 'CHOOSE TEMPLATE', desc: 'SELECT FROM PROFESSIONAL TEMPLATES AFTER LOGIN', icon: <FileText className="w-12 h-12" /> },
+              { step: '03', title: 'DOWNLOAD & APPLY', desc: 'EXPORT YOUR ATS-OPTIMIZED PDF AND LAND YOUR DREAM JOB', icon: <FileText className="w-12 h-12" /> }
             ].map((item, index) => (
-              <div key={index} className="text-center">
-                <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-3xl font-black mb-6`}>
+              <div key={index} className="text-center group">
+                <div className="inline-flex items-center justify-center w-24 h-24 bg-zinc-900 border-2 border-zinc-800 hover:border-blue-600 text-white text-3xl font-black mb-6 transition-all group-hover:bg-blue-600" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                   {item.step}
                 </div>
-                <div className={`mb-4 ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`}>
+                <div className="mb-6 text-blue-500 flex justify-center">
                   {item.icon}
                 </div>
-                <h3 className="text-2xl font-bold mb-4">{item.title}</h3>
-                <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>
+                <h3 className="text-2xl font-black mb-4 text-white uppercase tracking-tight" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                  {item.title}
+                </h3>
+                <p className="text-sm text-zinc-400 font-medium tracking-wide" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                   {item.desc}
                 </p>
               </div>
@@ -274,72 +252,68 @@ export const Features = () => {
       </section>
 
       {/* Appwrite Integration Showcase */}
-      <section className="py-24 px-6">
+      <section className="py-24 px-6 bg-black border-t border-zinc-900">
         <div className="container mx-auto">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center space-x-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-red-500 rounded-xl flex items-center justify-center">
+              <div className="inline-flex items-center space-x-4 mb-8">
+                <div className="w-14 h-14 bg-gradient-to-r from-pink-600 to-red-600 flex items-center justify-center">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
-                    className="w-7 h-7 text-white"
+                    className="w-8 h-8 text-white"
                     fill="currentColor"
                   >
                     <path d="M12 0L1.608 6v12L12 24l10.392-6V6L12 0zm-1.02 14.004H6.984v3.996h3.996v-3.996zm0-8.004H6.984v3.996h3.996V6zm5.016 0h-3.996v3.996h3.996V6zm0 8.004h-3.996v3.996h3.996v-3.996z" />
                   </svg>
                 </div>
-                <h2 className="text-4xl md:text-5xl font-black">
-                  <span className="bg-gradient-to-r from-pink-600 to-red-600 text-transparent bg-clip-text">
-                    Powered by Appwrite
-                  </span>
+                <h2 className="text-4xl md:text-5xl font-black uppercase text-white" style={{ fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '-0.02em' }}>
+                  POWERED BY <span className="bg-gradient-to-r from-pink-500 to-red-500 text-transparent bg-clip-text">APPWRITE</span>
                 </h2>
               </div>
-              <p className={`text-xl ${isDark ? 'text-gray-400' : 'text-gray-600'} max-w-3xl mx-auto`}>
-                Built on Appwrite's secure, open-source backend platform for enterprise-grade reliability and performance
+              <p className="text-base text-zinc-400 max-w-3xl mx-auto uppercase tracking-wide font-medium" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                BUILT ON APPWRITE'S SECURE, OPEN-SOURCE BACKEND PLATFORM FOR ENTERPRISE-GRADE RELIABILITY AND PERFORMANCE
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
               {[
                 {
                   icon: <Shield className="w-8 h-8" />,
-                  title: 'Secure Authentication',
-                  description: 'OAuth, email verification, and multi-factor authentication',
-                  color: 'from-green-500 to-emerald-500'
+                  title: 'SECURE AUTHENTICATION',
+                  description: 'OAUTH, EMAIL VERIFICATION, AND MULTI-FACTOR AUTHENTICATION',
+                  color: 'from-green-600 to-emerald-600'
                 },
                 {
                   icon: <Database className="w-8 h-8" />,
-                  title: 'Real-time Database',
-                  description: 'Instant sync across devices with live collaboration features',
-                  color: 'from-blue-500 to-cyan-500'
+                  title: 'REAL-TIME DATABASE',
+                  description: 'INSTANT SYNC ACROSS DEVICES WITH LIVE COLLABORATION FEATURES',
+                  color: 'from-blue-600 to-cyan-600'
                 },
                 {
                   icon: <Lock className="w-8 h-8" />,
-                  title: 'End-to-End Encryption',
-                  description: 'Your resume data is encrypted and protected at all times',
-                  color: 'from-purple-500 to-pink-500'
+                  title: 'END-TO-END ENCRYPTION',
+                  description: 'YOUR RESUME DATA IS ENCRYPTED AND PROTECTED AT ALL TIMES',
+                  color: 'from-purple-600 to-pink-600'
                 },
                 {
                   icon: <FileText className="w-8 h-8" />,
-                  title: 'Cloud Storage',
-                  description: 'Secure file storage for PDFs and resume assets',
-                  color: 'from-orange-500 to-red-500'
+                  title: 'CLOUD STORAGE',
+                  description: 'SECURE FILE STORAGE FOR PDFS AND RESUME ASSETS',
+                  color: 'from-orange-600 to-red-600'
                 }
               ].map((feature, index) => (
                 <div
                   key={index}
-                  className={`group p-6 rounded-2xl transition-all duration-300 hover:scale-105 ${
-                    isDark ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:shadow-xl'
-                  } border ${isDark ? 'border-gray-700' : 'border-gray-200'}`}
+                  className="group p-6 bg-zinc-900/50 border border-zinc-800 hover:border-zinc-700 transition-all duration-300"
                 >
-                  <div className={`mb-4 bg-gradient-to-r ${feature.color} p-3 rounded-xl inline-block text-white`}>
+                  <div className={`mb-4 bg-gradient-to-r ${feature.color} p-3 inline-block text-white`}>
                     {feature.icon}
                   </div>
-                  <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                  <h3 className="text-base font-black mb-3 text-white uppercase tracking-tight" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                     {feature.title}
                   </h3>
-                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'} leading-relaxed`}>
+                  <p className="text-xs text-zinc-400 leading-relaxed font-medium" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                     {feature.description}
                   </p>
                 </div>
@@ -347,50 +321,50 @@ export const Features = () => {
             </div>
 
             {/* Technical Details */}
-            <div className={`${isDark ? 'bg-gray-800' : 'bg-gray-50'} rounded-2xl p-8 border ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-              <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="bg-zinc-900/50 p-10 border border-zinc-800">
+              <div className="grid md:grid-cols-2 gap-10 items-center">
                 <div>
-                  <h3 className={`text-2xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    Why We Chose Appwrite
+                  <h3 className="text-2xl font-black mb-6 text-white uppercase tracking-tight" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                    WHY WE CHOSE APPWRITE
                   </h3>
-                  <ul className={`space-y-3 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <ul className="space-y-4 text-zinc-300">
                     <li className="flex items-start space-x-3">
                       <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <span>Open-source and transparent security practices</span>
+                      <span className="text-sm font-medium" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>OPEN-SOURCE AND TRANSPARENT SECURITY PRACTICES</span>
                     </li>
                     <li className="flex items-start space-x-3">
                       <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <span>GDPR compliant with data residency options</span>
+                      <span className="text-sm font-medium" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>GDPR COMPLIANT WITH DATA RESIDENCY OPTIONS</span>
                     </li>
                     <li className="flex items-start space-x-3">
                       <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <span>99.9% uptime SLA for reliable access</span>
+                      <span className="text-sm font-medium" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>99.9% UPTIME SLA FOR RELIABLE ACCESS</span>
                     </li>
                     <li className="flex items-start space-x-3">
                       <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <span>Built-in backup and disaster recovery</span>
+                      <span className="text-sm font-medium" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>BUILT-IN BACKUP AND DISASTER RECOVERY</span>
                     </li>
                   </ul>
                 </div>
                 <div className="text-center">
-                  <div className={`inline-flex items-center space-x-4 px-6 py-4 rounded-xl ${isDark ? 'bg-gray-700' : 'bg-white'} border ${isDark ? 'border-gray-600' : 'border-gray-200'} shadow-lg`}>
+                  <div className="inline-flex items-center space-x-6 px-8 py-6 bg-zinc-900 border border-zinc-800">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-green-500 mb-1">99.9%</div>
-                      <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Uptime</div>
+                      <div className="text-3xl font-black text-green-500 mb-1" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>99.9%</div>
+                      <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>UPTIME</div>
                     </div>
-                    <div className={`w-px h-8 ${isDark ? 'bg-gray-600' : 'bg-gray-300'}`}></div>
+                    <div className="w-px h-10 bg-zinc-800"></div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-500 mb-1">256-bit</div>
-                      <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Encryption</div>
+                      <div className="text-3xl font-black text-blue-500 mb-1" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>256-BIT</div>
+                      <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>ENCRYPTION</div>
                     </div>
-                    <div className={`w-px h-8 ${isDark ? 'bg-gray-600' : 'bg-gray-300'}`}></div>
+                    <div className="w-px h-10 bg-zinc-800"></div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-purple-500 mb-1">SOC 2</div>
-                      <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Compliant</div>
+                      <div className="text-3xl font-black text-purple-500 mb-1" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>SOC 2</div>
+                      <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>COMPLIANT</div>
                     </div>
                   </div>
-                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'} mt-4`}>
-                    Enterprise-grade security you can trust
+                  <p className="text-xs text-zinc-500 mt-6 font-bold uppercase tracking-wider" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                    ENTERPRISE-GRADE SECURITY YOU CAN TRUST
                   </p>
                 </div>
               </div>

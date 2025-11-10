@@ -1,0 +1,20 @@
+
+> livecv-server@1.0.0 start
+> node server.js
+
+[2025-11-10T20:34:03.805Z] [DEBUG] Starting LiveCV server...
+[2025-11-10T20:34:03.807Z] [DEBUG] Node Environment: production
+[2025-11-10T20:34:03.807Z] [DEBUG] Frontend URL: http://localhost:5173
+Server Appwrite configuration: { endpoint: 'https://nyc.cloud.appwrite.io/v1', projectId: '✓ Set' }
+Appwrite Configuration:
+- Endpoint: https://nyc.cloud.appwrite.io/v1
+- Project ID: ✅ Set
+- API Key: ✅ Set
+[2025-11-10T20:34:04.118Z] [DEBUG] ✅ Using Appwrite for database, storage, and authentication
+LiveCV server running on port 5002 in production mode
+[Appwrite] Connection validated successfully
+[2025-11-10T20:34:04.765Z] [DEBUG] ✅ Appwrite connection validated successfully
+[RenderCV Cache] MISS - Rendering new PDF for theme: classic...
+[RenderCV] Executing: cd "/var/folders/hj/d053zm3n7ds32hp3fx_13kl80000gn/T/livecv-render-OTj6WU" && rendercv render "/var/folders/hj/d053zm3n7ds32hp3fx_13kl80000gn/T/livecv-render-OTj6WU/resume.yaml"
+[RenderCV] Render complete in 1761ms (PDF size: 23.34 KB)
+[Generate] Generated PDF in 1775ms

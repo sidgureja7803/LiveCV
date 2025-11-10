@@ -1,74 +1,69 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../contexts/ThemeContext';
-import { ArrowRight, Star, Users, FileText, TrendingUp, CheckCircle, Clock, FileCheck } from 'lucide-react';
+import { ArrowRight, Users, FileText, TrendingUp, CheckCircle } from 'lucide-react';
 import livePreviewImage from '/images/live_preview.png';
 
 export const FirstPage = () => {
   const navigate = useNavigate();
-  const { isDark } = useTheme();
   
   const stats = [
-    { icon: <Users className="w-8 h-8" />, number: '10K+', label: 'Active Users' },
-    { icon: <FileText className="w-8 h-8" />, number: '50K+', label: 'Resumes Created' },
-    { icon: <Star className="w-8 h-8" />, number: '4.9/5', label: 'User Rating' },
-    { icon: <TrendingUp className="w-8 h-8" />, number: '95%', label: 'Success Rate' }
+    { icon: <Users className="w-6 h-6" />, number: '10,000+', label: 'ACTIVE USERS' },
+    { icon: <FileText className="w-6 h-6" />, number: '50,000+', label: 'RESUMES CREATED' },
+    { icon: <TrendingUp className="w-6 h-6" />, number: '95%', label: 'SUCCESS RATE' }
   ];
 
   const features = [
-    { icon: <CheckCircle className="w-6 h-6" />, text: 'ATS-optimized templates' },
-    { icon: <CheckCircle className="w-6 h-6" />, text: 'Live PDF preview' },
-    { icon: <CheckCircle className="w-6 h-6" />, text: 'AI content generation' },
-    { icon: <Clock className="w-6 h-6" />, text: 'Ready in minutes' }
+    { icon: <CheckCircle className="w-5 h-5" />, text: 'ATS-OPTIMIZED TEMPLATES' },
+    { icon: <CheckCircle className="w-5 h-5" />, text: 'LIVE PDF PREVIEW' },
+    { icon: <CheckCircle className="w-5 h-5" />, text: 'AI CONTENT GENERATION' },
+    { icon: <CheckCircle className="w-5 h-5" />, text: 'PROFESSIONAL THEMES' }
   ];
 
   return (
-    <section className="relative pt-32 pb-20 px-6 overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10"></div>
-      <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl"></div>
+    <section className="relative pt-32 pb-20 px-6 overflow-hidden bg-black">
+      {/* Subtle Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 via-black to-black"></div>
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-700 to-transparent"></div>
       
       <div className="container mx-auto relative z-10">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex flex-col lg:flex-row gap-12 items-center">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col lg:flex-row gap-16 items-center">
             {/* Left Column - Hero Text */}
             <div className="lg:w-3/5 text-center lg:text-left">
               {/* Badge */}
-              <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 border border-indigo-500/30 rounded-full px-6 py-3 mb-8">
-                <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                <span className={`font-semibold ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
-                  #1 AI-Powered Resume Builder
+              <div className="inline-flex items-center space-x-3 bg-zinc-900/50 border border-zinc-800 px-6 py-2.5 mb-8 backdrop-blur-sm">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span className="text-xs font-semibold text-zinc-400 tracking-[0.15em] uppercase">
+                  ENTERPRISE-GRADE RESUME BUILDER
                 </span>
               </div>
 
               {/* Main Heading */}
-              <h1 className="text-5xl md:text-7xl font-black mb-8 leading-tight">
-                <span className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-900 text-transparent bg-clip-text">
-                  Build Your Dream Resume
+              <h1 className="text-5xl md:text-7xl font-bold mb-8 leading-[1.1] tracking-tight">
+                <span className="text-white font-black uppercase block mb-2" style={{ fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '-0.02em' }}>
+                  BUILD PROFESSIONAL
                 </span>
-                <br />
-                <span className={isDark ? 'text-white' : 'text-gray-900'}>
-                  In Minutes
+                <span className="text-white font-black uppercase" style={{ fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '-0.02em' }}>
+                  RESUMES IN
+                </span>{' '}
+                <span className="bg-gradient-to-r from-blue-400 to-blue-600 text-transparent bg-clip-text font-black uppercase" style={{ fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '-0.02em' }}>
+                  MINUTES
                 </span>
               </h1>
 
               {/* Subtitle */}
-              <p className={`text-xl md:text-2xl mb-8 font-medium ${
-                isDark ? 'text-gray-300' : 'text-gray-600'
-              }`}>
-                Create professional, ATS-optimized resumes with our AI-powered platform.
-                Beat the bots, impress recruiters, and land your dream job faster.
+              <p className="text-lg md:text-xl mb-10 text-zinc-400 leading-relaxed font-normal max-w-xl" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                CREATE ATS-OPTIMIZED RESUMES WITH OUR AI-POWERED PLATFORM. STAND OUT FROM THE COMPETITION AND LAND YOUR DREAM JOB FASTER.
               </p>
               
               {/* Feature bullets */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
                 {features.map((feature, index) => (
-                  <div key={index} className="flex items-center space-x-3">
-                    <div className={`${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+                  <div key={index} className="flex items-center space-x-3 text-zinc-300">
+                    <div className="text-blue-500 flex-shrink-0">
                       {feature.icon}
                     </div>
-                    <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'} font-medium`}>
+                    <span className="text-sm font-semibold tracking-wide" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                       {feature.text}
                     </span>
                   </div>
@@ -76,14 +71,15 @@ export const FirstPage = () => {
               </div>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center sm:justify-start gap-6 mb-16">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center sm:justify-start gap-4 mb-16">
                 <button
                   onClick={() => navigate('/register')}
-                  className="group px-10 py-5 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white rounded-2xl font-black text-xl transition-all transform hover:scale-105 shadow-2xl hover:shadow-blue-500/50 w-full sm:w-auto"
+                  className="group px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm tracking-wider uppercase transition-all w-full sm:w-auto border border-blue-500/20 hover:border-blue-400/40 shadow-lg shadow-blue-600/20 hover:shadow-xl hover:shadow-blue-600/30"
+                  style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
                 >
-                  <span className="flex items-center justify-center space-x-3">
-                    <span>Get Started Free</span>
-                    <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                  <span className="flex items-center justify-center space-x-2">
+                    <span>GET STARTED FREE</span>
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </button>
                 
@@ -92,28 +88,24 @@ export const FirstPage = () => {
                     const featuresSection = document.getElementById('features');
                     featuresSection?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className={`px-10 py-5 rounded-2xl font-black text-xl transition-all transform hover:scale-105 shadow-xl w-full sm:w-auto ${
-                    isDark 
-                      ? 'bg-gray-800 hover:bg-gray-700 text-white border-2 border-gray-700'
-                      : 'bg-white hover:bg-gray-50 text-gray-900 border-2 border-gray-300'
-                  }`}
+                  className="px-8 py-4 font-bold text-sm tracking-wider uppercase transition-all w-full sm:w-auto bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-800 hover:border-zinc-700"
+                  style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
                 >
-                  Learn More
+                  LEARN MORE
                 </button>
               </div>
             </div>
             
             {/* Right Column - Live Preview Image */}
             <div className="lg:w-2/5 relative">
-              <div className="relative z-10 bg-gradient-to-br from-white/10 to-white/5 p-3 rounded-2xl border border-white/20 backdrop-blur-sm shadow-2xl">
+              <div className="relative z-10 bg-zinc-900 p-2 rounded-xl border border-zinc-800 shadow-2xl">
                 {/* Image with fallback */}
-                <div className="relative rounded-xl w-full overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-700">
+                <div className="relative rounded-lg w-full overflow-hidden shadow-xl bg-zinc-800">
                   <img 
                     src={livePreviewImage} 
-                    alt="LiveCV Resume Preview" 
+                    alt="Professional Resume Preview" 
                     className="w-full h-auto object-cover z-10 relative"
                     onError={(e) => {
-                      // If image fails to load, show the fallback
                       e.currentTarget.style.display = 'none';
                       const fallback = e.currentTarget.nextElementSibling as HTMLElement;
                       if (fallback) fallback.style.display = 'flex';
@@ -121,44 +113,36 @@ export const FirstPage = () => {
                   />
                   {/* Fallback content */}
                   <div 
-                    className="absolute inset-0 flex-col items-center justify-center bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 hidden"
+                    className="absolute inset-0 flex-col items-center justify-center bg-zinc-800 hidden"
                     style={{minHeight: '300px'}}
                   >
                     <div className="flex flex-col items-center justify-center h-full space-y-4">
-                      <FileCheck className="w-16 h-16 text-indigo-600 dark:text-indigo-400" />
-                      <p className="text-lg font-medium text-center text-gray-700 dark:text-gray-300 px-6">
+                      <FileText className="w-16 h-16 text-blue-500" />
+                      <p className="text-base font-medium text-center text-zinc-300 px-6">
                         Professional Resume Preview
                         <br />
-                        <span className="text-sm text-gray-500 dark:text-gray-400">ATS-Optimized Templates</span>
+                        <span className="text-sm text-zinc-500">ATS-Optimized Templates</span>
                       </p>
                     </div>
                   </div>
                 </div>
-                <div className="absolute -bottom-4 -right-4 bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 rounded-xl text-white font-bold shadow-lg transform rotate-3">
-                  ATS-Optimized
-                </div>
               </div>
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-indigo-500/30 rounded-full blur-3xl -z-10"></div>
+              {/* Subtle glow effect */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-blue-600/10 rounded-full blur-3xl -z-10"></div>
             </div>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16">
+          <div className="grid grid-cols-3 gap-6 mt-20 max-w-3xl mx-auto">
             {stats.map((stat, index) => (
-              <div key={index} className={`p-6 rounded-2xl ${
-                isDark ? 'bg-gray-800/50' : 'bg-white/50'
-              } backdrop-blur-sm border ${
-                isDark ? 'border-gray-700' : 'border-gray-200'
-              }`}>
-                <div className={`mb-3 ${
-                  isDark ? 'text-indigo-400' : 'text-indigo-600'
-                }`}>
+              <div key={index} className="p-6 bg-zinc-900/30 backdrop-blur-sm border border-zinc-800/50 hover:border-zinc-700 transition-all">
+                <div className="mb-3 text-zinc-600">
                   {stat.icon}
                 </div>
-                <div className={`text-3xl font-black mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{stat.number}</div>
-                <div className={`text-sm font-semibold ${
-                  isDark ? 'text-gray-400' : 'text-gray-600'
-                }`}>
+                <div className="text-3xl font-black mb-1 text-white" style={{ fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '-0.02em' }}>
+                  {stat.number}
+                </div>
+                <div className="text-xs font-bold text-zinc-500 tracking-[0.15em] uppercase" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                   {stat.label}
                 </div>
               </div>
@@ -166,36 +150,27 @@ export const FirstPage = () => {
           </div>
           
           {/* Powered by Appwrite Badge */}
-          <div className="flex items-center justify-center mt-12">
-            <div className={`inline-flex items-center space-x-4 px-8 py-4 rounded-2xl border backdrop-blur-sm shadow-lg ${
-              isDark 
-                ? 'bg-gray-800/80 border-gray-700' 
-                : 'bg-white/80 border-gray-200'
-            }`}>
-              <div className="flex items-center space-x-3">
-                <span className={`text-sm font-medium ${
-                  isDark ? 'text-gray-400' : 'text-gray-600'
-                }`}>Powered by</span>
-                <a 
-                  href="https://appwrite.io" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-3 px-4 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 transition-all transform hover:scale-105 shadow-lg"
+          <div className="flex items-center justify-center mt-16">
+            <div className="inline-flex items-center space-x-6 px-8 py-4 border border-zinc-800 bg-zinc-900/30 backdrop-blur-sm">
+              <span className="text-xs font-bold text-zinc-500 tracking-[0.15em] uppercase" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                POWERED BY
+              </span>
+              <a 
+                href="https://appwrite.io" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-pink-600 to-red-600 hover:from-pink-500 hover:to-red-500 transition-all"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  className="w-5 h-5 text-white"
+                  fill="currentColor"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    className="w-6 h-6 text-white"
-                    fill="currentColor"
-                  >
-                    <path d="M12 0L1.608 6v12L12 24l10.392-6V6L12 0zm-1.02 14.004H6.984v3.996h3.996v-3.996zm0-8.004H6.984v3.996h3.996V6zm5.016 0h-3.996v3.996h3.996V6zm0 8.004h-3.996v3.996h3.996v-3.996z" />
-                  </svg>
-                  <span className="text-white text-sm font-bold">Appwrite</span>
-                </a>
-              </div>
-              <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'} max-w-xs`}>
-                Secure database & authentication
-              </div>
+                  <path d="M12 0L1.608 6v12L12 24l10.392-6V6L12 0zm-1.02 14.004H6.984v3.996h3.996v-3.996zm0-8.004H6.984v3.996h3.996V6zm5.016 0h-3.996v3.996h3.996V6zm0 8.004h-3.996v3.996h3.996v-3.996z" />
+                </svg>
+                <span className="text-white text-sm font-bold uppercase tracking-wider" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>APPWRITE</span>
+              </a>
             </div>
           </div>
         </div>

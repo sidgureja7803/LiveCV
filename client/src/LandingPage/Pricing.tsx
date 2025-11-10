@@ -10,146 +10,144 @@ export const Pricing = () => {
   
   const plans = [
     {
-      name: 'Free',
-      description: 'Perfect for job seekers who need a basic resume',
+      name: 'FREE',
+      description: 'PERFECT FOR JOB SEEKERS WHO NEED A BASIC RESUME',
       price: {
         monthly: 0,
         annual: 0
       },
       features: [
-        '3 Resume Templates',
-        'Basic PDF Export',
-        'Resume Builder',
-        'ATS-Friendly Formats',
-        '1 Resume Download Per Month'
+        '3 RESUME TEMPLATES',
+        'BASIC PDF EXPORT',
+        'RESUME BUILDER',
+        'ATS-FRIENDLY FORMATS',
+        '1 RESUME DOWNLOAD PER MONTH'
       ],
       icon: <FileText className="w-8 h-8" />,
       color: 'from-gray-600 to-gray-500',
       popular: false,
-      ctaText: 'Get Started'
+      ctaText: 'GET STARTED'
     },
     {
-      name: 'Pro',
-      description: 'For serious job seekers who need more features',
+      name: 'PRO',
+      description: 'FOR SERIOUS JOB SEEKERS WHO NEED MORE FEATURES',
       price: {
         monthly: 9.99,
         annual: 7.99
       },
       features: [
-        'All Free Features',
-        '15+ Premium Templates',
-        'Unlimited Downloads',
-        'ATS Optimization',
-        'Multiple Resume Versions',
-        'Cover Letter Builder',
-        'Priority Support'
+        'ALL FREE FEATURES',
+        '15+ PREMIUM TEMPLATES',
+        'UNLIMITED DOWNLOADS',
+        'ATS OPTIMIZATION',
+        'MULTIPLE RESUME VERSIONS',
+        'COVER LETTER BUILDER',
+        'PRIORITY SUPPORT'
       ],
       icon: <Star className="w-8 h-8" />,
       color: 'from-indigo-600 to-purple-600',
       popular: true,
-      ctaText: 'Get Pro'
+      ctaText: 'GET PRO'
     },
     {
-      name: 'Enterprise',
-      description: 'For teams and career centers',
+      name: 'ENTERPRISE',
+      description: 'FOR TEAMS AND CAREER CENTERS',
       price: {
         monthly: 29.99,
         annual: 24.99
       },
       features: [
-        'All Pro Features',
-        'Team Management',
-        'API Access',
-        'Custom Templates',
-        'Advanced Analytics',
-        'Dedicated Account Manager',
-        'White Labeling Options'
+        'ALL PRO FEATURES',
+        'TEAM MANAGEMENT',
+        'API ACCESS',
+        'CUSTOM TEMPLATES',
+        'ADVANCED ANALYTICS',
+        'DEDICATED ACCOUNT MANAGER',
+        'WHITE LABELING OPTIONS'
       ],
       icon: <Sparkles className="w-8 h-8" />,
       color: 'from-purple-600 to-pink-600',
       popular: false,
-      ctaText: 'Contact Sales'
+      ctaText: 'CONTACT SALES'
     }
   ];
   
   return (
-    <section id="pricing" className={`py-24 px-6 ${isDark ? 'bg-gray-800/30' : 'bg-gray-50'}`}>
+    <section id="pricing" className="py-24 px-6 bg-black border-t border-zinc-900">
       <div className="container mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-black mb-6">
-            <span className="bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">
-              Simple, Transparent Pricing
-            </span>
+          <h2 className="text-5xl md:text-6xl font-black mb-6 uppercase text-white" style={{ fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '-0.02em' }}>
+            SIMPLE, <span className="bg-gradient-to-r from-blue-400 to-blue-600 text-transparent bg-clip-text">TRANSPARENT PRICING</span>
           </h2>
-          <p className={`text-xl mb-10 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-            Choose the plan that's right for you
+          <p className="text-lg mb-10 text-zinc-400 uppercase tracking-wide font-medium" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+            CHOOSE THE PLAN THAT'S RIGHT FOR YOU
           </p>
           
           {/* Billing Toggle */}
-          <div className="inline-flex items-center p-1 mb-12 rounded-full border-2 border-indigo-100 dark:border-gray-700 bg-indigo-50 dark:bg-gray-800">
+          <div className="inline-flex items-center p-1 mb-12 border border-zinc-800 bg-zinc-900">
             <button
-              className={`px-8 py-3 rounded-full text-lg font-bold transition-all ${
+              className={`px-8 py-3 text-sm font-bold uppercase tracking-wider transition-all ${
                 isAnnual 
-                  ? 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-white shadow-lg' 
-                  : 'text-gray-500 dark:text-gray-400'
+                  ? 'bg-blue-600 text-white' 
+                  : 'text-zinc-500'
               }`}
               onClick={() => setIsAnnual(true)}
+              style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
             >
-              Annual
-              <span className="ml-2 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-400 text-xs px-2 py-1 rounded-full">
-                Save 20%
+              ANNUAL
+              <span className="ml-2 bg-green-600 text-white text-xs px-2 py-1 font-black">
+                SAVE 20%
               </span>
             </button>
             <button
-              className={`px-8 py-3 rounded-full text-lg font-bold transition-all ${
+              className={`px-8 py-3 text-sm font-bold uppercase tracking-wider transition-all ${
                 !isAnnual 
-                  ? 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-white shadow-lg' 
-                  : 'text-gray-500 dark:text-gray-400'
+                  ? 'bg-blue-600 text-white' 
+                  : 'text-zinc-500'
               }`}
               onClick={() => setIsAnnual(false)}
+              style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
             >
-              Monthly
+              MONTHLY
             </button>
           </div>
         </div>
         
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {plans.map((plan) => (
             <div 
               key={plan.name}
-              className={`relative rounded-3xl transition-all ${
+              className={`relative transition-all ${
                 plan.popular 
-                  ? 'transform md:-translate-y-4 scale-105' 
+                  ? 'transform md:-translate-y-4' 
                   : ''
               }`}
             >
               {plan.popular && (
-                <div className="absolute -top-5 inset-x-0 flex justify-center">
-                  <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-2 rounded-full font-bold shadow-lg">
-                    Most Popular
+                <div className="absolute -top-4 inset-x-0 flex justify-center">
+                  <div className="bg-blue-600 text-white px-6 py-2 font-black text-xs uppercase tracking-wider" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                    MOST POPULAR
                   </div>
                 </div>
               )}
               
-              <div className={`p-8 rounded-3xl h-full flex flex-col ${
+              <div className={`p-8 h-full flex flex-col border ${
                 plan.popular
-                  ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-2xl border-none'
-                  : isDark
-                    ? 'bg-gray-800 border-2 border-gray-700'
-                    : 'bg-white border-2 border-gray-200'
+                  ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white border-blue-600'
+                  : 'bg-zinc-900/50 border-zinc-800'
               }`}>
                 {/* Header */}
                 <div className="mb-8">
-                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 ${
+                  <div className={`inline-flex items-center justify-center w-16 h-16 mb-4 ${
                     plan.popular
                       ? 'bg-white/20'
                       : `bg-gradient-to-r ${plan.color} text-white`
                   }`}>
                     {plan.icon}
                   </div>
-                  <h3 className="text-3xl font-black mb-2">{plan.name}</h3>
-                  <p className={plan.popular ? 'text-indigo-200' : isDark ? 'text-gray-400' : 'text-gray-600'}>
+                  <h3 className="text-3xl font-black mb-2 uppercase tracking-tight" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>{plan.name}</h3>
+                  <p className={`text-xs uppercase tracking-wide font-medium ${plan.popular ? 'text-blue-200' : 'text-zinc-500'}`} style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                     {plan.description}
                   </p>
                 </div>
@@ -157,33 +155,33 @@ export const Pricing = () => {
                 {/* Price */}
                 <div className="mb-8">
                   <div className="flex items-baseline">
-                    <span className="text-6xl font-black">
+                    <span className="text-6xl font-black" style={{ fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '-0.02em' }}>
                       ${isAnnual ? plan.price.annual : plan.price.monthly}
                     </span>
-                    <span className={`ml-2 ${
-                      plan.popular ? 'text-indigo-200' : isDark ? 'text-gray-400' : 'text-gray-600'
-                    }`}>
-                      /month
+                    <span className={`ml-2 text-sm uppercase tracking-wide font-bold ${
+                      plan.popular ? 'text-blue-200' : 'text-zinc-500'
+                    }`} style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                      /MONTH
                     </span>
                   </div>
                   {isAnnual && plan.price.annual > 0 && (
-                    <p className={`text-sm mt-2 ${
-                      plan.popular ? 'text-indigo-200' : isDark ? 'text-gray-400' : 'text-gray-600'
-                    }`}>
-                      Billed annually (${(plan.price.annual * 12).toFixed(2)}/year)
+                    <p className={`text-xs mt-2 uppercase tracking-wide font-medium ${
+                      plan.popular ? 'text-blue-200' : 'text-zinc-500'
+                    }`} style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                      BILLED ANNUALLY (${(plan.price.annual * 12).toFixed(2)}/YEAR)
                     </p>
                   )}
                 </div>
                 
                 {/* Features */}
                 <div className="mb-8 flex-grow">
-                  <ul className="space-y-4">
+                  <ul className="space-y-3">
                     {plan.features.map((feature, index) => (
-                      <li key={index} className="flex items-center">
-                        <CheckCircle className={`w-5 h-5 mr-3 ${
-                          plan.popular ? 'text-white' : 'text-indigo-600 dark:text-indigo-400'
+                      <li key={index} className="flex items-start">
+                        <CheckCircle className={`w-4 h-4 mr-3 mt-0.5 flex-shrink-0 ${
+                          plan.popular ? 'text-white' : 'text-blue-500'
                         }`} />
-                        <span>{feature}</span>
+                        <span className="text-xs font-semibold tracking-wide" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>{feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -193,19 +191,20 @@ export const Pricing = () => {
                 <div>
                   <button
                     onClick={() => {
-                      if (plan.name === 'Free') {
+                      if (plan.name === 'FREE') {
                         navigate('/register');
-                      } else if (plan.name === 'Pro') {
+                      } else if (plan.name === 'PRO') {
                         navigate('/register?plan=pro');
                       } else {
                         window.open('mailto:sales@livecv.com', '_blank');
                       }
                     }}
-                    className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
+                    className={`w-full py-4 font-black text-sm uppercase tracking-wider transition-all ${
                       plan.popular
-                        ? 'bg-white text-indigo-600 hover:bg-indigo-50'
-                        : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700'
+                        ? 'bg-white text-blue-600 hover:bg-blue-50'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
                     }`}
+                    style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
                   >
                     {plan.ctaText}
                   </button>
@@ -217,21 +216,18 @@ export const Pricing = () => {
         
         {/* FAQ Preview */}
         <div className="mt-20 text-center">
-          <p className={`text-xl mb-8 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-            Have questions about our pricing?
+          <p className="text-lg mb-8 text-zinc-400 uppercase tracking-wide font-medium" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+            HAVE QUESTIONS ABOUT OUR PRICING?
           </p>
           <button
             onClick={() => {
               const faqSection = document.getElementById('faqs');
               faqSection?.scrollIntoView({ behavior: 'smooth' });
             }}
-            className={`px-8 py-3 rounded-xl font-bold ${
-              isDark
-                ? 'bg-gray-800 text-white border-2 border-gray-700 hover:bg-gray-700'
-                : 'bg-white text-indigo-600 border-2 border-indigo-100 hover:bg-indigo-50'
-            }`}
+            className="px-8 py-4 bg-zinc-900 text-white border border-zinc-800 hover:bg-zinc-800 font-black text-sm uppercase tracking-wider transition-all"
+            style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
           >
-            See Frequently Asked Questions
+            SEE FREQUENTLY ASKED QUESTIONS
           </button>
         </div>
       </div>

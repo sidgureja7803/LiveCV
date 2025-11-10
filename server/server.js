@@ -260,7 +260,7 @@ app.use((err, req, res, next) => {
 
 // Start server only if not being imported for serverless
 if (process.env.NODE_ENV !== 'production' || require.main === module) {
-  const PORT = process.env.PORT || 5001;
+  const PORT = process.env.PORT;
   server.listen(PORT, () => {
     console.log(`LiveCV server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
   });

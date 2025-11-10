@@ -129,9 +129,9 @@ function mapJsonToRenderCVYaml(resumeData, theme = 'classic') {
     cvData.location = personalInfo.location || personalInfo.address;
   }
   
-  if (personalInfo.phone) {
-    cvData.phone = personalInfo.phone;
-  }
+  // Skip phone number for now - RenderCV has strict validation
+  // that's difficult to match reliably. Phone can be added to social networks instead
+  // or shown in the location field if needed
   
   if (personalInfo.website) {
     cvData.website = personalInfo.website;

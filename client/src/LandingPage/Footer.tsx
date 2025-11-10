@@ -7,42 +7,42 @@ export const Footer = () => {
   
   const footerLinks = [
     {
-      title: 'Product',
+      title: 'PRODUCT',
       links: [
-        { name: 'Features', href: '#features' },
-        { name: 'Templates', href: '/templates' },
-        { name: 'Pricing', href: '#pricing' },
+        { name: 'FEATURES', href: '#features' },
+        { name: 'TEMPLATES', href: '/templates' },
+        { name: 'PRICING', href: '#pricing' },
         { name: 'FAQ', href: '#faq' },
-        { name: 'Testimonials', href: '#testimonials' }
+        { name: 'TESTIMONIALS', href: '#testimonials' }
       ]
     },
     {
-      title: 'Company',
+      title: 'COMPANY',
       links: [
-        { name: 'About', href: '/about' },
-        { name: 'Careers', href: '/careers' },
-        { name: 'Blog', href: '/blog' },
-        { name: 'Press', href: '/press' },
-        { name: 'Contact', href: '/contact' }
+        { name: 'ABOUT', href: '/about' },
+        { name: 'CAREERS', href: '/careers' },
+        { name: 'BLOG', href: '/blog' },
+        { name: 'PRESS', href: '/press' },
+        { name: 'CONTACT', href: '/contact' }
       ]
     },
     {
-      title: 'Resources',
+      title: 'RESOURCES',
       links: [
-        { name: 'Documentation', href: '/docs' },
-        { name: 'Resume Tips', href: '/tips' },
-        { name: 'Career Advice', href: '/advice' },
+        { name: 'DOCUMENTATION', href: '/docs' },
+        { name: 'RESUME TIPS', href: '/tips' },
+        { name: 'CAREER ADVICE', href: '/advice' },
         { name: 'API', href: '/api' },
-        { name: 'Privacy', href: '/privacy' }
+        { name: 'PRIVACY', href: '/privacy' }
       ]
     },
     {
-      title: 'Legal',
+      title: 'LEGAL',
       links: [
-        { name: 'Terms', href: '/terms' },
-        { name: 'Privacy', href: '/privacy' },
-        { name: 'Cookies', href: '/cookies' },
-        { name: 'Licenses', href: '/licenses' }
+        { name: 'TERMS', href: '/terms' },
+        { name: 'PRIVACY', href: '/privacy' },
+        { name: 'COOKIES', href: '/cookies' },
+        { name: 'LICENSES', href: '/licenses' }
       ]
     }
   ];
@@ -55,24 +55,22 @@ export const Footer = () => {
   ];
   
   return (
-    <footer className={`py-16 px-6 border-t ${
-      isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'
-    }`}>
+    <footer className="py-16 px-6 border-t border-zinc-900 bg-black">
       <div className="container mx-auto">
         {/* Top Footer */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-16">
           {/* Logo and Description */}
           <div className="col-span-2">
             <div className="flex items-center space-x-3 mb-6">
-              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 rounded-xl">
+              <div className="bg-blue-600 p-2">
                 <FileText className="w-8 h-8 text-white" />
               </div>
-              <span className="text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">
-                LiveCV
+              <span className="text-3xl font-black text-white uppercase tracking-tight" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                LIVECV
               </span>
             </div>
-            <p className={`mb-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              Create professional, ATS-optimized resumes in minutes with our intuitive builder. Land your dream job with LiveCV.
+            <p className="mb-6 text-sm text-zinc-500 font-medium tracking-wide" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+              CREATE PROFESSIONAL, ATS-OPTIMIZED RESUMES IN MINUTES WITH OUR INTUITIVE BUILDER. LAND YOUR DREAM JOB WITH LIVECV.
             </p>
             {/* Social Media */}
             <div className="flex space-x-4">
@@ -82,11 +80,7 @@ export const Footer = () => {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`p-3 rounded-lg transition-colors ${
-                    isDark 
-                      ? 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700' 
-                      : 'bg-gray-100 text-gray-600 hover:text-indigo-600 hover:bg-gray-200'
-                  }`}
+                  className="p-3 bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800 border border-zinc-800 transition-colors"
                 >
                   {link.icon}
                 </a>
@@ -97,17 +91,14 @@ export const Footer = () => {
           {/* Links */}
           {footerLinks.map((column) => (
             <div key={column.title}>
-              <h3 className="font-bold text-lg mb-5">{column.title}</h3>
+              <h3 className="font-black text-sm mb-5 text-white uppercase tracking-tight" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>{column.title}</h3>
               <ul className="space-y-3">
                 {column.links.map((link) => (
                   <li key={link.name}>
                     <a 
                       href={link.href}
-                      className={`transition-colors ${
-                        isDark 
-                          ? 'text-gray-400 hover:text-white' 
-                          : 'text-gray-600 hover:text-indigo-600'
-                      }`}
+                      className="text-xs text-zinc-500 hover:text-white transition-colors font-semibold tracking-wide"
+                      style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
                     >
                       {link.name}
                     </a>
@@ -119,31 +110,30 @@ export const Footer = () => {
         </div>
         
         {/* Bottom Footer */}
-        <div className="border-t pt-10 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>
-            &copy; {new Date().getFullYear()} LiveCV. All rights reserved.
+        <div className="border-t border-zinc-900 pt-10 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+          <p className="text-xs text-zinc-600 uppercase tracking-wide font-semibold" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+            &copy; {new Date().getFullYear()} LIVECV. ALL RIGHTS RESERVED.
           </p>
           
           <div className="flex items-center space-x-2">
-            <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>
-              Powered by
+            <span className="text-xs text-zinc-600 uppercase tracking-wide font-semibold" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+              POWERED BY
             </span>
-            <span className="font-bold text-pink-500">Appwrite</span>
-            <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>
+            <span className="font-black text-pink-500 uppercase tracking-tight" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>APPWRITE</span>
+            <span className="text-xs text-zinc-600 uppercase tracking-wide font-semibold" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
               &
             </span>
-            <span className="font-bold text-indigo-500">RenderCV</span>
+            <span className="font-black text-blue-500 uppercase tracking-tight" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>RENDERCV</span>
           </div>
           
           <div className="flex items-center">
-            <Mail className="w-5 h-5 mr-2" />
+            <Mail className="w-4 h-4 mr-2 text-zinc-500" />
             <a 
               href="mailto:contact@livecv.com"
-              className={`hover:underline ${
-                isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-indigo-600'
-              }`}
+              className="text-xs text-zinc-500 hover:text-white transition-colors uppercase tracking-wide font-semibold"
+              style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
             >
-              contact@livecv.com
+              CONTACT@LIVECV.COM
             </a>
           </div>
         </div>

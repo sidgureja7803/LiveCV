@@ -132,7 +132,12 @@ const ResumeBuilder: React.FC = () => {
   // Load template data from localStorage if available (from Dashboard template selection)
   useEffect(() => {
     console.log('🔄 ResumeBuilder mounting, templateId:', templateId);
-    setIsLoading(true);
+    
+    // Set a timeout to ensure loading state is cleared
+    const immediateLoadingTimer = setTimeout(() => {
+      setIsLoading(false);
+      console.log('✅ ResumeBuilder initial load complete');
+    }, 100);
     
     // Set the selected template based on URL param
     if (templateId) {
@@ -245,26 +250,8 @@ const ResumeBuilder: React.FC = () => {
       }
     }
     
-    // Simulate API call delay - don't trigger automatic preview
-    const timer = setTimeout(() => {
-      if (isMounted.current) {
-        setIsLoading(false);
-        console.log('✅ ResumeBuilder loaded successfully');
-      }
-    }, 500);
-    
-    // Safety timeout to prevent infinite loading
-    const safetyTimer = setTimeout(() => {
-      if (isMounted.current) {
-        console.warn('⚠️ Loading timeout reached, forcing completion');
-        setIsLoading(false);
-      }
-    }, 5000); // 5 second safety timeout
-    
     return () => {
-      clearTimeout(timer);
-      clearTimeout(safetyTimer);
-      isMounted.current = false;
+      clearTimeout(immediateLoadingTimer);
     };
   }, [templateId]); // Removed isLoading from dependencies to prevent infinite loop
   
@@ -277,36 +264,24 @@ const ResumeBuilder: React.FC = () => {
   
   // Handle template change
   const handleTemplateChange = (newTemplateId: string) => {
-    setIsLoading(true);
     setSelectedTemplateId(newTemplateId);
-    
-    // Simulate template loading delay
-    setTimeout(() => {
-      if (isMounted.current) {
-        setIsLoading(false);
-      }
-    }, 500);
+    console.log('📝 Template changed to:', newTemplateId);
   };
   
   // Update preview HTML whenever resume data or template changes
   useEffect(() => {
     if (currentTemplate && previewMode === 'html') {
-      // Set loading state while generating HTML
-      setIsLoading(true);
-      
       // Generate HTML directly without trying to load from public directory
       const loadAndProcessTemplate = async () => {
         try {
           // Generate HTML directly
           const generatedHtml = TemplateService.generateTemplateHTML(currentTemplate, resumeData);
           setPreviewHtml(generatedHtml);
+          console.log('✅ HTML preview generated');
         } catch (error) {
           console.error("Error generating template:", error);
           // Set empty HTML as fallback
           setPreviewHtml('<div>Error generating preview</div>');
-        } finally {
-          // Turn off loading state
-          setIsLoading(false);
         }
       };
       
@@ -368,9 +343,6 @@ const ResumeBuilder: React.FC = () => {
     
     const handleSaveResume = async (generatePdf = false) => {
     try {
-      // Show loading state
-      setIsLoading(true);
-      
       let savedResumeId = resumeId;
       
       // Only save to backend if we have valid data and want to persist
@@ -402,9 +374,6 @@ const ResumeBuilder: React.FC = () => {
         triggerPreview();
       }
       
-      // Hide loading state
-      setIsLoading(false);
-      
       // Show success message
       if (generatePdf) {
         console.log('PDF generation triggered!');
@@ -415,7 +384,6 @@ const ResumeBuilder: React.FC = () => {
       return { savedResumeId };
     } catch (error) {
       console.error('Failed to save resume:', error);
-      setIsLoading(false);
       
       // Still try to generate preview even if save failed
       if (generatePdf) {
