@@ -7,8 +7,8 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import type { ResumeData } from '../types';
 
-// Get the API base URL from environment variable, OpenAI API URL or use localhost
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || (import.meta as any).env?.VITE_OPENAI_API_URL || 'http://localhost:5001';
+// Get the API base URL from environment variable
+const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5002';
 const API_KEY = (import.meta as any).env?.VITE_API_KEY || (import.meta as any).env?.VITE_OPENAI_API_KEY;
 
 export interface CursorPosition {

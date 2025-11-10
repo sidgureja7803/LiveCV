@@ -4,14 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host --config vite.config.dev.js",
+    "dev": "vite --host",
     "build": "vite build",
-    "build-netlify": "vite build --config vite.config.netlify.js",
-    "build-stack": "node --stack-size=4096 ./node_modules/.bin/vite build",
-    "build-esbuild": "node build-esbuild.js",
-    "build-legacy": "VITE_LEGACY=true vite build",
-    "build-minimal": "node --stack-size=16384 ./node_modules/.bin/vite build --config vite.config.minimal.js",
-    "build-webpack": "webpack --config webpack.config.cjs",
     "lint": "eslint .",
     "preview": "vite preview --port 3000",
     "serve": "node serve.js"

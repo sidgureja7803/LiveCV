@@ -78,7 +78,7 @@ const JDMatcher: React.FC = () => {
       // Use the correct API endpoint based on environment
       const apiUrl = process.env.NODE_ENV === 'production' 
         ? '/api/jd-match/analyze' 
-        : 'http://localhost:5001/api/jd-match/analyze';
+        : 'http://localhost:5002/api/jd-match/analyze';
       
       // Simulate extraction phase (minimum 2 seconds to show the modal)
       const extractionTimer = setTimeout(() => {

@@ -59,7 +59,7 @@ export function useDebouncedPreview(
     setState(prev => ({ ...prev, loading: true, error: null }));
     
     try {
-      const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+      const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002';
       
       // If we have a resumeId, use the preview endpoint
       if (resumeId) {
@@ -285,7 +285,7 @@ export function useDownloadPDF() {
     setError(null);
     
     try {
-      const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+      const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002';
       const url = `${apiBaseUrl}/api/render/${resumeId}/download?theme=${theme}`;
       
       console.log(`[Download] Downloading PDF from: ${url}`);

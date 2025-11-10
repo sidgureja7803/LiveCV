@@ -96,6 +96,8 @@ const ResumeBuilder: React.FC = () => {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [pdfZoom, setPdfZoom] = useState<number>(100);
+  const [pdfWidth, setPdfWidth] = useState<number>(600);
+  const pdfContainerRef = useRef<HTMLDivElement>(null);
   
   // Panel size state
   const [panelSizes, setPanelSizes] = useState({ left: 50, right: 50 });
@@ -293,6 +295,23 @@ const ResumeBuilder: React.FC = () => {
     }
   }, [resumeData, currentTemplate, previewMode]);
   
+  // Calculate PDF width based on container size
+  useEffect(() => {
+    const updatePdfWidth = () => {
+      if (pdfContainerRef.current) {
+        const containerWidth = pdfContainerRef.current.offsetWidth;
+        // Set PDF width to 90% of container width, max 800px
+        const newWidth = Math.min(containerWidth * 0.9, 800);
+        setPdfWidth(newWidth);
+      }
+    };
+    
+    updatePdfWidth();
+    window.addEventListener('resize', updatePdfWidth);
+    
+    return () => window.removeEventListener('resize', updatePdfWidth);
+  }, [sidebarOpen, panelSizes]);
+  
   // Auto-save functionality with debouncing
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -452,7 +471,7 @@ const ResumeBuilder: React.FC = () => {
             await downloadPDF(resumeId, rendercvTheme, `${resumeData.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`);
           } else {
             // If no saved resume, generate PDF from current data
-            const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+            const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002';
             const url = `${apiBaseUrl}/api/render/generate`;
             
             const response = await fetch(url, {
@@ -744,7 +763,7 @@ const ResumeBuilder: React.FC = () => {
                         
                         {previewMode === 'pdf' ? (
                           // PDF Preview with responsive design
-                          <div className="bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700 min-h-[600px] max-h-[800px] h-full">
+                          <div ref={pdfContainerRef} className="bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700 min-h-[600px] h-full w-full">
                             {pdfError && (
                               <div className="p-4 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-300 dark:border-red-800 rounded-lg mb-4">
                                 <p className="font-bold">PDF Generation Error</p>
@@ -759,7 +778,7 @@ const ResumeBuilder: React.FC = () => {
                             )}
                             
                             {pdfUrl ? (
-                              <div className="flex flex-col items-center justify-center">
+                              <div className="flex flex-col items-center justify-center w-full">
                                 <Document
                                   file={pdfUrl}
                                   onLoadSuccess={({ numPages }) => {
@@ -797,7 +816,7 @@ const ResumeBuilder: React.FC = () => {
                                   >
                                     <Page 
                                       pageNumber={pageNumber} 
-                                      width={600}
+                                      width={pdfWidth}
                                       renderTextLayer={false}
                                       renderAnnotationLayer={false}
                                     />
