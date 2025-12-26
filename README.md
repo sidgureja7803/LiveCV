@@ -30,7 +30,7 @@ LiveCV is a modern resume builder application that helps job seekers create prof
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/LiveCV.git
+git clone https://github.com/sidgureja7803/LiveCV.git
 cd LiveCV
 ```
 
@@ -101,6 +101,26 @@ npm run dev
 # Start server (in server directory)
 npm run dev
 ```
+
+### Maintenance
+
+**Cleanup Script**
+
+LiveCV includes an automated cleanup script to remove unnecessary files from the repository:
+
+```bash
+# Run from project root
+./server/scripts/cleanup.sh
+```
+
+This script will:
+- Remove all `.DS_Store` files (macOS system files)
+- Remove macOS resource fork files (`._*`)
+- Remove temporary files (`*.tmp`)
+- Remove vim swap files (`*.swp`, `*.swo`, `*~`)
+- Remove log files from the root directory
+
+**Note:** Build artifacts in `node_modules/` and `dist/` are already ignored by `.gitignore` and don't need manual cleanup.
 
 ## Adding Resume Templates
 

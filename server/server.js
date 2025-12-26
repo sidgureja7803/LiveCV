@@ -16,10 +16,24 @@ require('./debug-log');
 // Load environment variables
 dotenv.config();
 
-// Log important startup information
+// Import configuration validator
+const { validateAllConfig, logValidationResults } = require('./config/validateConfig');
+
+// Validate configuration before starting server
 console.debug('Starting LiveCV server...');
 console.debug(`Node Environment: ${process.env.NODE_ENV || 'development'}`);
 console.debug(`Frontend URL: ${process.env.FRONTEND_URL || 'Not set'}`);
+
+// Run configuration validation
+const configValidation = validateAllConfig();
+logValidationResults(configValidation);
+
+// Exit if critical configuration is missing
+if (configValidation.criticalFailure) {
+  console.error('\n❌ Server startup aborted due to missing critical configuration');
+  console.error('Please check your .env file and ensure all required variables are set\n');
+  process.exit(1);
+}
 
 // Import routes
 const resumeRoutes = require('./routes/resumeRoutes');

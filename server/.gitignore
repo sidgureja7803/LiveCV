@@ -31,9 +31,14 @@ jspm_packages/
 
 # OS-specific files
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
 Thumbs.db
+Desktop.ini
 
 # IDE-specific files
 .vscode/
 .idea/
-*.sublime-works*
+*.sublime-project
+*.sublime-workspace
