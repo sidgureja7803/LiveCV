@@ -4,12 +4,21 @@ import { RESUME_TEMPLATES } from "../config/templates";
 import type { ResumeTemplate } from "../types/templates";
 import Modal from "../components/Modal";
 import Sidebar from "../components/Sidebar";
+import ResumeLimitWarningModal from "../components/ResumeLimitWarningModal";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
 import LoadingOverlay from "../components/LoadingOverlay";
+import { databases, APPWRITE_CONFIG } from "../config/appwrite";
+import { Query } from "appwrite";
 import { Moon, Sun } from "lucide-react";
 
 // Using image previews for better reliability and performance
+
+interface OldestResume {
+  id: string;
+  name: string;
+  lastUpdated: string;
+}
 
 const TemplateSelector: React.FC = () => {
   const navigate = useNavigate();
@@ -23,11 +32,53 @@ const TemplateSelector: React.FC = () => {
     useState<ResumeTemplate | null>(null);
   const [templateSelectionStep, setTemplateSelectionStep] = useState(1);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [showLimitWarning, setShowLimitWarning] = useState(false);
+  const [resumeCount, setResumeCount] = useState(0);
+  const [oldestResume, setOldestResume] = useState<OldestResume | null>(null);
+  const [pendingTemplate, setPendingTemplate] = useState<ResumeTemplate | null>(null);
+  const RESUME_LIMIT = 5;
 
   // Set page title
   useEffect(() => {
     document.title = "Select Resume Template | LiveCV";
   }, []);
+
+  // Fetch resume count on mount
+  useEffect(() => {
+    if (user) {
+      fetchResumeCount();
+    }
+  }, [user]);
+
+  const fetchResumeCount = async () => {
+    if (!user) return;
+    
+    try {
+      const response = await databases.listDocuments(
+        APPWRITE_CONFIG.databaseId,
+        APPWRITE_CONFIG.collections.resumes,
+        [
+          Query.equal('userId', user.$id),
+          Query.orderAsc('$updatedAt'), // Oldest first
+          Query.limit(100)
+        ]
+      );
+      
+      setResumeCount(response.documents.length);
+      
+      // Store oldest resume info if at limit
+      if (response.documents.length >= RESUME_LIMIT && response.documents.length > 0) {
+        const oldest = response.documents[0];
+        setOldestResume({
+          id: oldest.$id,
+          name: oldest.name || 'Untitled Resume',
+          lastUpdated: oldest.$updatedAt
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching resume count:', error);
+    }
+  };
 
   const categories = [
     { id: "all", name: "All Templates", count: RESUME_TEMPLATES.length },
@@ -65,6 +116,18 @@ const TemplateSelector: React.FC = () => {
   };
 
   const selectTemplate = async (template: ResumeTemplate) => {
+    // Check if user has reached resume limit
+    if (resumeCount >= RESUME_LIMIT) {
+      setPendingTemplate(template);
+      setShowLimitWarning(true);
+      return;
+    }
+    
+    // Proceed with template selection
+    proceedWithTemplateSelection(template);
+  };
+
+  const proceedWithTemplateSelection = async (template: ResumeTemplate) => {
     setSelectedTemplate(template);
     setTemplateSelectionStep(2);
 
@@ -92,6 +155,42 @@ const TemplateSelector: React.FC = () => {
       // Clear any old data
       localStorage.removeItem("selectedTemplateYaml");
       localStorage.removeItem("selectedTemplateTheme");
+    }
+  };
+
+  const handleLimitWarningContinue = () => {
+    setShowLimitWarning(false);
+    if (pendingTemplate) {
+      proceedWithTemplateSelection(pendingTemplate);
+      setPendingTemplate(null);
+    }
+  };
+
+  const handleLimitWarningCancel = () => {
+    setShowLimitWarning(false);
+    setPendingTemplate(null);
+  };
+
+  const handleDownloadOldestResume = async () => {
+    if (!oldestResume) return;
+    
+    try {
+      // Fetch the resume document to get PDF URL
+      const resume = await databases.getDocument(
+        APPWRITE_CONFIG.databaseId,
+        APPWRITE_CONFIG.collections.resumes,
+        oldestResume.id
+      );
+      
+      if (resume.pdfUrl) {
+        // Open PDF in new tab for download
+        window.open(resume.pdfUrl, '_blank');
+      } else {
+        alert('No PDF available for this resume');
+      }
+    } catch (error) {
+      console.error('Error downloading resume:', error);
+      alert('Failed to download resume');
     }
   };
 
@@ -549,6 +648,15 @@ const TemplateSelector: React.FC = () => {
               </div>
             )}
           </Modal>
+
+          {/* Resume Limit Warning Modal */}
+          <ResumeLimitWarningModal
+            isOpen={showLimitWarning}
+            onClose={handleLimitWarningCancel}
+            onContinue={handleLimitWarningContinue}
+            oldestResume={oldestResume}
+            onDownload={handleDownloadOldestResume}
+          />
         </main>
       </div>
     </div>

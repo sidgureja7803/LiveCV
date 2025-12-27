@@ -56,3 +56,15 @@ coverage/
 
 # Node modules
 node_modules/
+
+# Python virtual environment
+venv/
+env/
+*.pyc
+__pycache__/
+
+# RenderCV test outputs
+test-output/
+rendercv_output/
+test_*.yaml
+test_*.pdf

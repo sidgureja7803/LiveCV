@@ -54,13 +54,13 @@ This implementation plan breaks down the audit and fixes for the LiveCV resume b
   - Document script usage in README
   - _Requirements: 4.3_
 
-- [-] 3. Resume Limit Service Implementation
+- [x] 3. Resume Limit Service Implementation
   - Implement 5-resume limit per user
   - Automatically delete oldest resume when limit is reached
   - Clean up associated files from Appwrite storage
   - _Requirements: 1.5_
 
-- [-] 3.1 Create resume limit service
+- [x] 3.1 Create resume limit service
   - Create `server/services/resumeLimitService.js`
   - Define RESUME_LIMIT constant (5)
   - Implement `enforceResumeLimit(userId)` function
@@ -69,27 +69,27 @@ This implementation plan breaks down the audit and fixes for the LiveCV resume b
   - Handle errors gracefully (file may not exist in storage)
   - _Requirements: 1.5_
 
-- [ ] 3.2 Integrate resume limit with resume creation
+- [x] 3.2 Integrate resume limit with resume creation
   - Import resumeLimitService in `server/controllers/resumeController.js`
   - Call `enforceResumeLimit(userId)` before creating new resume
   - Log which resumes are deleted
   - Return resume count in response
   - _Requirements: 1.5_
 
-- [ ] 3.3 Add resume count to dashboard API
+- [x] 3.3 Add resume count to dashboard API
   - Update `getUserResumes` endpoint to include count
   - Return `{ resumes: [], count: X, limit: 5, remaining: Y }`
   - Ensure count is accurate after deletions
   - _Requirements: 1.5_
 
-- [ ] 3.4 Update frontend dashboard to show resume count
+- [x] 3.4 Update frontend dashboard to show resume count
   - Modify `client/src/pages/Dashboard.tsx`
   - Display "X/5 resumes" indicator
   - Show remaining slots available
   - Add visual indicator when approaching limit (4/5 or 5/5)
   - _Requirements: 1.5_
 
-- [ ] 3.5 Add frontend warning modal for resume limit
+- [x] 3.5 Add frontend warning modal for resume limit
   - Create warning modal component
   - Show modal when user attempts to create resume at limit
   - Display which resume will be deleted (oldest)
@@ -97,23 +97,23 @@ This implementation plan breaks down the audit and fixes for the LiveCV resume b
   - Allow user to download oldest resume before deletion
   - _Requirements: 1.5_
 
-- [ ] 4. Checkpoint - Verify Core Functionality
+- [x] 4. Checkpoint - Verify Core Functionality
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 5. RenderCV Integration Verification
+- [x] 5. RenderCV Integration Verification
   - Verify RenderCV is properly installed and configured
   - Test PDF generation for all themes
   - Validate YAML conversion
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 5.1 Verify RenderCV installation
+- [x] 5.1 Verify RenderCV installation
   - Check if RenderCV is installed (`rendercv --version`)
   - Verify Python version is 3.8+
   - Test RenderCV CLI with sample YAML
   - Document installation steps if missing
   - _Requirements: 5.1, 5.4_
 
-- [ ] 5.2 Test PDF generation for all themes
+- [x] 5.2 Test PDF generation for all themes
   - Generate PDF for classic theme
   - Generate PDF for moderncv theme
   - Generate PDF for sb2nov theme
@@ -122,28 +122,28 @@ This implementation plan breaks down the audit and fixes for the LiveCV resume b
   - Verify all PDFs are valid and render correctly
   - _Requirements: 5.2, 5.3, 5.5_
 
-- [ ] 5.3 Validate theme synchronization
+- [x] 5.3 Validate theme synchronization
   - Verify all template IDs in `client/src/config/templates.ts` match RenderCV themes
   - Check theme mapping in `server/utils/jsonToYamlMapper.js`
   - Ensure engineeringclassic maps to engineeringresumes correctly
   - Test theme selection in frontend
   - _Requirements: 2.1, 2.4, 5.2_
 
-- [ ] 5.4 Test YAML validation
+- [x] 5.4 Test YAML validation
   - Test `validateRenderCVYaml()` function with valid YAML
   - Test with invalid YAML (missing required fields)
   - Test with malformed YAML syntax
   - Verify error messages are descriptive
   - _Requirements: 5.4_
 
-- [ ] 6. API Endpoint Verification
+- [-] 6. API Endpoint Verification
   - Test all resume API endpoints
   - Test all render API endpoints
   - Verify authentication middleware
   - Verify error handling
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 6.1 Test resume CRUD endpoints
+- [-] 6.1 Test resume CRUD endpoints
   - Test GET /api/resume/:id (with and without auth)
   - Test GET /api/resume/user/all (requires auth)
   - Test POST /api/resume (requires auth)

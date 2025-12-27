@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 // Service imports
 const templateService = require('../services/templateService');
 const appwriteService = require('../services/appwriteService');
+const resumeLimitService = require('../services/resumeLimitService');
 const { APPWRITE_CONFIG } = require('../config/appwrite');
 
 /**
@@ -129,9 +130,17 @@ exports.getUserResumes = async (req, res) => {
   try {
     const resumes = await templateService.getUserResumes(req.clerkId);
     
+    // Get resume count and limit information
+    const count = resumes.length;
+    const limit = resumeLimitService.RESUME_LIMIT;
+    const remaining = Math.max(0, limit - count);
+    
     res.status(200).json({
       success: true,
-      resumes
+      resumes,
+      count,
+      limit,
+      remaining
     });
   } catch (error) {
     console.error('Error getting user resumes:', error);
@@ -157,14 +166,43 @@ exports.createResume = async (req, res) => {
       });
     }
     
+    // Enforce resume limit before creating new resume
+    let limitInfo;
+    try {
+      limitInfo = await resumeLimitService.enforceResumeLimit(req.clerkId);
+      
+      // Log deleted resumes if any
+      if (limitInfo.deletedResumes && limitInfo.deletedResumes.length > 0) {
+        console.log(`[Resume Creation] Deleted ${limitInfo.deletedResumes.length} resume(s) for user ${req.clerkId}:`);
+        limitInfo.deletedResumes.forEach(resume => {
+          console.log(`  - ${resume.title} (ID: ${resume.id}, Last updated: ${resume.updatedAt})`);
+        });
+      }
+    } catch (limitError) {
+      console.error('[Resume Creation] Error enforcing resume limit:', limitError);
+      // Continue with resume creation even if limit enforcement fails
+      limitInfo = {
+        currentCount: await resumeLimitService.getResumeCount(req.clerkId),
+        limit: resumeLimitService.RESUME_LIMIT,
+        remaining: 0,
+        deletedResumes: []
+      };
+    }
+    
     // Save the data to database
     const resume = await templateService.saveResumeData(resumeData, req.clerkId);
     
-    // Return success response
+    // Return success response with resume count information
     res.status(201).json({ 
       success: true, 
       message: 'Resume created successfully',
-      resume 
+      resume,
+      resumeLimit: {
+        count: limitInfo.currentCount + 1, // Add 1 for the newly created resume
+        limit: limitInfo.limit,
+        remaining: Math.max(0, limitInfo.remaining - 1),
+        deletedResumes: limitInfo.deletedResumes
+      }
     });
   } catch (error) {
     console.error('Error creating resume:', error);

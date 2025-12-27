@@ -19,6 +19,12 @@ interface ResumeItem {
   atsScore: number | null;
 }
 
+interface ResumeLimitInfo {
+  count: number;
+  limit: number;
+  remaining: number;
+}
+
 interface TemplateFile {
   id?: string;
   name: string;
@@ -35,6 +41,7 @@ const Dashboard: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const [resumes, setResumes] = useState<ResumeItem[]>([]);
+  const [resumeLimit, setResumeLimit] = useState<ResumeLimitInfo>({ count: 0, limit: 5, remaining: 5 });
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPDF, setSelectedPDF] = useState<{ url: string; name: string } | null>(null);
 
@@ -78,6 +85,12 @@ const Dashboard: React.FC = () => {
       }));
 
       setResumes(resumeList);
+      
+      // Update resume limit info
+      const count = resumeList.length;
+      const limit = 5;
+      const remaining = Math.max(0, limit - count);
+      setResumeLimit({ count, limit, remaining });
     } catch (error) {
       console.error('Error fetching resumes:', error);
     } finally {
@@ -249,6 +262,22 @@ const Dashboard: React.FC = () => {
         <div>
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Your Resumes</h3>
+            <div className="flex items-center gap-2">
+              <span className={`px-4 py-2 rounded-xl font-semibold text-sm shadow-md ${
+                resumeLimit.count >= resumeLimit.limit 
+                  ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800' 
+                  : resumeLimit.count >= resumeLimit.limit - 1
+                  ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800'
+                  : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800'
+              }`}>
+                {resumeLimit.count}/{resumeLimit.limit} resumes
+              </span>
+              {resumeLimit.remaining > 0 && (
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  ({resumeLimit.remaining} slot{resumeLimit.remaining !== 1 ? 's' : ''} remaining)
+                </span>
+              )}
+            </div>
           </div>
           
           {/* My Resumes Section */}
