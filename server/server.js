@@ -19,6 +19,9 @@ dotenv.config();
 // Import configuration validator
 const { validateAllConfig, logValidationResults } = require('./config/validateConfig');
 
+// Import structured logger
+const logger = require('./utils/logger');
+
 // Validate configuration before starting server
 console.debug('Starting LiveCV server...');
 console.debug(`Node Environment: ${process.env.NODE_ENV || 'development'}`);
@@ -142,6 +145,9 @@ app.use(session({
 }));
 
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
+
+// Add request logging middleware
+app.use(logger.requestLoggingMiddleware);
 
 // Track active editing sessions
 const activeSessions = new Map();

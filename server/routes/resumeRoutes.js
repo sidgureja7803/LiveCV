@@ -3,6 +3,7 @@ const router = express.Router();
 const resumeController = require('../controllers/resumeController');
 const { verifyToken, getUser } = require('../middleware/auth');
 const { resumeUpload } = require('../middleware/fileUpload');
+const { validateResumeMiddleware, validateThemeMiddleware } = require('../utils/validation');
 
 // GET /resume/:id - Get a specific resume by ID
 router.get('/:id', getUser, resumeController.getResume);
@@ -17,16 +18,16 @@ router.get('/templates/list', resumeController.listTemplates);
 router.get('/user/all', verifyToken, resumeController.getUserResumes);
 
 // POST /resume - Create a new resume
-router.post('/', verifyToken, resumeController.createResume);
+router.post('/', verifyToken, validateResumeMiddleware, resumeController.createResume);
 
 // POST /resume/render-pdf - Generate PDF from raw resume data (no save)
-router.post('/render-pdf', resumeController.renderPDFFromData);
+router.post('/render-pdf', validateResumeMiddleware, validateThemeMiddleware, resumeController.renderPDFFromData);
 
 // PUT /resume/:id - Update an existing resume
-router.put('/:id', verifyToken, resumeController.updateResume);
+router.put('/:id', verifyToken, validateResumeMiddleware, resumeController.updateResume);
 
 // PUT /resume/:id/save-with-pdf - Save resume and generate PDF
-router.put('/:id/save-with-pdf', verifyToken, resumeController.saveResumeWithPDF);
+router.put('/:id/save-with-pdf', verifyToken, validateResumeMiddleware, validateThemeMiddleware, resumeController.saveResumeWithPDF);
 
 // DELETE /resume/:id - Delete a resume
 router.delete('/:id', verifyToken, resumeController.deleteResume);

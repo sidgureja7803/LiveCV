@@ -2,6 +2,7 @@ const { mapJsonToRenderCVYaml, validateRenderCVYaml } = require('../utils/jsonTo
 const { renderResume, getCacheStats, isRenderCVInstalled } = require('../services/rendercvService');
 const Resume = require('../models/Resume');
 const mongoose = require('mongoose');
+const logger = require('../utils/logger');
 
 /**
  * Preview PDF - generates and streams PDF from resume JSON
@@ -69,10 +70,20 @@ exports.previewPDF = async (req, res) => {
     // Stream PDF
     res.send(pdfBuffer);
     
-    console.log(`[Preview] Generated PDF for resume ${id} in ${Date.now() - startTime}ms`);
+    logger.logPDFGeneration(id, theme || 'classic', Date.now() - startTime, {
+      requestId: req.requestId,
+      userId: req.clerkId || 'anonymous',
+      bypassCache: bypassCache === 'true',
+      fileSize: pdfBuffer.length
+    });
     
   } catch (error) {
-    console.error('[Preview] Error:', error);
+    logger.error('PDF preview generation failed', {
+      requestId: req.requestId,
+      resumeId: req.params.id,
+      error: error.message,
+      renderTime: Date.now() - startTime
+    });
     
     res.status(500).json({
       success: false,
@@ -128,10 +139,18 @@ exports.generatePDF = async (req, res) => {
     // Send PDF
     res.send(pdfBuffer);
     
-    console.log(`[Generate] Generated PDF in ${Date.now() - startTime}ms`);
+    logger.logPDFGeneration('raw-data', theme || 'classic', Date.now() - startTime, {
+      requestId: req.requestId,
+      userId: req.clerkId || 'anonymous',
+      fileSize: pdfBuffer.length
+    });
     
   } catch (error) {
-    console.error('[Generate] Error:', error);
+    logger.error('PDF generation from raw data failed', {
+      requestId: req.requestId,
+      error: error.message,
+      renderTime: Date.now() - startTime
+    });
     
     res.status(500).json({
       success: false,
@@ -198,10 +217,19 @@ exports.downloadPDF = async (req, res) => {
     // Send PDF
     res.send(pdfBuffer);
     
-    console.log(`[Download] Downloaded PDF ${fileName} in ${Date.now() - startTime}ms`);
+    logger.logPDFGeneration(id, theme || 'classic', Date.now() - startTime, {
+      requestId: req.requestId,
+      userId: req.clerkId || 'anonymous',
+      fileName,
+      fileSize: pdfBuffer.length
+    });
     
   } catch (error) {
-    console.error('[Download] Error:', error);
+    logger.error('PDF download failed', {
+      requestId: req.requestId,
+      resumeId: req.params.id,
+      error: error.message
+    });
     
     res.status(500).json({
       success: false,
@@ -260,7 +288,11 @@ exports.getYAML = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('[YAML] Error:', error);
+    logger.error('Failed to get YAML representation', {
+      requestId: req.requestId,
+      resumeId: req.params.id,
+      error: error.message
+    });
     
     res.status(500).json({
       success: false,
@@ -287,7 +319,9 @@ exports.getCacheStatistics = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('[Cache Stats] Error:', error);
+    logger.error('Failed to get cache statistics', {
+      error: error.message
+    });
     
     res.status(500).json({
       success: false,

@@ -1,6 +1,7 @@
 const Resume = require('../models/Resume');
 const appwriteService = require('./appwriteService');
 const { APPWRITE_CONFIG } = require('../config/appwrite');
+const logger = require('../utils/logger');
 
 // Resume limit per user
 const RESUME_LIMIT = 5;
@@ -13,9 +14,10 @@ const RESUME_LIMIT = 5;
 async function getResumeCount(userId) {
   try {
     const count = await Resume.countDocuments({ clerkId: userId });
+    logger.debug('Resume count retrieved', { userId, count });
     return count;
   } catch (error) {
-    console.error('[Resume Limit] Error getting resume count:', error);
+    logger.error('Error getting resume count', { userId, error: error.message });
     throw error;
   }
 }
@@ -31,7 +33,7 @@ async function deleteResumeWithFiles(resumeId) {
     const resume = await Resume.findById(resumeId);
     
     if (!resume) {
-      console.warn(`[Resume Limit] Resume ${resumeId} not found, skipping deletion`);
+      logger.warn('Resume not found for deletion', { resumeId });
       return;
     }
     
@@ -39,19 +41,32 @@ async function deleteResumeWithFiles(resumeId) {
     if (resume.resumeFile && resume.resumeFile.fileId) {
       try {
         await appwriteService.deleteFile(APPWRITE_CONFIG.buckets.pdfs, resume.resumeFile.fileId);
-        console.log(`[Resume Limit] Deleted PDF file ${resume.resumeFile.fileId} for resume ${resumeId}`);
+        logger.info('Deleted PDF file from storage', { 
+          resumeId, 
+          fileId: resume.resumeFile.fileId 
+        });
       } catch (fileError) {
         // File may not exist in storage, log and continue
-        console.warn(`[Resume Limit] Could not delete PDF file ${resume.resumeFile.fileId}:`, fileError.message);
+        logger.warn('Could not delete PDF file from storage', { 
+          resumeId, 
+          fileId: resume.resumeFile.fileId,
+          error: fileError.message 
+        });
       }
     }
     
     // Delete the resume document from database
     await Resume.findByIdAndDelete(resumeId);
-    console.log(`[Resume Limit] Deleted resume ${resumeId} (${resume.title})`);
+    logger.info('Deleted resume from database', { 
+      resumeId, 
+      title: resume.title 
+    });
     
   } catch (error) {
-    console.error(`[Resume Limit] Error deleting resume ${resumeId}:`, error);
+    logger.error('Error deleting resume with files', { 
+      resumeId, 
+      error: error.message 
+    });
     throw error;
   }
 }
@@ -78,7 +93,11 @@ async function enforceResumeLimit(userId) {
       const deleteCount = currentCount - RESUME_LIMIT + 1;
       const resumesToDelete = resumes.slice(0, deleteCount);
       
-      console.log(`[Resume Limit] User ${userId} has ${currentCount} resumes. Deleting ${deleteCount} oldest resume(s)...`);
+      logger.logResumeLimitEnforcement(userId, 'deleting_oldest_resumes', {
+        currentCount,
+        deleteCount,
+        limit: RESUME_LIMIT
+      });
       
       // Delete each resume
       for (const resume of resumesToDelete) {
@@ -90,12 +109,19 @@ async function enforceResumeLimit(userId) {
             updatedAt: resume.updatedAt
           });
         } catch (deleteError) {
-          console.error(`[Resume Limit] Failed to delete resume ${resume._id}:`, deleteError);
+          logger.error('Failed to delete resume during limit enforcement', {
+            userId,
+            resumeId: resume._id.toString(),
+            error: deleteError.message
+          });
           // Continue with other deletions even if one fails
         }
       }
       
-      console.log(`[Resume Limit] Successfully deleted ${deletedResumes.length} resume(s) for user ${userId}`);
+      logger.logResumeLimitEnforcement(userId, 'deletion_complete', {
+        deletedCount: deletedResumes.length,
+        deletedResumes: deletedResumes.map(r => ({ id: r.id, title: r.title }))
+      });
     }
     
     // Calculate new counts after deletion
@@ -110,7 +136,10 @@ async function enforceResumeLimit(userId) {
     };
     
   } catch (error) {
-    console.error('[Resume Limit] Error enforcing resume limit:', error);
+    logger.error('Error enforcing resume limit', { 
+      userId, 
+      error: error.message 
+    });
     throw error;
   }
 }
