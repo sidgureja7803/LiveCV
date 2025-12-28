@@ -1,0 +1,38 @@
+cv:
+  name: John Doe
+  location: San Francisco, CA
+  email: john.doe@example.com
+  phone: "+1 234 567 8900"
+  website: https://johndoe.com
+  social_networks:
+    - network: LinkedIn
+      username: johndoe
+    - network: GitHub
+      username: johndoe
+  sections:
+    Summary:
+      - "Experienced software engineer with 5+ years in full-stack development."
+    Education:
+      - institution: University of California, Berkeley
+        area: Computer Science
+        degree: BS
+        start_date: 2015-09
+        end_date: 2019-05
+        highlights:
+          - "GPA: 3.8/4.0"
+    Experience:
+      - company: Tech Company
+        position: Software Engineer
+        location: San Francisco, CA
+        start_date: 2019-06
+        end_date: present
+        highlights:
+          - Developed scalable web applications
+          - Led team of 5 engineers
+    Skills:
+      - label: Programming
+        details: Python, JavaScript, TypeScript, React, Node.js
+      - label: Tools
+        details: Git, Docker, AWS, PostgreSQL
+design:
+  theme: classic

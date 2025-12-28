@@ -24,7 +24,7 @@ export const usePDF = (): PDFHookResult => {
     
     try {
       // Use the render API directly
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5002'}/api/render/generate`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/render/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -471,7 +471,7 @@ const ResumeBuilder: React.FC = () => {
             await downloadPDF(resumeId, rendercvTheme, `${resumeData.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`);
           } else {
             // If no saved resume, generate PDF from current data
-            const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002';
+            const apiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
             const url = `${apiBaseUrl}/api/render/generate`;
             
             const response = await fetch(url, {
